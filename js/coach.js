@@ -73,6 +73,7 @@ Du bist der Coach der „Verkaufsakademie“, einem strengen persönlichen Bootc
 6. Kurz. Lieber drei scharfe Sätze und eine Frage als zehn Absätze. Nummerierte Listen nur, wenn es wirklich eine Liste ist.
 7. Fachliche Basis: SPIN (Rackham), Challenger Sale, Voss (Spiegeln, Labeln, kalibrierte Fragen, Accusation Audit), Cialdini, Kahneman, Harvard-Konzept, Belforts Straight Line (nur die ethischen Teile: Drei Zehnen, Tonalität, Looping), Fiske (Wärme vor Kompetenz), Bandura (Selbstwirksamkeit), Seligman (ABCDE), Grant (Ambiverts), Gong-Daten (43:57, 11-14 Fragen, Preis spät).
 8. Milliardärs-Zitate sind Evidenz [C] (Erfahrungswissen von Gewinnern, Survivorship Bias). Zitiere sie nur neben einer Studie, nie als alleinigen Beleg. Szenen aus Spielfilmen (The Founder, Air, The Wolf of Wall Street, The Social Network) und unautorisierten Biografien sind dramatisiert: sag das dazu.
+10. Feedback-Disziplin: Zitiere die Stelle aus dem Text des Schülers, auf die du dich beziehst („Du schreibst: ‚…‘“). Trenne Fehler von vertretbaren Ermessensentscheidungen und sag, welches von beiden du meinst. Nenne die Ursache des Fehlers, nicht nur die Korrektur. Eine Hauptkorrektur schlägt fünf Nebensächlichkeiten. Bewerte die Arbeit, nie die Person. Dein Urteil ist eine Hypothese, die der Schüler an der Wirklichkeit prüft.
 9. Bekannte Mythen, die du korrigierst, wenn sie auftauchen: 7-38-55 (Mehrabian, falsch verallgemeinert), Power Posing (nicht repliziert), Lügen an Körpersprache erkennen (54 % Trefferquote), NLP-Augenbewegungen, „Extrovertierte verkaufen besser“ (Ambiverts tun es), DISG als wissenschaftliches Instrument (ist es nicht).`;
   function sysCoach() { return `${RULES}\n\n# Modus: Coaching\nDu trainierst, prüfst und forderst. Frag am Anfang, was er heute geübt hat, falls der Kontext keine Aktivität zeigt. Beziehe dich auf sein aktuelles Modul und seine letzten Berichte.\n\n${userContext()}`; }
   function sysRollenspiel(s) {
@@ -99,6 +100,19 @@ Ziel des Schülers: ${s.ziel}
 Pflichtkriterien des Schülers: ${s.pflicht.map((p, i) => (i + 1) + '. ' + p).join(' ')}
 
 Eröffne das Gespräch sofort in der Rolle mit dem ersten Satz der Situation.\n\n${userContext()}`;
+  }
+  function sysEinwand(e) {
+    return `${RULES}\n\n# Modus: Einwand-Drill
+Du spielst einen Kunden, der genau diesen Einwand bringt: „${e.einwand}“ (Kontext: ${e.kontext}). Was bei dir dahintersteckt: ${e.warum} Bleib in der Rolle, 1-3 Sätze pro Antwort, in gesprochener Sprache. Gib nicht nach, nur weil der Schüler argumentiert; gib nach, wenn er zuhört, anerkennt, isoliert oder fragt und dich dadurch zum Nachdenken bringt. Wenn er drängt, droht oder Rabatt ohne Gegenleistung anbietet, zieh dich zurück und sag warum (in der Rolle). Nach höchstens sechs Wechseln oder wenn der Schüler „ENDE“ schreibt, verlässt du die Rolle und bewertest in genau diesem Format:
+BEWERTUNG EINWAND
+Zugehört und anerkannt: X/10 – Begründung mit Zitat aus seiner Antwort
+Erkundet statt verteidigt: X/10 – Begründung mit Zitat
+Antwort mit Beleg oder Zahl: X/10 – Begründung mit Zitat
+Nächster Schritt vereinbart: X/10 – Begründung
+Falle vermieden (${e.falle.split('.')[0]}): ja | nein – Begründung
+Gesamt: X/40
+Danach ein Satz, was er beim nächsten Mal zuerst anders macht, und eine Aufgabe mit Datum. Bestanden ab 28/40 und Falle vermieden.
+Eröffne sofort in der Rolle mit dem Einwand selbst, eingebettet in einen natürlichen Satz.\n\n${userContext()}`;
   }
   const FRAMEWORKS = [
     { id: 'A', name: 'Ideen-Check', text: 'Zehn harte Fragen zu einer Geschäftsidee. Ergebnis: Weitermachen, Umbauen oder Beerdigen, mit Begründung.', schritte: [
@@ -199,8 +213,8 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
 
   // ---------- Berichtsprüfung ----------
   async function gradeReport({ kurs, lektion }, text) {
-    const sys = `${RULES}\n\n# Modus: Berichtsprüfung\nDu prüfst einen Übungsbericht. Antworte NUR mit JSON: {"bestanden": true|false, "note": 1-10, "feedback": "…"}.\nKriterien: (1) Konkrete Handlung in der Vergangenheit, kein Hypothetisches. (2) Was tatsächlich passiert ist (Reaktion, Ergebnis). (3) Ein ehrlicher Lernpunkt, der sich auf die Lektion bezieht. (4) Plausibilität: Wenn der Bericht generisch, kopiert oder erfunden wirkt, fällt er durch. Bestanden ab Note 7. Das Feedback: 3-6 Sätze, direkt, mit einer Nachfrage im Stil „Woher weißt du das?“ und einer konkreten Verbesserung. Deutsch, duzen.`;
-    const user = `Modul ${kurs.nr}: ${kurs.titel}\nLektion: ${lektion.titel}\nAufgabe: ${lektion.uebung}\n\nBericht des Schülers:\n"""\n${text}\n"""`;
+    const sys = `${RULES}\n\n# Modus: Berichtsprüfung\nDu prüfst einen Übungsbericht. Antworte NUR mit JSON: {"bestanden": true|false, "note": 1-10, "feedback": "…"}.\nKriterien: (1) Konkrete Handlung in der Vergangenheit, kein Hypothetisches. (2) Was tatsächlich passiert ist (Reaktion, Ergebnis). (3) Ein ehrlicher Lernpunkt, der sich auf die Lektion bezieht. (4) Plausibilität: Wenn der Bericht generisch, kopiert oder erfunden wirkt, fällt er durch. Bestanden ab Note 7.\nNotenstufen: 9-10 = alle vier Kriterien, Lernpunkt nennt einen Kernpunkt der Lektion und was beim nächsten Mal konkret anders läuft. 7-8 = Handlung und Ergebnis konkret, Lernpunkt vorhanden, aber allgemein. 4-6 = eine Komponente fehlt oder der Bericht bleibt vage. 1-3 = hypothetisch, generisch oder erfunden.\nIm Feedback zitierst du mindestens eine Stelle aus dem Bericht wörtlich, trennst Fehler von vertretbaren Entscheidungen und nennst genau eine Hauptkorrektur. Das Feedback: 3-6 Sätze, direkt, mit einer Nachfrage im Stil „Woher weißt du das?“ und einer konkreten Verbesserung. Deutsch, duzen.`;
+    const user = `Modul ${kurs.nr}: ${kurs.titel}\nLektion: ${lektion.titel}\nAufgabe: ${lektion.uebung}\nKernpunkte der Lektion:\n${(lektion.kernpunkte || []).map(k => '- ' + k).join('\n')}\n\nBericht des Schülers:\n"""\n${text}\n"""`;
     const out = await call({ system: sys, messages: [{ role: 'user', content: user }], max_tokens: 800 });
     const m = out.match(/\{[\s\S]*\}/); if (!m) throw new Error('Unerwartete Antwort des Coaches.');
     const j = JSON.parse(m[0]); VA.touch();
@@ -215,15 +229,16 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   }
 
   // ---------- Chat-Seite ----------
-  let mode = 'coach', scenario = null, framework = null, busy = false, abort = null;
-  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
+  let mode = 'coach', scenario = null, framework = null, einwand = null, busy = false, abort = null;
+  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
   function history() { const S = VA.S; return S.chats[chatKey()] = S.chats[chatKey()] || []; }
   function page(parts) {
     const S = VA.S; const qs = new URLSearchParams((location.hash.split('?')[1] || ''));
     if (qs.get('rp') && window.SZENARIEN.find(s => s.id === qs.get('rp'))) { mode = 'rollenspiel'; scenario = window.SZENARIEN.find(s => s.id === qs.get('rp')); }
     else if (qs.has('biz')) { mode = 'business'; framework = FRAMEWORKS.find(f => f.id === qs.get('biz')) || null; }
+    else if (qs.get('einwand') && (window.EINWAENDE || []).find(x => x.id === qs.get('einwand'))) { mode = 'einwand'; einwand = window.EINWAENDE.find(x => x.id === qs.get('einwand')); }
     else { mode = 'coach'; }
-    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
+    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'einwand' ? `Einwand: „${einwand.einwand}“` : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
     if (!S.apiKey && mode === 'business' && framework) return `<div class="breadcrumb"><a href="#/business">Business-Planer</a> › ${esc(framework.name)}</div><section class="hero small"><div class="eyebrow">Leitfaden ${framework.id} · ohne Coach</div><h1>${esc(framework.name)}</h1><p class="lead">${esc(framework.text)}</p>
       <p class="muted">Arbeite die Schritte schriftlich durch und speichere deine Antworten unten im Business-Planer. Mit API-Schlüssel führt dich der Coach Schritt für Schritt und widerspricht, wo du vage bleibst.</p></section>
       <div class="card"><ol class="steps">${framework.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
@@ -237,10 +252,10 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     return `<div class="chat-page">
       <div class="chat-head"><div><div class="eyebrow">${mode === 'rollenspiel' ? 'Rollenspiel · Schreib „ENDE“ für die Bewertung' : mode === 'business' ? 'Business-Planer' : 'Coaching'}</div><h1>${esc(title)}</h1></div>
         <div class="btn-row"><button class="btn small ghost" data-act="chat-mode" data-mode="coach" ${mode === 'coach' ? 'disabled' : ''}>Coach</button><a class="btn small ghost" href="#/rollenspiel">Rollenspiele</a><a class="btn small ghost" href="#/business">Business</a><button class="btn small ghost" data-act="chat-clear">Neu beginnen</button></div></div>
-      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : ''}
+      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : mode === 'einwand' ? `<div class="callout practice"><div class="label">Lage</div>${esc(einwand.kontext)}. Der Kunde bringt den Einwand, du antwortest nach LAER. Schreib „ENDE“ für die Bewertung. <a href="#/einwaende/${einwand.id}">Zurück zum Drill</a></div>` : ''}
       <div class="chat" id="chat">${h.length ? h.map(m => bubble(m.role, m.content)).join('') : `<div class="chat-empty">${mode === 'rollenspiel' ? 'Klick „Gespräch eröffnen“. Der Kunde beginnt.' : mode === 'business' ? 'Beschreibe deine Idee in zwei Sätzen. Der Coach übernimmt die Führung.' : 'Sag dem Coach, was du heute geübt hast, oder stell eine Frage. Er wird nachfragen.'}</div>`}</div>
       <form class="chat-form" id="chat-form">
-        ${mode === 'rollenspiel' && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : ''}
+        ${(mode === 'rollenspiel' || mode === 'einwand') && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : ''}
         <textarea id="chat-input" rows="2" placeholder="${mode === 'rollenspiel' ? 'Deine Antwort an den Kunden…' : 'Nachricht an den Coach…'}  (Enter senden, Shift+Enter neue Zeile)"></textarea>
         <button class="btn primary" id="chat-send" ${busy ? 'disabled' : ''}>${busy ? '…' : 'Senden'}</button>
         ${busy ? '<button class="btn ghost" type="button" data-act="chat-stop">Stopp</button>' : ''}
@@ -256,7 +271,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     const id = 'm' + VA.uid(); chat.insertAdjacentHTML('beforeend', bubble('assistant', '…', id)); chat.scrollTop = chat.scrollHeight;
     busy = true; const sendBtn = document.getElementById('chat-send'); if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = '…'; }
     abort = new AbortController();
-    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'business' ? sysBusiness(framework) : sysCoach();
+    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'einwand' ? sysEinwand(einwand) : mode === 'business' ? sysBusiness(framework) : sysCoach();
     const msgs = h.slice(-40).map(m => ({ role: m.role, content: m.content }));
     if (hidden) msgs.push({ role: 'user', content: text });
     let out = '';
@@ -264,6 +279,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
       out = await call({ system: sys, messages: msgs }, { signal: abort.signal, onText: (t) => { const el = document.getElementById(id); if (el) { el.querySelector('.body').innerHTML = md(t); chat.scrollTop = chat.scrollHeight; } } });
       h.push({ role: 'assistant', content: out }); VA.touch(); VA.save();
       if (mode === 'rollenspiel' && /BEWERTUNG/.test(out)) saveRating(out);
+      if (mode === 'einwand' && /BEWERTUNG EINWAND/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*40/); const falle = /Falle vermieden[^\n]*:\s*ja/i.test(out); const pts = m ? Number(m[1]) : 0; (VA.S.drills['ew_' + einwand.id] = VA.S.drills['ew_' + einwand.id] || []).push({ ts: Date.now(), wert: pts >= 28 && falle ? 2 : pts >= 20 ? 1 : 0, coach: pts, antwort: '(Coach-Gespräch)' }); VA.touch(); VA.save(); }
     } catch (e) {
       const el = document.getElementById(id); if (e.name === 'AbortError') { if (el) el.remove(); } else { if (el) el.querySelector('.body').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
     }

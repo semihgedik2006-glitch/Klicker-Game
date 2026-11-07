@@ -324,6 +324,12 @@ html[data-textsize="sehr-gross"] { font-size: 20px; }
 .callout.selbst { margin-top: 20px; }
 .callout.selbst ul { margin-top: 8px; }
 .callout.selbst li { margin-bottom: .4em; }
+.quiz .show-opts { margin: 6px 0 4px; }
+.quiz .opts { margin-top: 6px; }
+.explain .wf { display: block; margin-bottom: 6px; }
+.callout.mitnehmen { margin-bottom: 18px; }
+.callout.mitnehmen a { margin-left: 6px; }
+.exam-q h3 { margin-top: 22px; }
 .glossar { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 8px; }
 .glossar .glos h3 { font-size: 1.25rem; margin-bottom: .3em; }
 .glossar .glos .syn { font-family: var(--sans); font-size: .78rem; font-weight: 400; margin-left: 6px; }
