@@ -21,7 +21,7 @@
     quiz: {}, lessonsDone: {}, exams: {}, reports: {},
     erfolg: [], beweis: [], nein: [], ablehnung: {}, leiter: null,
     checks: {}, drills: {}, ka: [], chats: {}, activity: {}, streakBest: 0,
-    business: [], started: Date.now()
+    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal'
   };
   let S;
   function load() {
@@ -56,12 +56,36 @@
   }
   const RAENGE = [[0, 'Rekrut'], [1, 'Anwärter'], [2, 'Verkäufer'], [4, 'Berater'], [6, 'Verhandler'], [8, 'Closer'], [10, 'Meister']];
   function rang() { const n = KURSE.filter(k => examPassed(k.id)).length; let r = RAENGE[0][1]; for (const [m, t] of RAENGE) if (n >= m) r = t; return r; }
+  // Serie mit einem Ruhetag pro sieben Tage: ein ausgelassener Tag bricht die Serie nicht, zwei innerhalb einer Woche schon.
   function streak() {
-    let n = 0; const d = new Date();
-    if (!S.activity[today()]) d.setDate(d.getDate() - 1);
-    while (S.activity[d.toISOString().slice(0, 10)]) { n++; d.setDate(d.getDate() - 1); }
-    if (n > S.streakBest) { S.streakBest = n; }
+    let n = 0, lastRest = -99, i = 0; const d = new Date();
+    if (!S.activity[today()]) { d.setDate(d.getDate() - 1); i = 1; }
+    while (true) {
+      const key = d.toISOString().slice(0, 10);
+      if (S.activity[key]) n++;
+      else if (i - lastRest > 6 && n > 0) lastRest = i;
+      else break;
+      d.setDate(d.getDate() - 1); i++; if (i > 3650) break;
+    }
+    if (n > S.streakBest) S.streakBest = n;
     return n;
+  }
+  function wocheAktiv() { let c = 0; const d = new Date(); for (let i = 0; i < 7; i++) { if (S.activity[d.toISOString().slice(0, 10)]) c++; d.setDate(d.getDate() - 1); } return c; }
+
+  // ---------- Wiederholung mit Abständen (Leitner, 6 Stufen) ----------
+  const SRS_INTERVALLE = [1, 3, 7, 14, 30, 60];
+  const SRS_MAX_TAG = 20;
+  function srsKarten() { const out = []; for (const k of KURSE) for (const l of k.lektionen) if (lessonDone(l.id)) l.quiz.forEach((q, i) => out.push({ id: l.id + ':' + i, q, lektion: l, kurs: k })); return out; }
+  function srsFaellig() {
+    const t = today(); const heute = Object.values(S.srs).filter(x => x.last === t).length;
+    const due = srsKarten().filter(c => { const st = S.srs[c.id]; return !st || st.due <= t; });
+    return { due: shuffle(due), heute, rest: Math.max(0, SRS_MAX_TAG - heute) };
+  }
+  function srsAntwort(id, ok) {
+    const st = S.srs[id] || { box: 0, n: 0, richtig: 0 };
+    st.n++; if (ok) { st.richtig++; st.box = Math.min(st.box + 1, SRS_INTERVALLE.length - 1); } else st.box = 0;
+    const d = new Date(); d.setDate(d.getDate() + (ok ? SRS_INTERVALLE[st.box] : 1)); st.due = d.toISOString().slice(0, 10); st.last = today();
+    S.srs[id] = st; touch(); save();
   }
 
   // ---------- UI-Bausteine ----------
@@ -119,6 +143,7 @@
       ${item('#/', 'Übersicht')}
       ${item('#/coach', 'KI-Coach', S.apiKey ? '' : ' <span class="nav-dot" title="API-Schlüssel fehlt"></span>')}
       <div class="nav-section">Curriculum</div>
+      ${(() => { const f = srsFaellig(); const n = Math.min(f.due.length, f.rest); return item('#/wiederholen', 'Wiederholen', n ? ` <span class="nav-badge">${n}</span>` : ''); })()}
       ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ' <span class="nav-lock">🔒</span>')).join('')}
       <div class="nav-section">Training</div>
       ${item('#/rollenspiel', 'Rollenspiele')}
@@ -163,7 +188,9 @@
       </div>
       <div class="card today"><div class="eyebrow">Heute · ${new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
         <div class="today-row">${heute().map(t => `<a class="today-item ${t.done ? 'done' : ''}" href="${t.route}"><span class="ms-icon">${t.done ? '✓' : '○'}</span><span><strong>${esc(t.name)}</strong><br><span class="muted">${esc(t.text)}</span></span></a>`).join('')}</div>
-        <p class="muted small">Drei Dinge pro Tag. Die Serie zählt nur Tage, an denen du etwas davon getan hast.</p></div>
+        <p class="muted small">Die Serie zählt Tage mit mindestens einer dieser Handlungen. Ein Ruhetag pro Woche bricht sie nicht. Diese Woche: ${wocheAktiv()} von 7 Tagen aktiv.</p>
+        ${S.plan ? `<div class="plan">Dein Wenn-Dann-Plan: <strong>${esc(S.plan)}</strong></div>` : `<div class="plan muted">Noch kein Wenn-Dann-Plan. Menschen mit einem konkreten Auslöser („Wenn ich morgens den Kaffee aufsetze, dann…“) setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006). <a href="#/einstellungen">Plan festlegen</a></div>`}</div>
+      ${backupHinweis()}
       <div class="two-col">
         <div class="card">
           <div class="eyebrow">Drill des Tages · ${drill.dauer} Min.</div>
@@ -190,22 +217,31 @@
       <div class="card rules">
         <ol class="steps">
           <li><strong>Reihenfolge.</strong> Module und Lektionen werden in der vorgegebenen Reihenfolge freigeschaltet. Kein Überspringen.</li>
-          <li><strong>Lektion abschließen</strong> heißt: Quiz mit mindestens ${PASS} %, dann Übungsbericht (mindestens ${REPORT_MIN} Zeichen), der vom Coach oder dem Selbst-Check bestanden wird.</li>
+          <li><strong>Lektion abschließen</strong> heißt: Vorab-Frage raten, lesen, aus dem Kopf zusammenfassen, Quiz mit mindestens ${PASS} %, dann Übungsbericht (mindestens ${REPORT_MIN} Zeichen), der vom Coach oder dem Selbst-Check bestanden wird. Diese Reihenfolge folgt der Lernforschung: Vorab-Raten, Abrufen und Testen festigen stärker als Lesen allein.</li>
+          <li><strong>Wiederholen.</strong> Fragen abgeschlossener Lektionen kommen in wachsenden Abständen wieder. Höchstens ${SRS_MAX_TAG} pro Tag, kein Rückstau.</li>
           <li><strong>Modulprüfung</strong> mit mindestens ${PASS} %. Nicht bestanden heißt 20 Minuten Sperre und zurück in die Lektionen.</li>
           <li><strong>Echte Welt.</strong> Was du hier liest, zählt erst, wenn du es draußen getan hast. Deshalb Drills, Neins und Berichte.</li>
           <li><strong>Ehrlichkeit.</strong> Niemand kontrolliert dich außer dir. Wer sich selbst belügt, verkauft später auch schlechter.</li>
+          <li><strong>Keine Tricks.</strong> Keine Herzen, keine Werbung, keine Bezahlschranke, keine Schuld-Benachrichtigungen. Die Serie erlaubt einen Ruhetag pro Woche. Streng ist der Stoff, nicht die App.</li>
         </ol>
       </div>`;
   });
 
+  function backupHinweis() {
+    const aktiv = Object.keys(S.activity).length; const seit = Date.now() - Math.max(S.lastExport || 0, S.started || 0);
+    if (aktiv < 3 || seit < 14 * 864e5) return '';
+    return `<div class="callout warn"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. Seit ${Math.floor(seit / 864e5)} Tagen keine Sicherung. <a href="#/einstellungen">Jetzt exportieren</a> (eine Datei, 10 Sekunden).</div>`;
+  }
   function heute() {
     const t0 = new Date(); t0.setHours(0, 0, 0, 0); const t0ms = t0.getTime();
     const ns = nextStep();
     const lernen = Object.values(S.quiz).some(q => q.ts >= t0ms) || Object.values(S.lessonsDone).some(ts => ts >= t0ms) || Object.values(S.exams).some(e => e.attempts.some(a => a.ts >= t0ms));
     const drill = Object.entries(S.drills).some(([k, v]) => (k.startsWith('tag_') || k.startsWith('kd_') || k.startsWith('rp_')) && v.some(x => x.ts >= t0ms));
     const nein = S.nein.some(n => n.ts >= t0ms) || Object.values(S.ablehnung).some(a => a.ts >= t0ms);
+    const f = srsFaellig(); const wdh = Math.min(f.due.length, f.rest);
     return [
       { name: 'Lernen', text: ns.text, done: lernen, route: ns.route },
+      { name: 'Wiederholen', text: wdh ? `${wdh} Karten fällig (Abstandswiederholung)` : f.heute ? `${f.heute} heute wiederholt` : 'Noch nichts fällig', done: wdh === 0 && (f.heute > 0 || srsKarten().length === 0), route: '#/wiederholen' },
       { name: 'Üben', text: 'Ein Drill, ein Rollenspiel oder ein Körper-Drill', done: drill, route: '#/training' },
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
@@ -222,6 +258,7 @@
       { name: 'Rollenspiel', text: 'Ein Rollenspiel bestanden', done: rpPassed },
       { name: 'Beweisbuch', text: 'Fünf Belege im Beweisbuch', done: S.beweis.length >= 5 },
       { name: 'Mythenjäger', text: 'Mythen-Check mit 9 oder mehr von 10', done: (S.drills.mythen || []).some(m => m.score >= 9) },
+      { name: '100 Wiederholungen', text: 'Hundert Karten in der Abstandswiederholung beantwortet', done: Object.values(S.srs).reduce((a, x) => a + x.n, 0) >= 100 },
       { name: 'Halbzeit', text: 'Fünf Module bestanden', done: exams >= 5 },
       { name: '30 Tage', text: 'Ablehnungstraining abgeschlossen', done: Object.keys(S.ablehnung).length >= 30 },
       { name: '30 Tage Serie', text: 'Dreißig Tage in Folge trainiert', done: S.streakBest >= 30 },
@@ -255,7 +292,7 @@
           return `<div class="card ${ul ? 'clickable' : 'locked'}" ${ul ? `data-route="#/lektion/${k.id}/${l.id}"` : ''}>
             <div class="num">${k.nr}.${i + 1}</div>
             <div class="meta"><span>${l.dauer}</span>${done ? '<span class="tag green">abgeschlossen</span>' : quizPassed(l.id) ? '<span class="tag gold">Bericht offen</span>' : ul ? '' : lock('Vorherige Lektion abschließen')}</div>
-            <h3>${esc(l.titel)}</h3></div>`;
+            <h3>${esc(l.titel)}</h3>${l.lernziele ? `<p class="muted small-note">${esc(l.lernziele[0])}</p>` : ''}</div>`;
         }).join('')}
         <div class="card ${allLessonsDone(k) ? 'clickable exam' : 'locked'}" ${allLessonsDone(k) ? `data-route="#/pruefung/${k.id}"` : ''}>
           <div class="num">★</div>
@@ -270,18 +307,30 @@
     if (!lessonUnlocked(k, i)) return `<div class="callout warn"><div class="label">Gesperrt</div>Diese Lektion ist noch nicht freigeschaltet. <a href="#/kurs/${k.id}">Zurück zum Modul</a></div>`;
     const qp = quizPassed(lid); const reps = S.reports[lid] || [];
     const next = k.lektionen[i + 1];
+    const vf = S.vorfragen[lid]; const ab = S.abruf[lid]; const done = lessonDone(lid);
+    const brauchtVorfrage = !!l.vorfrage && !vf && !done;
+    const brauchtAbruf = !!l.kernpunkte && !ab && !done;
     return `
+      <div class="read-progress"><div id="read-bar"></div></div>
       <div class="breadcrumb"><a href="#/">Übersicht</a> › <a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Lektion ${k.nr}.${i + 1}</div>
       <article class="lesson">
-        <div class="eyebrow">Lektion ${k.nr}.${i + 1} · ${l.dauer}</div>
+        <div class="eyebrow">Lektion ${k.nr}.${i + 1} · ${l.dauer} Lesen · plus Quiz und Aufgabe</div>
         <h1>${esc(l.titel)}</h1>
-        ${l.inhalt}
-        <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>
+        ${l.lernziele ? `<div class="callout ziele"><div class="label">Nach dieser Lektion kannst du</div><ul>${l.lernziele.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}
+        ${l.vorfrage ? `<section class="card vorfrage ${vf ? 'done' : ''}"><div class="eyebrow">Bevor du liest</div><p class="q">${esc(l.vorfrage)}</p>
+          ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" placeholder="Rate aus dem Bauch. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009)."></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
+        ${brauchtVorfrage ? `<div class="muted locked-note">${lock('')} Der Text erscheint, sobald du deine Vorab-Antwort festgehalten hast.</div>` : `${l.inhalt}
+        <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
       </article>
-      <section class="card" id="quiz-box">
+      ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
+        ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${vf ? `<p class="muted small-note">Vorab hattest du geantwortet: „${esc(vf.text)}“. Was stimmte, was nicht?</p>` : ''}`
+        : `<p class="muted">Schließ die Augen und schreib aus dem Kopf auf, was du behalten hast: drei bis fünf Sätze, ohne nach oben zu scrollen. Das Abrufen selbst festigt stärker als nochmal lesen (Karpicke & Blunt 2011; Dunlosky et al. 2013). Danach siehst du die Kernpunkte zum Vergleich.</p>
+          <form class="abruf-form" data-lid="${lid}"><textarea class="journal" rows="5" placeholder="Was war der Kern? Welche Zahl, welcher Name, welche Regel?"></textarea><div class="count muted"><span class="n">0</span> / 120 Zeichen</div><div class="btn-row"><button class="btn primary small" type="submit">Mit Kernpunkten vergleichen</button></div></form>`}
+      </section>` : ''}
+      <section class="card ${brauchtAbruf || brauchtVorfrage ? 'locked' : ''}" id="quiz-box">
         <h2>Wissensprüfung</h2>
-        <p class="muted">${l.quiz.length} Fragen. Mindestens ${PASS} %. ${qp ? `<span class="tag green">bestanden (${S.quiz[lid].score}/${S.quiz[lid].total})</span>` : S.quiz[lid] ? `<span class="tag">letzter Versuch ${S.quiz[lid].score}/${S.quiz[lid].total}</span>` : ''}</p>
-        ${renderQuiz(l.quiz, lid)}
+        ${brauchtAbruf || brauchtVorfrage ? `<p class="muted">${lock('')} Erst ${brauchtVorfrage ? 'die Vorab-Frage beantworten' : 'den Abruf schreiben'}.</p>` : `<p class="muted">${l.quiz.length} Fragen. Mindestens ${PASS} %. ${qp ? `<span class="tag green">bestanden (${S.quiz[lid].score}/${S.quiz[lid].total})</span>` : S.quiz[lid] ? `<span class="tag">letzter Versuch ${S.quiz[lid].score}/${S.quiz[lid].total}</span>` : ''}</p>
+        ${renderQuiz(l.quiz, lid)}`}
       </section>
       <section class="card ${qp ? '' : 'locked'}" id="report-box">
         <h2>Praxisaufgabe</h2>
@@ -566,6 +615,29 @@
     S.ka.push({ id: uid(), name: fd.get('name'), ts: Date.now(), html }); touch(); save(); toast('Profil erstellt.', 'good'); navigate();
   }
 
+  // ---------- Wiederholen ----------
+  let srsState = null;
+  route('wiederholen', () => {
+    const karten = srsKarten(); const f = srsFaellig();
+    const stats = Object.values(S.srs); const gesamt = stats.reduce((a, x) => a + x.n, 0); const sicher = karten.filter(c => (S.srs[c.id] || {}).box >= 3).length;
+    if (!karten.length) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1><p class="lead">Hier landen alle Quizfragen abgeschlossener Lektionen als Karten. Sie kommen in wachsenden Abständen wieder (1, 3, 7, 14, 30, 60 Tage), gemischt über alle Module. Das ist die am besten belegte Lerntechnik überhaupt (Cepeda et al. 2006; Dunlosky et al. 2013). Schließ die erste Lektion ab, dann geht es los.</p></section>`;
+    if (srsState && srsState.karte) {
+      const c = srsState.karte; const q = c.q;
+      if (!srsState.order) srsState.order = shuffle(q.optionen.map((_, i) => i));
+      return `<div class="breadcrumb">Wiederholen · noch ${srsState.rest} heute</div>
+        <section class="card exam-q"><div class="eyebrow">${esc(c.kurs.titel)} · ${esc(c.lektion.titel)}</div><h2>${esc(q.frage)}</h2>
+        ${srsState.antwort === undefined ? srsState.order.map(oi => `<button class="opt btn-opt" data-act="srs-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')
+          : `${srsState.order.map(oi => `<div class="opt ${oi === q.richtig ? 'correct' : oi === srsState.antwort ? 'wrong' : ''}">${esc(q.optionen[oi])}</div>`).join('')}<div class="explain">${esc(q.erklaerung)}</div><div class="btn-row"><button class="btn primary" data-act="srs-next">${srsState.rest > 0 ? 'Nächste Karte →' : 'Fertig für heute'}</button><a class="btn ghost" href="#/lektion/${c.kurs.id}/${c.lektion.id}">Lektion nachlesen</a></div>`}
+        </section>`;
+    }
+    const n = Math.min(f.due.length, f.rest);
+    return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
+      <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
+      <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + x.richtig, 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
+      ${n ? `<div class="btn-row"><button class="btn primary" data-act="srs-start">Jetzt wiederholen</button></div>` : ''}
+      <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
+  });
+
   // ---------- Quellenverzeichnis ----------
   let qFilter = { b: 'alle', st: 'alle', q: '' };
   const stKlasse = (st) => { const t = (st || '').trim(); if (/^(A|✅|G)/.test(t)) return 'A'; if (/^(B|📘)/.test(t)) return 'B'; if (/^C/.test(t)) return 'C'; if (/^(D|MYTHOS|\[!\]|❌|K|Illustration|keine)/i.test(t)) return 'D'; return '?'; };
@@ -606,6 +678,8 @@
       <label>Dein Name <input name="name" value="${esc(S.name)}" placeholder="Wie soll der Coach dich ansprechen?"></label>
       <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
       <p class="muted">Der Schlüssel wird nur in diesem Browser gespeichert (localStorage) und direkt an api.anthropic.com gesendet. Kein Server dazwischen. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Berichte werden dann per Selbst-Check geprüft. Schlüssel gibt es unter console.anthropic.com.</p>
+      <label>Mein Wenn-Dann-Plan <input name="plan" value="${esc(S.plan || '')}" placeholder="Wenn ich morgens den Kaffee aufsetze, dann mache ich 15 Minuten Akademie."></label>
+      <label>Textgröße <select name="textsize">${[['normal', 'Normal'], ['gross', 'Groß'], ['sehr-gross', 'Sehr groß']].map(([v, t]) => `<option value="${v}" ${(S.textsize || 'normal') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>Modell <select name="model">${['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'].map(m => `<option ${S.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <div class="btn-row"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-act="test-key">Verbindung testen</button></div>
     </form>
@@ -621,12 +695,14 @@
     const f = e.target;
     if (f.classList.contains('quiz')) { e.preventDefault(); gradeQuiz(f); }
     else if (f.classList.contains('report')) { e.preventDefault(); submitReport(f); }
+    else if (f.classList.contains('vorfrage-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 15) return toast('Ein ganzer Satz, bitte. Raten ist erlaubt.', 'bad'); S.vorfragen[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.querySelector('.lesson h1'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
+    else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
     else if (f.classList.contains('j-add')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (!t) return; S[f.dataset.book].push({ id: uid(), text: t, ts: Date.now() }); touch(); save(); navigate(); }
     else if (f.classList.contains('j-nein')) { e.preventDefault(); const fd = new FormData(f); S.nein.push({ ts: Date.now(), a: fd.get('a'), b: fd.get('b'), c: fd.get('c'), d: fd.get('d'), e: fd.get('e') }); touch(); save(); toast('Nein eingetragen. Das war Training.', 'good'); navigate(); }
-    else if (f.id === 'settings') { e.preventDefault(); const fd = new FormData(f); S.name = fd.get('name').trim(); S.apiKey = fd.get('apiKey').trim(); S.model = fd.get('model'); save(); toast('Gespeichert.', 'good'); renderNav(); }
+    else if (f.id === 'settings') { e.preventDefault(); const fd = new FormData(f); S.name = fd.get('name').trim(); S.apiKey = fd.get('apiKey').trim(); S.model = fd.get('model'); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; applyTextsize(); save(); toast('Gespeichert.', 'good'); renderNav(); }
     else if (window.Coach && window.Coach.onSubmit) { if (window.Coach.onSubmit(e)) e.preventDefault(); }
   });
   document.addEventListener('click', (e) => {
@@ -640,19 +716,22 @@
     else if (a === 'drill-done') { const k = 'tag_' + el.dataset.id; (S.drills[k] = S.drills[k] || []).push({ ts: Date.now() }); touch(); save(); toast('Drill erledigt.', 'good'); navigate(); }
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
+    else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }
+    else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); srsAntwort(c.id, srsState.antwort === c.q.richtig); navigate(); }
+    else if (a === 'srs-next') { if (!srsState.queue.length) { srsState = null; toast('Wiederholung für heute abgeschlossen.', 'good'); } else { srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; srsState.antwort = undefined; srsState.order = null; } navigate(); }
     else if (a === 'kd-start') startKd(el.dataset.id);
     else if (a === 'check-toggle') { const st = S.checks[el.dataset.id] = S.checks[el.dataset.id] || {}; st[el.dataset.i] = el.checked; el.closest('label').classList.toggle('done', el.checked); save(); }
     else if (a === 'check-reset') { delete S.checks[el.dataset.id]; save(); navigate(); }
     else if (a === 'ka-del') { S.ka = S.ka.filter(p => p.id !== el.dataset.id); save(); navigate(); }
     else if (a === 'j-del') { S[el.dataset.book] = S[el.dataset.book].filter(x => x.id !== el.dataset.id); save(); navigate(); }
-    else if (a === 'export') { const b = new Blob([JSON.stringify({ ...S, apiKey: '' }, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const l = document.createElement('a'); l.href = u; l.download = 'verkaufsakademie-' + today() + '.json'; l.click(); }
+    else if (a === 'export') { const b = new Blob([JSON.stringify({ ...S, apiKey: '' }, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const l = document.createElement('a'); l.href = u; l.download = 'verkaufsakademie-' + today() + '.json'; l.click(); S.lastExport = Date.now(); save(); toast('Sicherung heruntergeladen.', 'good'); }
     else if (a === 'reset') { modal(`<h3>Wirklich alles löschen?</h3><p>Fortschritt, Berichte, Journal, Schlüssel. Das lässt sich nicht rückgängig machen.</p><div class="btn-row"><button class="btn danger" id="reset-yes">Ja, löschen</button><button class="btn ghost" data-act="close-modal">Abbrechen</button></div>`); $('#reset-yes').onclick = () => { localStorage.removeItem(KEY); load(); closeModal(); location.hash = '#/'; navigate(); toast('Zurückgesetzt.'); }; }
     else if (a === 'close-modal') closeModal();
     else if (a === 'test-key') { if (!window.Coach) return; const key = $('#settings [name=apiKey]').value.trim(); if (!key) return toast('Erst einen Schlüssel eintragen.', 'bad'); el.textContent = 'Teste…'; window.Coach.test(key, $('#settings [name=model]').value).then(() => { el.textContent = 'Verbindung testen'; toast('Verbindung steht. Der Coach ist bereit.', 'good'); }).catch(err => { el.textContent = 'Verbindung testen'; toast('Fehler: ' + err.message, 'bad'); }); }
     else if (window.Coach && window.Coach.onClick) window.Coach.onClick(a, el, e);
   });
   document.addEventListener('input', (e) => {
-    if (e.target.matches('.report textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= REPORT_MIN); }
+    if (e.target.matches('.report textarea, .abruf-form textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); const min = e.target.closest('.abruf-form') ? 120 : REPORT_MIN; c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= min); }
     if (e.target.id === 'lib-q' || e.target.id === 'q-q') { const id = e.target.id; (id === 'lib-q' ? libFilter : qFilter).q = e.target.value; clearTimeout(e.target._t); e.target._t = setTimeout(() => { const pos = e.target.selectionStart; navigate(); const n = $('#' + id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 250); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); save(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
@@ -660,11 +739,13 @@
   function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
   $('#menu-toggle').onclick = () => setMenu(!$('#sidebar').classList.contains('open'));
   window.addEventListener('hashchange', navigate);
+  window.addEventListener('scroll', () => { const b = document.getElementById('read-bar'); if (!b) return; const h = document.documentElement; const p = h.scrollHeight - h.clientHeight; b.style.width = (p > 0 ? Math.min(100, h.scrollTop / p * 100) : 0) + '%'; }, { passive: true });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
   // ---------- Öffentliche Schnittstelle für coach.js ----------
   window.VA = { get S() { return S; }, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
 
-  load(); navigate();
+  function applyTextsize() { document.documentElement.dataset.textsize = S.textsize || 'normal'; }
+  load(); applyTextsize(); navigate();
 })();

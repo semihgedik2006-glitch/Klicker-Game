@@ -12,6 +12,14 @@ Persönliches Verkaufs-Bootcamp als statische Web-App: 10 Module mit 34 Lektione
 
 Einstellungen → Anthropic-API-Schlüssel eintragen (console.anthropic.com). Der Schlüssel bleibt im Browser (localStorage) und geht direkt an `api.anthropic.com`. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Übungsberichte prüft dann ein Selbst-Check.
 
+## Didaktik
+
+Jede Lektion folgt einer festen Abfolge, die aus der Lernforschung stammt: Lernziele, Vorab-Frage (Pretesting, Richland et al. 2009), Text, freier Abruf aus dem Kopf (Karpicke & Blunt 2011), Kernpunkte zum Vergleich, Quiz mit sofortiger Erklärung, Übungsbericht aus der echten Welt. Fragen abgeschlossener Lektionen wandern in die Abstandswiederholung (`#/wiederholen`, Leitner-Stufen 1/3/7/14/30/60 Tage, gemischt über Module, höchstens 20 pro Tag; Cepeda et al. 2006, Dunlosky et al. 2013).
+
+Bewusst weggelassen, weil Nutzer anderer Lern-Apps es am häufigsten kritisieren: Herzen oder Energie, Werbung, Bezahlschranken, Schuld-Benachrichtigungen, Ranglisten, harte Serien (hier ein Ruhetag pro Woche), Rückstau in der Wiederholung.
+
+`node tools/check-kurse.js` prüft, dass jede Lektion alle Pflichtfelder hat (lernziele, vorfrage, kernpunkte, quiz mit mindestens 3 Fragen, uebung, quellen).
+
 ## Struktur
 
 ```

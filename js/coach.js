@@ -55,6 +55,7 @@ Name: ${S.name || 'unbekannt (frag nach dem Namen)'}
 Rang: ${VA.rang()} · Curriculum: ${VA.totalProgress()} % · Tage in Folge: ${VA.streak()}
 Bestandene Module: ${passed.length ? passed.join('; ') : 'noch keins'}
 Aktuelles Modul: ${cur.nr} ${cur.titel} · Nächster Schritt: ${ns.text}
+Wenn-Dann-Plan: ${S.plan || 'keiner'}
 Gesammelte Neins: ${S.nein.length} · Ablehnungstraining Tag ${Object.keys(S.ablehnung).length}/30 · Erfolgsprotokoll-Einträge: ${S.erfolg.length} · Beweisbuch: ${S.beweis.length}
 Letzte Berichte:\n${lastReports || '- keine'}
 Letzte Nein-Analysen:\n${lastNein || '- keine'}`;
