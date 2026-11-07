@@ -273,3 +273,20 @@ details[open] summary { margin-bottom: 10px; }
 :focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; border-radius: 6px; }
 button, .btn { touch-action: manipulation; }
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+/* Didaktik: Lernziele, Vorab-Frage, Abruf, Wiederholen, Lesefortschritt, Textgröße */
+.callout.ziele { border-color: rgba(201,165,88,.4); background: var(--gold-dim); }
+.callout.ziele ul { margin: 0; padding-left: 1.2em; }
+.vorfrage { margin: 1.5em 0; border-color: #2a4a5a; }
+.vorfrage .q { font-family: var(--serif); font-size: 1.3rem; font-style: italic; }
+.vorfrage.done { opacity: .85; }
+.locked-note { padding: 40px 0; text-align: center; font-family: var(--serif); font-size: 1.2rem; font-style: italic; }
+.abruf { border-color: #2a4a35; margin-top: 28px; }
+.kern { padding-left: 1.2em; } .kern li { margin-bottom: .5em; }
+.small-note { font-size: .85rem; margin: 6px 0 0; }
+.nav-badge { margin-left: auto; background: var(--gold); color: #141008; border-radius: 999px; font-size: .7rem; padding: 1px 8px; font-weight: 600; }
+.plan { margin-top: 12px; padding: 10px 14px; border-left: 2px solid var(--gold); font-size: .9rem; }
+.read-progress { position: fixed; top: 0; left: var(--sidebar); right: 0; height: 3px; background: transparent; z-index: 25; }
+#read-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold), var(--gold-2)); transition: width .1s linear; }
+html[data-textsize="gross"] { font-size: 18px; }
+html[data-textsize="sehr-gross"] { font-size: 20px; }
+@media (max-width: 900px) { .read-progress { left: 0; } }
