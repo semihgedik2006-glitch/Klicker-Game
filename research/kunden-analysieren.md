@@ -1,6 +1,8 @@
 # Kunden analysieren und Bedarf erkennen
 
 Stand: 2026-11-07. Recherche-Grundlage für die Verkaufs-Bootcamp-App.
+Vollständige Quellensammlung (148 geprüfte Quellen): [`research/quellen/kunden-analysieren.md`](quellen/kunden-analysieren.md).
+
 Bereich: Bedarfsanalyse und Fragetechnik, aktives Zuhören, Emotionen und Mikroausdrücke lesen, Persönlichkeits- und Käufertyp-Modelle, Kaufsignale.
 
 ## So ist dieses Dokument aufgebaut
