@@ -21,13 +21,15 @@
     quiz: {}, lessonsDone: {}, exams: {}, reports: {},
     erfolg: [], beweis: [], nein: [], ablehnung: {}, leiter: null,
     checks: {}, drills: {}, ka: [], chats: {}, activity: {}, streakBest: 0,
-    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal'
+    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, srsLog: {}
   };
   let S;
   function load() {
     try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || '{}')); }
     catch (e) { S = Object.assign({}, DEFAULT); }
     if (!S.leiter) S.leiter = window.ERFOLGSLEITER_VORLAGE.map(t => ({ text: t, done: false }));
+    if (!S.onboarded && (Object.keys(S.activity).length > 0 || S.name)) S.onboarded = true;
+    (window.SZENARIEN || []).forEach(sz => { if (!sz.offline && window.SZENARIEN_OFFLINE && window.SZENARIEN_OFFLINE[sz.id]) sz.offline = window.SZENARIEN_OFFLINE[sz.id]; });
   }
   function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message, 'bad'); } }
   function touch() { S.activity[today()] = (S.activity[today()] || 0) + 1; }
@@ -52,10 +54,13 @@
       for (const l of k.lektionen) if (!lessonDone(l.id)) return { kurs: k, lektion: l, text: `Lektion ${k.nr}.${lessonIndex(k, l.id) + 1}: ${l.titel}`, route: `#/lektion/${k.id}/${l.id}` };
       if (!examPassed(k.id)) return { kurs: k, text: `Modulprüfung ${k.nr}: ${k.titel}`, route: `#/pruefung/${k.id}` };
     }
-    return { text: 'Alle Module bestanden. Jetzt: tägliche Drills und echte Gespräche.', route: '#/training' };
+    if (!abschlussPassed()) return { text: 'Alle Module bestanden. Jetzt die Abschlussprüfung über das gesamte Curriculum.', route: '#/abschluss' };
+    return { text: 'Abschluss bestanden. Jetzt: tägliche Drills, Wiederholung und echte Gespräche.', route: '#/training' };
   }
   const RAENGE = [[0, 'Rekrut'], [1, 'Anwärter'], [2, 'Verkäufer'], [4, 'Berater'], [6, 'Verhandler'], [8, 'Closer'], [10, 'Meister']];
-  function rang() { const n = KURSE.filter(k => examPassed(k.id)).length; let r = RAENGE[0][1]; for (const [m, t] of RAENGE) if (n >= m) r = t; return r; }
+  function rang() { if (abschlussPassed()) return 'Absolvent'; const n = KURSE.filter(k => examPassed(k.id)).length; let r = RAENGE[0][1]; for (const [m, t] of RAENGE) if (n >= m) r = t; return r; }
+  function abschlussPassed() { return !!(S.exams.abschluss && S.exams.abschluss.passed); }
+  function allExamsPassed() { return KURSE.every(k => examPassed(k.id)); }
   // Serie mit einem Ruhetag pro sieben Tage: ein ausgelassener Tag bricht die Serie nicht, zwei innerhalb einer Woche schon.
   function streak() {
     let n = 0, lastRest = -99, i = 0; const d = new Date();
@@ -85,7 +90,7 @@
     const st = S.srs[id] || { box: 0, n: 0, richtig: 0 };
     st.n++; if (ok) { st.richtig++; st.box = Math.min(st.box + 1, SRS_INTERVALLE.length - 1); } else st.box = 0;
     const d = new Date(); d.setDate(d.getDate() + (ok ? SRS_INTERVALLE[st.box] : 1)); st.due = d.toISOString().slice(0, 10); st.last = today();
-    S.srs[id] = st; touch(); save();
+    S.srs[id] = st; S.srsLog[today()] = (S.srsLog[today()] || 0) + 1; touch(); save();
   }
 
   // ---------- UI-Bausteine ----------
@@ -122,12 +127,12 @@
     const parts = hash.split('?')[0].slice(2).split('/').filter(Boolean);
     const name = parts[0] || 'start';
     const fn = routes[name] || routes.start;
-    if (examState && name !== 'pruefung') { const ex = S.exams[examState.kid] = S.exams[examState.kid] || { attempts: [], passed: false, best: 0 }; ex.attempts.push({ ts: Date.now(), pct: 0, passed: false, abgebrochen: true }); examState = null; save(); toast('Prüfung verlassen. Das zählt als nicht bestanden.', 'bad'); }
+    if (examState && !(name === 'pruefung' && examState.kid !== 'abschluss') && !(name === 'abschluss' && examState.kid === 'abschluss')) { const ex = S.exams[examState.kid] = S.exams[examState.kid] || { attempts: [], passed: false, best: 0 }; ex.attempts.push({ ts: Date.now(), pct: 0, passed: false, abgebrochen: true }); examState = null; save(); toast('Prüfung verlassen. Das zählt als nicht bestanden.', 'bad'); }
     const main = $('#main');
     main.className = 'main fade';
     try { main.innerHTML = fn(parts.slice(1)) || ''; }
     catch (e) { main.innerHTML = `<div class="callout warn"><div class="label">Fehler</div>${esc(e.message)}</div>`; console.error(e); }
-    main.scrollTop = 0; window.scrollTo(0, 0);
+    main.scrollTop = 0; window.scrollTo(0, 0); main.setAttribute('tabindex', '-1'); if (document.activeElement && document.activeElement !== document.body) main.focus({ preventScroll: true });
     renderNav(); setMenu(false);
     if (typeof afterRender === 'function') afterRender(name, parts.slice(1));
     document.querySelectorAll('[data-route]').forEach(el => el.onclick = () => location.hash = el.dataset.route);
@@ -144,7 +149,8 @@
       ${item('#/coach', 'KI-Coach', S.apiKey ? '' : ' <span class="nav-dot" title="API-Schlüssel fehlt"></span>')}
       <div class="nav-section">Curriculum</div>
       ${(() => { const f = srsFaellig(); const n = Math.min(f.due.length, f.rest); return item('#/wiederholen', 'Wiederholen', n ? ` <span class="nav-badge">${n}</span>` : ''); })()}
-      ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ' <span class="nav-lock">🔒</span>')).join('')}
+      ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ' <span class="nav-lock" title="Erst das vorherige Modul bestehen" aria-label="gesperrt">🔒</span>')).join('')}
+      ${item('#/abschluss', 'Abschlussprüfung', abschlussPassed() ? ' <span class="nav-ok">✓</span>' : allExamsPassed() ? '' : ' <span class="nav-lock" title="Erst alle Module bestehen" aria-label="gesperrt">🔒</span>')}
       <div class="nav-section">Training</div>
       ${item('#/rollenspiel', 'Rollenspiele')}
       ${item('#/training', 'Drills & Programm')}
@@ -164,6 +170,7 @@
 
   // ---------- Seiten ----------
   route('start', () => {
+    if (!S.onboarded) return onboarding();
     const ns = nextStep(); const st = streak(); const k = currentKurs();
     const day = Object.keys(S.ablehnung).length;
     const ad = window.ABLEHNUNGSTRAINING[Math.min(day, 29)];
@@ -191,6 +198,7 @@
         <p class="muted small">Die Serie zählt Tage mit mindestens einer dieser Handlungen. Ein Ruhetag pro Woche bricht sie nicht. Diese Woche: ${wocheAktiv()} von 7 Tagen aktiv.</p>
         ${S.plan ? `<div class="plan">Dein Wenn-Dann-Plan: <strong>${esc(S.plan)}</strong></div>` : `<div class="plan muted">Noch kein Wenn-Dann-Plan. Menschen mit einem konkreten Auslöser („Wenn ich morgens den Kaffee aufsetze, dann…“) setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006). <a href="#/einstellungen">Plan festlegen</a></div>`}</div>
       ${backupHinweis()}
+      ${wochenrueckblick()}
       <div class="two-col">
         <div class="card">
           <div class="eyebrow">Drill des Tages · ${drill.dauer} Min.</div>
@@ -219,6 +227,7 @@
           <li><strong>Reihenfolge.</strong> Module und Lektionen werden in der vorgegebenen Reihenfolge freigeschaltet. Kein Überspringen.</li>
           <li><strong>Lektion abschließen</strong> heißt: Vorab-Frage raten, lesen, aus dem Kopf zusammenfassen, Quiz mit mindestens ${PASS} %, dann Übungsbericht (mindestens ${REPORT_MIN} Zeichen), der vom Coach oder dem Selbst-Check bestanden wird. Diese Reihenfolge folgt der Lernforschung: Vorab-Raten, Abrufen und Testen festigen stärker als Lesen allein.</li>
           <li><strong>Wiederholen.</strong> Fragen abgeschlossener Lektionen kommen in wachsenden Abständen wieder. Höchstens ${SRS_MAX_TAG} pro Tag, kein Rückstau.</li>
+          <li><strong>Abschluss.</strong> Nach allen zehn Modulen folgt die Abschlussprüfung über das gesamte Curriculum (30 Fragen, ${PASS} %). Dann gibt es das Zertifikat, und du bist Absolvent.</li>
           <li><strong>Modulprüfung</strong> mit mindestens ${PASS} %. Nicht bestanden heißt 20 Minuten Sperre und zurück in die Lektionen.</li>
           <li><strong>Echte Welt.</strong> Was du hier liest, zählt erst, wenn du es draußen getan hast. Deshalb Drills, Neins und Berichte.</li>
           <li><strong>Ehrlichkeit.</strong> Niemand kontrolliert dich außer dir. Wer sich selbst belügt, verkauft später auch schlechter.</li>
@@ -227,6 +236,48 @@
       </div>`;
   });
 
+  function onboarding() {
+    return `<section class="hero"><div class="eyebrow">Verkaufsakademie</div><h1>Bevor du anfängst</h1>
+      <p class="lead">Das hier ist kein Kurs zum Durchklicken. Es ist ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Zwei Minuten Einrichtung, dann geht es los.</p></section>
+      <div class="two-col">
+        <div class="card"><div class="eyebrow">So lernst du hier</div>
+          <ol class="steps">
+            <li><strong>Raten, lesen, abrufen.</strong> Vor jedem Text eine Frage, nach jedem Text eine Zusammenfassung aus dem Kopf. Das kommt aus der Lernforschung und bringt mehr als zweimal lesen.</li>
+            <li><strong>Quiz und Bericht.</strong> Mindestens ${PASS} % im Quiz, dann ein Bericht über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.</li>
+            <li><strong>Prüfung je Modul.</strong> ${PASS} % oder zurück in die Lektionen. Kein Überspringen.</li>
+            <li><strong>Wiederholen.</strong> Alte Fragen kommen in wachsenden Abständen wieder, höchstens ${SRS_MAX_TAG} am Tag.</li>
+            <li><strong>Draußen üben.</strong> Drills, Rollenspiele, 30 Tage Ablehnungstraining. Alles freiwillig, alles zählt.</li>
+          </ol>
+          <p class="muted small">Was du hier nicht findest: Herzen, Werbung, Bezahlschranken, Ranglisten, Schuld-Benachrichtigungen. Streng ist der Stoff, nicht die App.</p></div>
+        <form id="onboarding" class="card">
+          <div class="eyebrow">Einrichtung</div>
+          <label>Dein Vorname <input name="name" required placeholder="So spricht dich der Coach an"></label>
+          <label>Dein Wenn-Dann-Plan <input name="plan" placeholder="Wenn ich morgens den Kaffee aufsetze, dann mache ich 15 Minuten Akademie."></label>
+          <p class="muted small">Ein konkreter Auslöser plus eine konkrete Handlung. Das verdoppelt grob die Chance, dass aus dem Vorsatz Routine wird (Gollwitzer & Sheeran 2006). Du kannst ihn später ändern.</p>
+          <label>Textgröße <select name="textsize"><option value="normal">Normal</option><option value="gross">Groß</option><option value="sehr-gross">Sehr groß</option></select></label>
+          <p class="muted small">Der KI-Coach braucht später einen eigenen Anthropic-API-Schlüssel (Einstellungen). Ohne Schlüssel funktioniert alles andere.</p>
+          <div class="btn-row"><button class="btn primary" type="submit">Los geht's</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
+        </form>
+      </div>`;
+  }
+  function wochenrueckblick() {
+    const tage = (n) => { const out = []; const d = new Date(); d.setDate(d.getDate() - n); for (let i = 0; i < 7; i++) { out.push(d.toISOString().slice(0, 10)); d.setDate(d.getDate() - 1); } return out; };
+    const diese = tage(0), vorige = tage(7);
+    const inWeek = (ts, week) => week.includes(new Date(ts).toISOString().slice(0, 10));
+    const row = (name, f) => ({ name, a: f(diese), b: f(vorige) });
+    const rows = [
+      row('Aktive Tage', w => w.filter(d => S.activity[d]).length),
+      row('Lektionen abgeschlossen', w => Object.values(S.lessonsDone).filter(ts => inWeek(ts, w)).length),
+      row('Karten wiederholt', w => w.reduce((a, d) => a + (S.srsLog[d] || 0), 0)),
+      row('Berichte bestanden', w => Object.values(S.reports).flat().filter(r => r.bestanden && inWeek(r.ts, w)).length),
+      row('Neins gesammelt', w => S.nein.filter(n => inWeek(n.ts, w)).length),
+      row('Rollenspiele', w => Object.entries(S.drills).filter(([k]) => k.startsWith('rp_')).flatMap(([, v]) => v).filter(r => inWeek(r.ts, w)).length),
+    ];
+    if (rows.every(r => r.a === 0 && r.b === 0)) return '';
+    return `<div class="card week"><div class="eyebrow">Wochenrückblick · letzte 7 Tage</div>
+      <table class="week-table"><thead><tr><th></th><th>Diese Woche</th><th>Vorwoche</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.name}</td><td class="num">${r.a}</td><td class="num muted">${r.b}${r.a > r.b ? ' <span class="up">↑</span>' : r.a < r.b ? ' <span class="down">↓</span>' : ''}</td></tr>`).join('')}</tbody></table>
+      <p class="muted small">Zahlen, nicht Gefühle. Wenn eine Zeile zwei Wochen lang Null zeigt, ist das deine nächste Aufgabe.</p></div>`;
+  }
   function backupHinweis() {
     const aktiv = Object.keys(S.activity).length; const seit = Date.now() - Math.max(S.lastExport || 0, S.started || 0);
     if (aktiv < 3 || seit < 14 * 864e5) return '';
@@ -323,7 +374,7 @@
         <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
       </article>
       ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
-        ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${vf ? `<p class="muted small-note">Vorab hattest du geantwortet: „${esc(vf.text)}“. Was stimmte, was nicht?</p>` : ''}`
+        ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${vf ? `<p class="muted small-note">Vorab hattest du geantwortet: „${esc(vf.text)}“. Was stimmte, was nicht?</p>` : ''}${ab.coach ? `<div class="callout study"><div class="label">Coach zum Abruf</div>${md(ab.coach)}</div>` : S.apiKey ? `<div class="btn-row"><button class="btn small ghost" data-act="abruf-coach" data-lid="${lid}">Coach: Was fehlt in meiner Zusammenfassung?</button></div>` : ''}`
         : `<p class="muted">Schließ die Augen und schreib aus dem Kopf auf, was du behalten hast: drei bis fünf Sätze, ohne nach oben zu scrollen. Das Abrufen selbst festigt stärker als nochmal lesen (Karpicke & Blunt 2011; Dunlosky et al. 2013). Danach siehst du die Kernpunkte zum Vergleich.</p>
           <form class="abruf-form" data-lid="${lid}"><textarea class="journal" rows="5" placeholder="Was war der Kern? Welche Zahl, welcher Name, welche Regel?"></textarea><div class="count muted"><span class="n">0</span> / 120 Zeichen</div><div class="btn-row"><button class="btn primary small" type="submit">Mit Kernpunkten vergleichen</button></div></form>`}
       </section>` : ''}
@@ -345,7 +396,7 @@
 
   function renderQuiz(quiz, lid) {
     return `<form class="quiz" data-lid="${lid}">
-      ${quiz.map((q, qi) => `<div class="quiz-q" data-qi="${qi}"><div class="q">${qi + 1}. ${esc(q.frage)}</div>
+      ${quiz.map((q, qi) => `<div class="quiz-q" data-qi="${qi}"><div class="q">${q.typ === 'anwendung' ? '<span class="tag gold">Anwendung</span> ' : ''}${qi + 1}. ${esc(q.frage)}</div>
         ${shuffle(q.optionen.map((o, oi) => oi)).map(oi => `<label class="opt" data-oi="${oi}"><input type="radio" name="q${qi}" value="${oi}"> <span>${esc(q.optionen[oi])}</span></label>`).join('')}
         <div class="explain" hidden>${esc(q.erklaerung)}</div></div>`).join('')}
       <div class="btn-row"><button class="btn primary" type="submit">Auswerten</button><div class="score" id="score-${lid}"></div></div></form>`;
@@ -432,14 +483,23 @@
   });
   function startExam(kid) {
     const k = kursById(kid);
+    if (kid === 'abschluss') { const pool = KURSE.flatMap(k2 => shuffle(k2.lektionen.flatMap(l => l.quiz.map(q => ({ ...q, lektion: `${k2.nr}.${lessonIndex(k2, l.id) + 1} ${l.titel}` })))).slice(0, 3)); examState = { kid, fragen: shuffle(pool), i: 0, antworten: [], start: Date.now() }; navigate(); return; }
     const pool = k.lektionen.flatMap(l => l.quiz.map(q => ({ ...q, lektion: l.titel })));
-    examState = { kid, fragen: shuffle(pool).slice(0, Math.min(12, pool.length)), i: 0, antworten: [], start: Date.now() };
+    examState = { kid, fragen: examAuswahl(pool, 12), i: 0, antworten: [], start: Date.now() };
     navigate();
+  }
+  // Prüfungsauswahl: ein Drittel Anwendungsfragen, wenn vorhanden, Rest Wissensfragen.
+  function examAuswahl(pool, n) {
+    n = Math.min(n, pool.length);
+    const anw = shuffle(pool.filter(q => q.typ === 'anwendung')), wis = shuffle(pool.filter(q => q.typ !== 'anwendung'));
+    const na = Math.min(anw.length, Math.round(n / 3)); const pick = anw.slice(0, na).concat(wis.slice(0, n - na));
+    if (pick.length < n) pick.push(...anw.slice(na, na + n - pick.length));
+    return shuffle(pick);
   }
   function renderExam(k) {
     const e = examState; const q = e.fragen[e.i];
     if (!q.order) q.order = shuffle(q.optionen.map((_, i) => i));
-    return `<div class="breadcrumb">Prüfung Modul ${k.nr} · Frage ${e.i + 1} von ${e.fragen.length} · Seite nicht verlassen</div>
+    return `<div class="breadcrumb">${k ? 'Prüfung Modul ' + k.nr : 'Abschlussprüfung'} · Frage ${e.i + 1} von ${e.fragen.length} · Seite nicht verlassen</div>
       <div class="bar"><div class="bar-fill" style="width:${(e.i) / e.fragen.length * 100}%"></div></div>
       <section class="card exam-q"><div class="eyebrow">${esc(q.lektion)}</div><h2>${esc(q.frage)}</h2>
         ${q.order.map(oi => `<button class="opt btn-opt" data-act="exam-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')}
@@ -448,7 +508,7 @@
   function examAnswer(oi) {
     const e = examState; e.antworten.push(Number(oi)); e.i++;
     if (e.i < e.fragen.length) { navigate(); return; }
-    const k = kursById(e.kid);
+    const k = kursById(e.kid); const abschluss = e.kid === 'abschluss';
     const score = e.fragen.reduce((a, q, i) => a + (q.richtig === e.antworten[i] ? 1 : 0), 0);
     const pct = Math.round(score / e.fragen.length * 100); const passed = pct >= PASS;
     const ex = S.exams[e.kid] = S.exams[e.kid] || { attempts: [], passed: false, best: 0 };
@@ -458,11 +518,50 @@
     examState = null;
     $('#main').innerHTML = `<section class="hero small ${passed ? 'passed' : ''}"><div class="eyebrow">Ergebnis</div>
       <h1>${score} von ${e.fragen.length} · ${pct} %</h1>
-      <p class="lead">${passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
+      <p class="lead">${abschluss ? (passed ? `Bestanden. Du hast das gesamte Curriculum nachgewiesen. Rang: ${rang()}. Dein Zertifikat wartet.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Die Fehler unten zeigen, welche Module du wiederholst.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
       ${wrong.length ? `<h3>Fehler</h3>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
-      <div class="btn-row">${passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul →</a>` : '<a class="btn primary" href="#/training">Zum Training →</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
+      <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen →</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul →</a>` : '<a class="btn primary" href="#/training">Zum Training →</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
   }
+
+  // ---------- Abschlussprüfung und Zertifikat ----------
+  route('abschluss', () => {
+    const n = KURSE.filter(k => examPassed(k.id)).length;
+    if (!allExamsPassed()) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
+      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, gemischt. Mindestens ${PASS} %. Sie wird frei, sobald alle Modulprüfungen bestanden sind.</p>
+      <div class="callout warn"><div class="label">Gesperrt</div>${n} von ${KURSE.length} Modulprüfungen bestanden. <a href="${nextStep().route}">Weiter im Curriculum</a></div></section>`;
+    const ex = S.exams.abschluss || { attempts: [], passed: false, best: 0 };
+    const lastFail = ex.attempts.filter(a => !a.passed).slice(-1)[0];
+    const locked = lastFail && Date.now() - lastFail.ts < EXAM_COOLDOWN && !ex.passed;
+    if (examState && examState.kid === 'abschluss') return renderExam(null);
+    return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
+      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, zufällig gemischt. Mindestens ${PASS} %. Keine Hilfsmittel, kein Zurückblättern. Das ist der Nachweis, dass das Wissen auch Monate später noch sitzt.</p>
+      ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
+      ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Mit ${ex.best} %. <a href="#/zertifikat">Zum Zertifikat</a>. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
+      ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="abschluss">Abschlussprüfung starten</button></div>`}
+    </section>`;
+  });
+  route('zertifikat', () => {
+    if (!abschlussPassed()) return routes.abschluss([]);
+    const ex = S.exams.abschluss; const best = ex.attempts.filter(a => a.passed).sort((a, b) => b.pct - a.pct)[0];
+    const reports = Object.values(S.reports).flat().filter(r => r.bestanden).length;
+    const wdh = Object.values(S.srs).reduce((a, x) => a + x.n, 0);
+    const tage = Object.keys(S.activity).length;
+    return `<div class="no-print btn-row"><button class="btn primary" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/">Übersicht</a></div>
+      <section class="cert">
+        <div class="cert-inner">
+          <div class="cert-logo">V</div>
+          <div class="cert-eyebrow">Verkaufsakademie · Persönliches Bootcamp</div>
+          <h1>Zertifikat</h1>
+          <p class="cert-text">Hiermit wird bestätigt, dass</p>
+          <div class="cert-name">${esc(S.name || 'Namenlos')}</div>
+          <p class="cert-text">das vollständige Curriculum aus zehn Modulen zu Verkauf, Verkaufspsychologie, Wirkung, Körpersprache, Fragetechnik, Gesprächsführung, Straight Line, Kundenanalyse, Selbstvermarktung und Verhandlung durchlaufen, alle zehn Modulprüfungen sowie die Abschlussprüfung mit mindestens ${PASS} % bestanden hat.</p>
+          <div class="cert-stats"><div><strong>${best.pct} %</strong><span>Abschlussprüfung</span></div><div><strong>${reports}</strong><span>Übungsberichte aus der Praxis</span></div><div><strong>${wdh}</strong><span>Wiederholungen</span></div><div><strong>${tage}</strong><span>aktive Tage</span></div></div>
+          <div class="cert-foot"><span>${new Date(best.ts).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</span><span>Rang: Absolvent</span></div>
+          <p class="cert-small">Dieses Zertifikat bestätigt bestandene Prüfungen in einer persönlichen Lern-App. Es ist kein anerkannter Abschluss. Der eigentliche Beweis steht im Beweisbuch: echte Gespräche, echte Ergebnisse.</p>
+        </div>
+      </section>`;
+  });
 
   // ---------- Milliardärs-Bibliothek ----------
   let libFilter = { kat: 'alle', thema: 'alle', q: '' };
@@ -523,7 +622,7 @@
   route('rollenspiel', ([sid]) => {
     const SZ = window.SZENARIEN;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
-      <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. Drei Szenarien spielst du offline als Entscheidungsbaum. Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
+      <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. ${(() => { const n = SZ.filter(x => x.offline).length; return n === SZ.length ? 'Alle spielst du offline als Entscheidungsbaum mit Feedback zu jeder Entscheidung.' : n + ' Szenarien spielst du offline als Entscheidungsbaum.'; })()} Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
       <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = runs.length ? Math.max(...runs.map(r => r.score || 0)) : null;
         return `<div class="card clickable" data-route="#/rollenspiel/${s.id}"><div class="meta"><span class="tag">${esc(s.level)}</span> ${s.offline ? '<span class="tag gold">offline spielbar</span>' : ''} ${best !== null ? `<span class="tag green">beste Wertung ${best}</span>` : ''}</div><h3>${esc(s.titel)}</h3><p class="muted">${esc(s.lage)}</p></div>`; }).join('')}</div>`;
     const s = SZ.find(x => x.id === sid); if (!s) return routes.rollenspiel([]);
@@ -642,7 +741,12 @@
   let qFilter = { b: 'alle', st: 'alle', q: '' };
   const stKlasse = (st) => { const t = (st || '').trim(); if (/^(A|✅|G)/.test(t)) return 'A'; if (/^(B|📘)/.test(t)) return 'B'; if (/^C/.test(t)) return 'C'; if (/^(D|MYTHOS|\[!\]|❌|K|Illustration|keine)/i.test(t)) return 'D'; return '?'; };
   const ST_LABEL = { A: 'A · robust / Primärquelle', B: 'B · solide / seriöse Sekundärquelle', C: 'C · Praxis / Buch / Meinung', D: 'D · Mythos, widerlegt, dramatisiert', '?': 'ohne Einstufung' };
+  let quellenLoading = false;
   route('quellen', () => {
+    if (!window.QUELLEN) {
+      if (!quellenLoading) { quellenLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/quellen.js'; sc.onload = () => navigate(); sc.onerror = () => { quellenLoading = false; toast('Quellenverzeichnis konnte nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
+      return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Quellenverzeichnis</h1><p class="lead">Lade 1.400 Quellen…</p></section>`;
+    }
     const Q = window.QUELLEN || []; const B = window.QUELLEN_BEREICHE || {}; const f = qFilter; const needle = f.q.toLowerCase();
     const list = Q.filter(x => (f.b === 'alle' || x.b === f.b) && (f.st === 'alle' || stKlasse(x.st) === f.st) && (!needle || (x.q + ' ' + x.k + ' ' + x.typ + ' ' + x.s).toLowerCase().includes(needle)));
     const counts = {}; Q.forEach(x => counts[stKlasse(x.st)] = (counts[stKlasse(x.st)] || 0) + 1);
@@ -697,6 +801,7 @@
     else if (f.classList.contains('report')) { e.preventDefault(); submitReport(f); }
     else if (f.classList.contains('vorfrage-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 15) return toast('Ein ganzer Satz, bitte. Raten ist erlaubt.', 'bad'); S.vorfragen[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.querySelector('.lesson h1'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
+    else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
@@ -716,6 +821,8 @@
     else if (a === 'drill-done') { const k = 'tag_' + el.dataset.id; (S.drills[k] = S.drills[k] || []).push({ ts: Date.now() }); touch(); save(); toast('Drill erledigt.', 'good'); navigate(); }
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
+    else if (a === 'print') window.print();
+    else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
     else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }
     else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); srsAntwort(c.id, srsState.antwort === c.q.richtig); navigate(); }
     else if (a === 'srs-next') { if (!srsState.queue.length) { srsState = null; toast('Wiederholung für heute abgeschlossen.', 'good'); } else { srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; srsState.antwort = undefined; srsState.order = null; } navigate(); }
@@ -734,10 +841,11 @@
     if (e.target.matches('.report textarea, .abruf-form textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); const min = e.target.closest('.abruf-form') ? 120 : REPORT_MIN; c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= min); }
     if (e.target.id === 'lib-q' || e.target.id === 'q-q') { const id = e.target.id; (id === 'lib-q' ? libFilter : qFilter).q = e.target.value; clearTimeout(e.target._t); e.target._t = setTimeout(() => { const pos = e.target.selectionStart; navigate(); const n = $('#' + id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 250); }
   });
-  document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); save(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
+  document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); if (Object.keys(S.activity || {}).length || S.name) S.onboarded = true; applyTextsize(); save(); renderNav(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
   document.addEventListener('click', (e) => { const b = e.target.closest('#lib-kat button, #lib-thema button, #q-b button, #q-st button'); if (!b) return; if (b.dataset.kat) libFilter.kat = b.dataset.kat; if (b.dataset.thema) libFilter.thema = b.dataset.thema; if (b.dataset.b) qFilter.b = b.dataset.b; if (b.dataset.st) qFilter.st = b.dataset.st; navigate(); });
-  function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
+  function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; $('#menu-toggle').setAttribute('aria-expanded', open ? 'true' : 'false'); let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
   $('#menu-toggle').onclick = () => setMenu(!$('#sidebar').classList.contains('open'));
+  const skip = document.querySelector('.skip-link'); if (skip) skip.onclick = (e) => { e.preventDefault(); const m = $('#main'); m.setAttribute('tabindex', '-1'); m.focus(); };
   window.addEventListener('hashchange', navigate);
   window.addEventListener('scroll', () => { const b = document.getElementById('read-bar'); if (!b) return; const h = document.documentElement; const p = h.scrollHeight - h.clientHeight; b.style.width = (p > 0 ? Math.min(100, h.scrollTop / p * 100) : 0) + '%'; }, { passive: true });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
