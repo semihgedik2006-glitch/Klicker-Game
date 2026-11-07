@@ -161,6 +161,9 @@
         <div class="stat"><div class="big">${S.nein.length}</div><div class="lbl">Gesammelte Neins</div></div>
         <div class="stat"><div class="big">${reports}</div><div class="lbl">Berichte bestanden</div></div>
       </div>
+      <div class="card today"><div class="eyebrow">Heute · ${new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
+        <div class="today-row">${heute().map(t => `<a class="today-item ${t.done ? 'done' : ''}" href="${t.route}"><span class="ms-icon">${t.done ? '✓' : '○'}</span><span><strong>${esc(t.name)}</strong><br><span class="muted">${esc(t.text)}</span></span></a>`).join('')}</div>
+        <p class="muted small">Drei Dinge pro Tag. Die Serie zählt nur Tage, an denen du etwas davon getan hast.</p></div>
       <div class="two-col">
         <div class="card">
           <div class="eyebrow">Drill des Tages · ${drill.dauer} Min.</div>
@@ -195,6 +198,18 @@
       </div>`;
   });
 
+  function heute() {
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0); const t0ms = t0.getTime();
+    const ns = nextStep();
+    const lernen = Object.values(S.quiz).some(q => q.ts >= t0ms) || Object.values(S.lessonsDone).some(ts => ts >= t0ms) || Object.values(S.exams).some(e => e.attempts.some(a => a.ts >= t0ms));
+    const drill = Object.entries(S.drills).some(([k, v]) => (k.startsWith('tag_') || k.startsWith('kd_') || k.startsWith('rp_')) && v.some(x => x.ts >= t0ms));
+    const nein = S.nein.some(n => n.ts >= t0ms) || Object.values(S.ablehnung).some(a => a.ts >= t0ms);
+    return [
+      { name: 'Lernen', text: ns.text, done: lernen, route: ns.route },
+      { name: 'Üben', text: 'Ein Drill, ein Rollenspiel oder ein Körper-Drill', done: drill, route: '#/training' },
+      { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
+    ];
+  }
   function meilensteine() {
     const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => (r.art === 'Offline' && /^Bestanden/.test(r.fazit || '')) || (r.art !== 'Offline' && r.score >= 42)));
     const exams = KURSE.filter(k => examPassed(k.id)).length;
