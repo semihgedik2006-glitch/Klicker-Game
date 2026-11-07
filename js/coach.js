@@ -56,6 +56,7 @@ Rang: ${VA.rang()} · Curriculum: ${VA.totalProgress()} % · Tage in Folge: ${VA
 Bestandene Module: ${passed.length ? passed.join('; ') : 'noch keins'}
 Aktuelles Modul: ${cur.nr} ${cur.titel} · Nächster Schritt: ${ns.text}
 Wenn-Dann-Plan: ${S.plan || 'keiner'}
+Wiederholung: ${Object.values(S.srs || {}).reduce((a, x) => a + x.n, 0)} Karten beantwortet
 Gesammelte Neins: ${S.nein.length} · Ablehnungstraining Tag ${Object.keys(S.ablehnung).length}/30 · Erfolgsprotokoll-Einträge: ${S.erfolg.length} · Beweisbuch: ${S.beweis.length}
 Letzte Berichte:\n${lastReports || '- keine'}
 Letzte Nein-Analysen:\n${lastNein || '- keine'}`;
@@ -206,6 +207,13 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     return { bestanden: !!j.bestanden && Number(j.note) >= 7, note: Number(j.note) || 0, feedback: String(j.feedback || ''), von: 'Coach' };
   }
 
+  async function abrufFeedback({ kurs, lektion }, text) {
+    const sys = `${RULES}\n\n# Modus: Abruf-Feedback\nDer Schüler hat nach dem Lesen einer Lektion aus dem Kopf zusammengefasst, was er behalten hat. Vergleiche seine Zusammenfassung mit den Kernpunkten der Lektion. Antworte in höchstens 6 Sätzen, Deutsch, duzen, kein JSON: (1) Was er richtig erfasst hat, in einem Satz. (2) Welcher Kernpunkt fehlt oder verdreht ist, konkret. (3) Eine Rückfrage, die ihn zwingt, den fehlenden Punkt selbst zu formulieren. Kein Lob ohne Grund, keine Listen.`;
+    const user = `Modul ${kurs.nr}: ${kurs.titel}\nLektion: ${lektion.titel}\n\nKernpunkte der Lektion:\n${(lektion.kernpunkte || []).map(k => '- ' + k).join('\n')}\n\nZusammenfassung des Schülers:\n\"\"\"\n${text}\n\"\"\"`;
+    const out = await call({ system: sys, messages: [{ role: 'user', content: user }], max_tokens: 600 }); VA.touch();
+    return out.trim();
+  }
+
   // ---------- Chat-Seite ----------
   let mode = 'coach', scenario = null, framework = null, busy = false, abort = null;
   function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
@@ -293,5 +301,5 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   }
   document.addEventListener('submit', (e) => { if (e.target.classList.contains('biz-add')) { e.preventDefault(); const fd = new FormData(e.target); VA.S.business.push({ id: VA.uid(), titel: fd.get('titel'), text: fd.get('text'), ts: Date.now() }); VA.touch(); VA.save(); VA.navigate(); } });
 
-  window.Coach = { page, businessPage, gradeReport, test, onSubmit, onClick, FRAMEWORKS };
+  window.Coach = { page, businessPage, gradeReport, abrufFeedback, test, onSubmit, onClick, FRAMEWORKS };
 })();
