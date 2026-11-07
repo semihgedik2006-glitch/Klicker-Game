@@ -19,8 +19,13 @@ KURSE.push({
         "Rackham (1988): In großen Verkäufen entscheidet die Eröffnung weniger als gedacht; wichtig ist, schnell in die Bedarfsanalyse zu kommen.",
         "Vorbereitung heißt: Person recherchieren, drei Problemhypothesen, ein Ziel für dieses Gespräch, ein nächster Schritt.",
         "Der Agenda-Frame legt Struktur, Zeit und Ziel fest und holt mit „Passt das für Sie?“ das erste kleine Ja.",
-        "Klaff (2011, Praxiserfahrung): Wer den Rahmen hält, führt; einen Power-Frame nicht annehmen, sondern mit eigenem Rahmen kontern.",
+        "Klaff (2011, Praxiserfahrung): Wer den Frame hält, führt; einem Power-Frame des Kunden begegnest du mit einem eigenen Frame.",
         "Zwei-Satz-Pitch: Wir helfen [Zielgruppe], [Ergebnis], ohne [Schmerz], plus ein Fall mit Zahl; danach sofort eine Frage."
+      ],
+      selbsterklaerung: [
+        "Warum holt „Passt das für Sie?“ am Ende des Agenda-Frames ein Ja, das sich später im Gespräch auszahlt, und was fehlt, wenn du dieselbe Agenda ohne diese Frage vorträgst?",
+        "Was ändert sich an „Perfekt, dann brauche ich acht“, wenn der Kunde die zehn Minuten wegen eines echten Notfalls im Betrieb genannt hat?",
+        "Warum ist „verkaufen“ als Ziel für ein Erstgespräch schwächer als „Termin mit dem Entscheider“, obwohl es das größere Ergebnis beschreibt?"
       ],
       inhalt: `
 <h2>Die Vorbereitung entscheidet</h2>
@@ -28,22 +33,23 @@ KURSE.push({
 <ul>
 <li>Wer ist die Person? (LinkedIn, Website, gemeinsame Kontakte)</li>
 <li>Was ist ihr wahrscheinliches Problem? Drei Hypothesen.</li>
-<li>Was ist mein Ziel für DIESES Gespräch? (Nicht „verkaufen“, sondern z. B. „Termin mit Entscheider“)</li>
+<li>Was ist mein Ziel für DIESES Gespräch? Ein erreichbares Ergebnis wie „Termin mit dem Entscheider“; „verkaufen“ ist im Erstgespräch weder messbar noch realistisch.</li>
 <li>Was ist der nächste Schritt, den ich vorschlagen werde?</li>
 </ul>
 <h2>Die ersten Sekunden</h2>
-<p>Aus Modul 3: Wärme vor Kompetenz. Blickkontakt, Lächeln, Händedruck, Name. Jordan Belfort nennt es „die ersten vier Sekunden“: Der Kunde entscheidet sofort, ob du scharf im Kopf, begeistert und ein Experte wirkst (Praxisregel, keine Studie). Dann ein Rahmen (Frame), der das Gespräch strukturiert und dir Kontrolle gibt:</p>
+<p>Aus Modul 3 kennst du die Reihenfolge Wärme vor Kompetenz: Blickkontakt, Lächeln, Händedruck und der Name des Gegenübers kommen vor jedem Satz über dich. Jordan Belfort nennt es „die ersten vier Sekunden“: Der Kunde entscheidet sofort, ob du scharf im Kopf, begeistert und ein Experte wirkst (Praxisregel, keine Studie). Danach setzt du einen Frame (deutsch: Rahmen), die ausgesprochene Vereinbarung, worum es im Gespräch geht, wie lange es dauert und wer es führt. Die Variante für den Gesprächsbeginn ist der Agenda-Frame:</p>
 <blockquote>„Herr Müller, danke für die Zeit. Ich schlage vor: Ich stelle Ihnen in zwei Sätzen vor, was wir machen, dann möchte ich vor allem verstehen, wo Sie gerade stehen, und am Ende entscheiden wir gemeinsam, ob ein nächster Schritt sinnvoll ist. Passt das für Sie?“<cite>Agenda-Frame: Struktur, Zeit, Ziel, Zustimmung (erstes kleines Ja).</cite></blockquote>
 <h2>Frame Control nach Oren Klaff</h2>
-<p>Oren Klaff (<em>Pitch Anything</em>, 2011) beschreibt, dass in jedem Gespräch ein Rahmen dominiert: der des Verkäufers oder der des Kunden. Wer den Rahmen hält, führt. Klaffs Beobachtungen sind Praxiserfahrung, nicht Forschung, aber nützlich:</p>
+<p>Oren Klaff (<em>Pitch Anything</em>, 2011) beschreibt, dass in jedem Gespräch ein Frame dominiert: der des Verkäufers oder der des Kunden. Wer den Frame hält, führt. Klaffs Beobachtungen stammen aus seiner eigenen Pitch-Praxis und sind durch keine Studie geprüft; brauchbar sind sie als Namen für drei wiederkehrende Situationen:</p>
 <ul>
-<li><strong>Power Frame</strong> des Kunden („Ich habe nur 10 Minuten“): Nicht unterwerfen, sondern mit Humor oder einem eigenen Rahmen kontern („Perfekt, dann brauche ich nur 8.“).</li>
-<li><strong>Prize Frame:</strong> Du bist der Preis, nicht der Bittsteller. „Ich arbeite nicht mit jedem zusammen, lassen Sie uns prüfen, ob es passt.“ Das ist Knappheit auf dich selbst angewandt.</li>
-<li><strong>Time Frame:</strong> Lege selbst fest, wann das Gespräch endet. Wer die Zeit kontrolliert, kontrolliert den Status.</li>
+<li><strong>Power Frame:</strong> Der Kunde setzt seinen Status über deinen („Ich habe nur 10 Minuten“). Kontere mit Humor oder einem eigenen Frame („Perfekt, dann brauche ich nur 8.“). Wer sich entschuldigt und hetzt, hat den Frame des Kunden angenommen.</li>
+<li><strong>Prize Frame:</strong> Du trittst als der Preis auf, um den sich der Kunde bewerben muss. „Ich arbeite nicht mit jedem zusammen, lassen Sie uns prüfen, ob es passt.“ Das ist Cialdinis Knappheit, auf dich selbst angewandt.</li>
+<li><strong>Time Frame:</strong> Du legst selbst fest, wann das Gespräch endet („Ich habe bis 11:30 Uhr, dann muss ich weiter“). Nach Klaff liest der Kunde daran deinen Status ab.</li>
 </ul>
 <h2>Der Elevator Pitch in zwei Sätzen</h2>
-<p>Formel: <strong>Wir helfen [Zielgruppe], [Ergebnis] zu erreichen, ohne [Schmerz]. Zum Beispiel [konkreter Fall mit Zahl].</strong> „Wir helfen Handwerksbetrieben, in 30 Tagen 10 neue Aufträge zu gewinnen, ohne selbst Werbung schalten zu müssen. Ein Dachdecker in Köln hatte nach sechs Wochen 14.“ Dann: sofort zurück zur Frage. Nicht weiterreden.</p>
+<p>Formel: <strong>Wir helfen [Zielgruppe], [Ergebnis] zu erreichen, ohne [Schmerz]. Zum Beispiel [konkreter Fall mit Zahl].</strong> „Wir helfen Handwerksbetrieben, in 30 Tagen 10 neue Aufträge zu gewinnen, ohne selbst Werbung schalten zu müssen. Ein Dachdecker in Köln hatte nach sechs Wochen 14.“ Direkt nach dem zweiten Satz folgt eine Frage an den Kunden; jeder weitere Satz über dich treibt deinen Redeanteil in Richtung der 65-72 %, die in Modul 5 die Durchschnittsverkäufer kennzeichnen.</p>
 <div class="callout practice"><div class="label">Beispiel</div>Eine Vertriebsmitarbeiterin betritt das Büro eines Speditionsleiters. Er, ohne aufzusehen: „Ich habe nur zehn Minuten.“ Sie lächelt: „Perfekt, dann brauche ich acht. Ich schlage vor: zwei Sätze zu uns, dann will ich verstehen, wo bei Ihnen gerade die Zeit verloren geht, und am Ende entscheiden wir, ob sich ein zweiter Termin lohnt. Passt das?“ Er nickt. „Wir helfen Speditionen, Leerfahrten um ein Fünftel zu senken, ohne neue Software für die Fahrer. Ein Betrieb in Dortmund hat damit letztes Jahr 60.000 Euro Diesel gespart. Wo entstehen bei Ihnen heute die meisten Leerkilometer?“ Nach zwölf Minuten ist er immer noch im Gespräch.</div>
+<p><strong>Gegenprobe.</strong> Derselbe Speditionsleiter sagt „Ich habe nur zehn Minuten“, weil gerade ein Lkw mit Ladung auf der A2 liegengeblieben ist. „Perfekt, dann brauche ich acht“ wirkt jetzt wie Spott, und der Prize Frame („Ich arbeite nicht mit jedem“) klingt aus dem Mund eines unbekannten Anbieters, der um den Termin gebeten hat, wie eine Pose. In dieser Lage bietest du den Folgetermin an und gehst nach zwei Minuten; das ist der Time Frame in deiner Hand. Ein Frame funktioniert nur, wenn dein Verhalten ihn deckt: Der Prize Frame braucht eine echte Auswahl an Kunden, der Time Frame einen echten Folgetermin.</p>
 `,
       quellen: [
         "Rackham, N. (1988). <em>SPIN Selling</em>, Kapitel 7 (Preliminaries: Opening the Call). McGraw-Hill.",
@@ -75,10 +81,15 @@ KURSE.push({
         "Unter den Top-Performern waren etwa 39 % Challenger und nur 7 % Relationship Builder; bei komplexen Verkäufen lag der Challenger-Anteil über 50 %.",
         "Teach: eine Einsicht über das Geschäft des Kunden, die logisch zur Lösung führt. Tailor: Botschaft je Ansprechpartner. Take Control: Spannung bei Preis und Prozess aushalten.",
         "Die Choreografie Warmer, Reframe, Rational Drowning, Emotional Impact, neuer Weg, Lösung nennt das Produkt erst in Schritt 6.",
-        "Bei einfachen Verkäufen schnitten alle Typen ähnlich ab; Challenger ist eine Haltung, kein Dogma."
+        "Bei einfachen Verkäufen schnitten alle Typen ähnlich ab; vom Challenger bleibt die Haltung, eine belegte Einsicht mitzubringen."
+      ],
+      selbsterklaerung: [
+        "Warum führt die Einsicht „8 % der Stunden werden nachträglich korrigiert“ in der Bäckerei zum Produkt, und warum wäre dieselbe Zahl als Produktversprechen im ersten Satz schwächer?",
+        "Was passiert mit der Teach-Choreografie, wenn die Kundin die Branchenzahl bereits kennt, weil sie selbst Controllerin war?",
+        "Warum sind Manager-Einschätzungen als Datenbasis schwächer als Umsatzmessungen, und welchen Teil des 39-%-Befunds könnte das verzerren?"
       ],
       inhalt: `
-<p>Der Corporate Executive Board (CEB, heute Teil von Gartner) ließ 2009 Vertriebsleiter über 6.000 Vertriebsmitarbeiter in rund 90 Unternehmen bewerten. Matthew Dixon und Brent Adamson veröffentlichten die Ergebnisse 2011 als <em>The Challenger Sale</em>. Wichtig zur Einordnung: Das ist eine Beratungsstudie eines Unternehmens, das Vertriebstrainings verkauft, kein peer-reviewed veröffentlichtes Forschungsergebnis.</p>
+<p>Der Corporate Executive Board (CEB, heute Teil von Gartner) ließ 2009 Vertriebsleiter über 6.000 Vertriebsmitarbeiter in rund 90 Unternehmen bewerten. Matthew Dixon und Brent Adamson veröffentlichten die Ergebnisse 2011 als <em>The Challenger Sale</em>. Die Studie stammt von einem Unternehmen, das Vertriebstrainings verkauft, und wurde nie in einer Fachzeitschrift begutachtet. Challenger heißt der Verkäufertyp, der dem Kunden eine Einsicht über dessen eigenes Geschäft mitbringt und Spannung im Gespräch aushält; der Relationship Builder dagegen vermeidet Spannung und will gefallen.</p>
 <h2>Fünf Verkäufertypen</h2>
 <table>
 <tr><th>Typ</th><th>Merkmal</th><th>Anteil unter den Top-Performern (ca.)</th></tr>
@@ -88,24 +99,25 @@ KURSE.push({
 <tr><td>Problem Solver</td><td>Detailorientiert, kümmert sich um Umsetzung</td><td>12 %</td></tr>
 <tr><td><strong>Challenger</strong></td><td>Lehrt dem Kunden etwas Neues, passt die Botschaft an, übernimmt Kontrolle</td><td><strong>39 %</strong> (bei komplexen Verkäufen über 50 %)</td></tr>
 </table>
-<p>Die Überraschung: Der „nette“ Relationship Builder war der schwächste Typ. Kunden wollen keinen Freund, sie wollen jemanden, der ihnen eine neue Perspektive auf ihr Geschäft gibt.</p>
+<p>Der Relationship Builder war mit 7 % der schwächste Typ. Dixon und Adamson erklären das so: Der Kunde in einem komplexen Kauf sucht jemanden, der ihm eine neue Sicht auf sein Geschäft gibt, und ein Verkäufer, der jeden Konflikt vermeidet, liefert genau das nicht.</p>
 <h2>Teach, Tailor, Take Control</h2>
 <ol>
-<li><strong>Teach (Lehren):</strong> Bring dem Kunden eine Einsicht über sein eigenes Geschäft, die er nicht hatte. „Die meisten Betriebe Ihrer Größe verlieren 20 % ihrer Anfragen, weil sie nach 17 Uhr nicht erreichbar sind. Wussten Sie, wie viele es bei Ihnen sind?“ Das ist „Commercial Teaching“: Die Einsicht führt logisch zu deiner Lösung.</li>
+<li><strong>Teach (Lehren):</strong> Bring dem Kunden eine Einsicht über sein eigenes Geschäft, die er nicht hatte. „Die meisten Betriebe Ihrer Größe verlieren 20 % ihrer Anfragen, weil sie nach 17 Uhr nicht erreichbar sind. Wussten Sie, wie viele es bei Ihnen sind?“ Dixon und Adamson nennen das Commercial Teaching: eine Einsicht, die den Kunden etwas lehrt und zugleich logisch zu deiner Lösung führt. Eine Einsicht, auf die jeder Wettbewerber ebenso gut antworten könnte, erfüllt den zweiten Teil nicht.</li>
 <li><strong>Tailor (Anpassen):</strong> Dieselbe Botschaft für den Geschäftsführer (Umsatz), den Betriebsleiter (Zeit), den Einkäufer (Risiko). Jeder hört, was ihn bewegt.</li>
-<li><strong>Take Control (Kontrolle übernehmen):</strong> Beim Geld und beim Prozess nicht nachgeben, sondern mit Spannung umgehen. Challenger diskutieren Preise, statt sofort Rabatte zu geben, und sie drängen auf Entscheidungen.</li>
+<li><strong>Take Control (Kontrolle übernehmen):</strong> Spannung beim Geld und beim Prozess aushalten. Challenger diskutieren den Preis, wo andere beim ersten Stirnrunzeln einen Rabatt geben, und sie schlagen den nächsten Schritt mit Termin vor.</li>
 </ol>
 <h2>Die Choreografie des Challenger-Pitches</h2>
 <ol class="steps">
 <li><strong>Warmer:</strong> Zeige, dass du seine Welt verstehst.</li>
 <li><strong>Reframe:</strong> Die überraschende Einsicht, die sein Problem neu rahmt.</li>
-<li><strong>Rational Drowning:</strong> Daten, die zeigen, wie teuer das Problem wirklich ist.</li>
+<li><strong>Rational Drowning:</strong> Daten, die zeigen, wie teuer das Problem ist.</li>
 <li><strong>Emotional Impact:</strong> Eine Geschichte eines ähnlichen Kunden, in der er sich wiedererkennt.</li>
 <li><strong>Ein neuer Weg:</strong> Was die Lösung grundsätzlich braucht (noch ohne dein Produkt).</li>
 <li><strong>Deine Lösung:</strong> Erst jetzt dein Produkt.</li>
 </ol>
 <div class="callout practice"><div class="label">Beispiel</div>Ein Verkäufer für Zeiterfassung besucht eine Bäckerei mit vier Filialen. Warmer: „Sie haben gerade die dritte Filiale in zwei Jahren eröffnet, da ist Personalplanung vermutlich das Thema Nummer eins.“ Reframe: „Die meisten Betriebe Ihrer Größe glauben, ihr Problem seien die Personalkosten. Tatsächlich sind es die Überstunden, die niemand sieht: Im Branchenschnitt werden rund 8 % der Stunden nachträglich korrigiert.“ Rational Drowning: „Bei 40 Mitarbeitern wären das etwa 400 Stunden im Jahr, die Sie zahlen, aber nicht geplant haben.“ Emotional Impact: „Eine Bäckerei in Münster hat erst beim Betriebsprüfer gemerkt, dass ihre Zettelwirtschaft nicht reicht.“ Neuer Weg: „Was Sie brauchen, ist eine Erfassung, die der Mitarbeiter in fünf Sekunden bedient, sonst wird sie nicht genutzt.“ Erst dann: das Produkt.</div>
-<div class="callout warn"><span class="label">Kritik</span>Die CEB-Daten beruhen auf Manager-Einschätzungen, nicht auf Umsatzmessungen, wurden von einem Beratungsunternehmen erhoben und nicht unabhängig geprüft. Sie gelten für komplexe B2B-Verkäufe. Bei einfachen Verkäufen schnitten alle Typen ähnlich ab. Nutze Challenger als Haltung („Ich bringe Einsicht“), nicht als Dogma.</div>
+<p><strong>Gegenprobe.</strong> Die Inhaberin der Bäckerei war zehn Jahre Controllerin und kennt die 8 % aus eigener Auswertung. Jetzt belehrt der Reframe sie über ihr eigenes Fachgebiet, und der Verkäufer verliert in Satz zwei die Glaubwürdigkeit, die der Warmer aufgebaut hat. Beim Verkauf einer Brotschneidemaschine für 400 Euro braucht es die Choreografie gar nicht; bei einfachen Verkäufen schnitten in der CEB-Studie alle Typen ähnlich ab. Teach funktioniert nur mit einer Einsicht, die der Kunde noch nicht hat und die du mit einer Zahl belegen kannst; fehlt eines davon, beginnst du mit Problemfragen aus Modul 5.</p>
+<div class="callout warn"><span class="label">Kritik</span>Die CEB-Daten beruhen auf Manager-Einschätzungen, nicht auf Umsatzmessungen, wurden von einem Beratungsunternehmen erhoben und nicht unabhängig geprüft. Sie gelten für komplexe B2B-Verkäufe. Bei einfachen Verkäufen schnitten alle Typen ähnlich ab. Behalte vom Challenger die Haltung, dem Kunden eine belegte Einsicht mitzubringen, und prüfe bei jedem einfachen Verkauf, ob sie dort überhaupt gebraucht wird.</div>
 `,
       quellen: [
         "Dixon, M., & Adamson, B. (2011). <em>The Challenger Sale: Taking Control of the Customer Conversation</em>. Portfolio/Penguin. Beratungsstudie der CEB, nicht peer-reviewed.",
@@ -139,8 +151,13 @@ KURSE.push({
         "Banas und Rains (2010): Inokulation, also Vorwarnung plus kurze Widerlegung, macht spätere Gegenargumente schwächer.",
         "Ein sofortiger Rabatt signalisiert, dass der erste Preis nicht ernst war; Rabatt nur gegen Gegenleistung."
       ],
+      selbsterklaerung: [
+        "Warum stellt die Verkäuferin im Beispiel die Isolationsfrage, bevor sie die fünf Euro am Tag vorrechnet, und was hätte dieselbe Rechnung ohne das „Ehrlich gesagt ja“ des Kunden bewirkt?",
+        "Was ändert sich an LAER, wenn der Einwand „Ihnen fehlt die Schnittstelle zu unserem Warenwirtschaftssystem“ lautet und das zutrifft?",
+        "Warum überzeugt laut O'Keefe das selbst genannte und entkräftete Gegenargument stärker als die einseitige Botschaft, obwohl du dem Kunden damit einen Grund gegen dich lieferst?"
+      ],
       inhalt: `
-<p>Ein Einwand ist kein Nein. Ein Einwand ist eine Frage in Verkleidung: „Überzeuge mich, dass das für mich funktioniert.“ Kunden ohne Einwände sind meist Kunden ohne Interesse.</p>
+<p>Ein Einwand ist eine Frage in Verkleidung; „Das ist mir zu teuer“ heißt meist „Zeig mir, dass es sich für mich rechnet“. Ein Kunde, der keinen einzigen Einwand bringt, hat meist gar nicht vor zu kaufen; wer kaufen will, prüft.</p>
 <h2>Die fünf echten Einwände</h2>
 <p>Hinter hunderten Formulierungen stecken fast immer nur fünf Gründe:</p>
 <ol>
@@ -151,24 +168,26 @@ KURSE.push({
 <li><strong>Keine Entscheidungsbefugnis:</strong> „Ich muss das mit meinem Partner besprechen.“ → Entscheider ins Gespräch holen.</li>
 </ol>
 <h2>Die Methode: LAER</h2>
+<p>LAER sind vier Schritte in fester Reihenfolge: Listen, Acknowledge, Explore, Respond. Das Argument kommt erst im vierten Schritt; die ersten drei klären, welcher der fünf Einwände vorliegt.</p>
 <ol class="steps">
-<li><strong>Listen:</strong> Ausreden lassen. Vollständig. Nicht unterbrechen, nicht nicken wie ein Roboter.</li>
-<li><strong>Acknowledge:</strong> Labeln (Voss): „Es klingt, als wäre das Budget gerade eng.“ Nie „Ja, aber“. Immer „Ja, und“ oder einfach eine Pause.</li>
-<li><strong>Explore:</strong> Spiegeln und kalibrierte Fragen: „Zu teuer im Vergleich wozu?“, „Was müsste passieren, damit es sich rechnet?“, „Wenn der Preis kein Thema wäre, würden Sie es dann machen?“ (isoliert den echten Einwand).</li>
+<li><strong>Listen:</strong> Den Kunden vollständig ausreden lassen, ohne zu unterbrechen und ohne das mechanische Nicken, das Ungeduld verrät.</li>
+<li><strong>Acknowledge:</strong> Labeln, wie in Modul 5 bei Voss: „Es klingt, als wäre das Budget gerade eng.“ „Ja, aber“ streicht das Label sofort wieder, weil der Kunde nur das Aber hört; brauchbar sind „Ja, und“ oder eine Pause.</li>
+<li><strong>Explore:</strong> Spiegeln und kalibrierte Fragen: „Zu teuer im Vergleich wozu?“, „Was müsste passieren, damit es sich rechnet?“, „Wenn der Preis kein Thema wäre, würden Sie es dann machen?“ Die letzte ist die Isolationsfrage: Sie prüft, ob der genannte Einwand der einzige ist oder ob dahinter ein anderer steckt.</li>
 <li><strong>Respond:</strong> Erst jetzt antworten, kurz, mit Beleg. Dann eine Frage, die prüft, ob es gelöst ist: „Beantwortet das Ihre Sorge?“</li>
 </ol>
 <h2>Belforts Looping</h2>
-<p>Jordan Belfort beschreibt in <em>Way of the Wolf</em>, dass die meisten Einwände „Nebelwände“ sind: Der Kunde sagt „Ich muss nachdenken“, meint aber „Ich bin noch nicht sicher genug“. Seine Methode: Den Einwand kurz anerkennen, dann zurück in die Präsentation („loopen“) und die Gewissheit auf einer der drei Skalen (Produkt, du, Firma) erhöhen, dann erneut abschließen. Nie denselben Einwand zweimal mit demselben Argument beantworten.</p>
+<p>Jordan Belfort beschreibt in <em>Way of the Wolf</em>, dass die meisten Einwände „Nebelwände“ sind: Der Kunde sagt „Ich muss nachdenken“, meint aber „Ich bin noch nicht sicher genug“. Looping heißt bei ihm: den Einwand kurz anerkennen, dann zurück in die Präsentation und die Gewissheit des Kunden auf einer der drei Skalen (Produkt, du als Person, deine Firma, jeweils von 1 bis 10) erhöhen, dann erneut abschließen. Denselben Einwand beantwortest du nie zweimal mit demselben Argument.</p>
 <h2>Preis-Einwände konkret</h2>
 <ul>
-<li>Nie sofort rabattieren. Ein schneller Rabatt sagt: „Der erste Preis war eine Lüge.“</li>
+<li>Ein sofortiger Rabatt sagt dem Kunden, dass der erste Preis nicht ernst gemeint war, und lädt zur nächsten Runde ein.</li>
 <li>„Zu teuer“ → „Ich verstehe. Was genau vergleichen Sie?“ (Oft gibt es keinen Vergleich.)</li>
 <li>Aufteilen: 3.600 Euro im Jahr sind 10 Euro am Tag. Gegenrechnen: Was kostet das Problem pro Tag?</li>
-<li>Wenn Rabatt, dann gegen Gegenleistung: Vorkasse, längere Laufzeit, Referenz, Empfehlung. Nie umsonst.</li>
+<li>Ein Rabatt kommt nur gegen eine Gegenleistung wie Vorkasse, längere Laufzeit, eine Referenz oder eine Empfehlung.</li>
 </ul>
 <div class="callout practice"><div class="label">Beispiel</div>Kunde: „Das ist deutlich teurer als unser jetziger Anbieter.“ Listen: Die Verkäuferin lässt ihn ausreden und wartet noch zwei Sekunden. Acknowledge: „Es klingt, als hätten Sie das Gefühl, für dasselbe mehr zu zahlen.“ Explore: „Deutlich teurer im Vergleich wozu genau?“ Kunde: „Die nehmen 1.800 im Jahr, Sie 3.600.“ Verkäuferin: „Und wenn der Preis gleich wäre, würden Sie wechseln?“ Kunde: „Ehrlich gesagt ja, der Support ist eine Katastrophe.“ Respond: „Dann reden wir über 1.800 Euro Unterschied, also fünf Euro am Tag. Sie haben vorhin gesagt, dass pro Woche etwa drei Stunden an Support-Warteschleifen verloren gehen. Rechnet sich das für Sie? Beantwortet das Ihre Sorge?“</div>
+<p><strong>Gegenprobe.</strong> Der Kunde sagt: „Ihnen fehlt die Schnittstelle zu unserem Warenwirtschaftssystem.“ Das stimmt. Ein Label („Es klingt, als wäre Ihnen die Anbindung wichtig“) und eine Isolationsfrage wirken hier wie Ausweichen, weil hinter dem Satz keine Unsicherheit steckt, sondern eine Anforderung. Die Antwort ist die Sache selbst: „Nein, die haben wir nicht. Der Export läuft über CSV, das kostet Ihre Buchhaltung einmal pro Woche zehn Minuten. Ist das für Sie tragbar oder ein Ausschlusskriterium?“ LAER ist für Einwände gebaut, hinter denen eine Unsicherheit steckt; auf eine Sachfrage oder eine echte K.-o.-Anforderung antwortest du mit dem Fakt, auch wenn er Nein lautet.</p>
 <div class="callout practice"><span class="label">Bootcamp</span>In den Rollenspielen bekommst du jeden dieser fünf Einwände mehrfach in unterschiedlicher Verkleidung. Der Coach prüft, ob du LAER einhältst.</div>
-<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Nenne den Einwand selbst, bevor der Kunde es tut.</strong> O'Keefes Meta-Analyse (1999) über zweiseitige Botschaften: Wer das Gegenargument selbst anspricht UND entkräftet, überzeugt stärker als einseitige Botschaften. Wer es nur erwähnt, ohne es zu entkräften, überzeugt schwächer. Banas und Rains (2010) belegen zusätzlich die Inokulation: Warnst du den Kunden vor, was der Wettbewerber sagen wird, und widerlegst es kurz, wirkt das Argument später schwächer. Und Rains (2013): Druck erzeugt Reaktanz, also Widerstand gegen die Botschaft selbst. Je freier sich der Kunde fühlt, desto eher sagt er Ja.</div>
+<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Nenne den Einwand selbst, bevor der Kunde es tut.</strong> O'Keefes Meta-Analyse (1999) über zweiseitige Botschaften: Wer das Gegenargument selbst anspricht UND entkräftet, überzeugt stärker als einseitige Botschaften. Wer es nur erwähnt, ohne es zu entkräften, überzeugt schwächer. Banas und Rains (2010) belegen zusätzlich die Inokulation, nach dem Impfprinzip benannt: Warnst du den Kunden vor, was der Wettbewerber sagen wird, und widerlegst es kurz, wirkt das Argument später schwächer. Und Rains (2013): Druck erzeugt Reaktanz, den Widerstand, der entsteht, sobald jemand seine Entscheidungsfreiheit bedroht sieht, und der sich gegen die Botschaft selbst richtet. Je freier sich der Kunde fühlt, desto eher sagt er Ja.</div>
 `,
       quellen: [
         "Belfort, J. (2017). <em>Way of the Wolf</em>. North Star Way. Praxisbuch (Looping), keine Studie.",
@@ -208,35 +227,41 @@ KURSE.push({
         "Fünf nicht manipulative Abschlussformen: Zusammenfassung, nächster Schritt, direkte Frage, bedingter Abschluss, Trial Close.",
         "Nach dem Ja: bestätigen, danken, nächsten Schritt konkretisieren, gehen; binnen 24 Stunden Bestätigung mit den Gründen des Kunden."
       ],
+      selbsterklaerung: [
+        "Warum zählt „Sie schicken mir die Anrufzahlen bis Freitag“ als Fortschritt, „Schicken Sie mir mal Unterlagen“ aber als Vertagung, obwohl beide Sätze freundlich klingen?",
+        "Was ändert sich an der Montag-oder-Mittwoch-Frage, wenn der Kunde die Entscheidung erst nach einer Regionalleitersitzung in vier Wochen treffen darf?",
+        "Warum kann ein zusätzliches Argument nach dem Ja das Ja gefährden, und warum gilt dasselbe für die Bestätigungsmail binnen 24 Stunden gerade nicht?"
+      ],
       inhalt: `
-<p>Der Abschluss ist kein Trick am Ende, sondern die logische Folge eines gut geführten Gesprächs. Wenn du abschließen musst wie ein Ringer, hast du vorher Fehler gemacht. Trotzdem: Du musst fragen. Viele Verkäufer stellen die Abschlussfrage nie klar und deutlich, aus Angst vor dem Nein.</p>
+<p>Der Abschluss folgt aus dem Gespräch davor. Wenn der Kunde das Problem selbst beziffert und den Nutzen selbst ausgesprochen hat, ist die Abschlussfrage ein kurzer Vorschlag. Wer am Ende ringen muss, hat in der Bedarfsanalyse zu früh präsentiert. Gefragt werden muss trotzdem, und viele Verkäufer stellen die Abschlussfrage aus Angst vor dem Nein nie klar und deutlich.</p>
 <h2>Was die Daten sagen</h2>
 <ul>
-<li>Rackham: Bei großen Verkäufen schaden aggressive Closing-Techniken. Was funktioniert: ein klarer Vorschlag für den nächsten Schritt.</li>
+<li>Rackham: Bei großen Verkäufen schaden aggressive Closing-Techniken. Was funktioniert, ist ein klarer Vorschlag für den nächsten Schritt.</li>
 <li>Gong (Firmen-Felddaten, nicht peer-reviewed): Gespräche mit konkretem, terminiertem nächsten Schritt schließen deutlich häufiger ab.</li>
 <li>Bei komplexen Verkäufen fällt die Entscheidung selten im ersten Gespräch; es braucht mehrere Kontakte. Der „Abschluss“ eines Erstgesprächs ist deshalb der Folgetermin.</li>
 </ul>
 <h2>Rackhams vier Gesprächsausgänge</h2>
-<p>Rackham unterscheidet vier mögliche Ergebnisse eines Gesprächs: <strong>Auftrag</strong> (Order), <strong>Fortschritt</strong> (Advance: Der Kunde tut etwas, das den Verkauf weiterbringt, etwa einen Termin mit dem Entscheider zusagen oder Daten liefern), <strong>Vertagung</strong> (Continuation: Das Gespräch endete freundlich, aber der Kunde hat sich zu nichts verpflichtet) und <strong>Absage</strong>. Durchschnittliche Verkäufer werten eine Vertagung als Erfolg. Spitzenverkäufer planen vor jedem Gespräch, welcher Fortschritt das Ziel ist, und schlagen genau den am Ende vor.</p>
+<p>Rackham unterscheidet vier mögliche Ergebnisse eines Gesprächs: <strong>Auftrag</strong> (Order), <strong>Fortschritt</strong> (Advance: Der Kunde tut etwas, das den Verkauf weiterbringt, etwa einen Termin mit dem Entscheider zusagen oder Daten liefern), <strong>Vertagung</strong> (Continuation: Das Gespräch endete freundlich, aber der Kunde hat sich zu nichts verpflichtet) und <strong>Absage</strong>. Fortschritt und Vertagung unterscheiden sich an einem Merkmal: Beim Fortschritt handelt der Kunde, bei der Vertagung nur der Verkäufer. Durchschnittliche Verkäufer werten eine Vertagung als Erfolg. Spitzenverkäufer planen vor jedem Gespräch, welcher Fortschritt das Ziel ist, und schlagen genau den am Ende vor.</p>
 <h2>Abschlusstechniken, die nicht manipulativ sind</h2>
 <ol>
 <li><strong>Zusammenfassungs-Abschluss:</strong> „Sie haben gesagt, X kostet Sie monatlich Y. Wir lösen X durch Z. Sollen wir starten?“ Nutzt die eigenen Worte des Kunden (Commitment).</li>
 <li><strong>Nächster-Schritt-Abschluss:</strong> „Der logische nächste Schritt wäre ein Testlauf mit zwei Mitarbeitern. Passt Ihnen Montag oder Mittwoch?“</li>
-<li><strong>Direkte Frage:</strong> „Wollen wir das machen?“ Dann Stille. Keine Angst vor der Stille.</li>
-<li><strong>Bedingter Abschluss:</strong> „Wenn ich Ihnen die Lieferung bis Freitag garantiere, sind wir dann im Geschäft?“ Nur mit echtem Zugeständnis.</li>
-<li><strong>Probe-Abschluss (Trial Close):</strong> Früh im Gespräch Temperatur messen: „Wie klingt das bisher für Sie?“ Antwort zeigt, ob du weiter Bedarf aufbauen musst.</li>
+<li><strong>Direkte Frage:</strong> „Wollen wir das machen?“, danach Stille, bis der Kunde antwortet.</li>
+<li><strong>Bedingter Abschluss:</strong> „Wenn ich Ihnen die Lieferung bis Freitag garantiere, sind wir dann im Geschäft?“ Das funktioniert nur, wenn die Bedingung für den Kunden ein echtes Zugeständnis ist.</li>
+<li><strong>Trial Close (Probe-Abschluss):</strong> Früh im Gespräch Temperatur messen: „Wie klingt das bisher für Sie?“ Die Antwort zeigt, ob du weiter Bedarf aufbauen musst.</li>
 </ol>
 <h2>Belforts Abschluss-Logik</h2>
 <p>Belfort: Du darfst erst abschließen, wenn der Kunde auf allen drei Skalen (Produkt, Verkäufer, Firma) nahe 10 ist UND seine Aktionsschwelle niedrig genug ist (er traut sich, zu entscheiden) UND seine Schmerzschwelle hoch genug (das Problem tut genug weh). Fehlt eines, loopst du zurück. Das ist Belforts Version von SPIN plus Vertrauen.</p>
 <h2>Nach dem Ja</h2>
 <ul>
-<li>Nicht weiterverkaufen. Jeder Satz nach dem Ja kann es rückgängig machen.</li>
+<li>Kein weiteres Argument nach dem Ja, weil jeder zusätzliche Satz dem Kunden einen neuen Grund zum Nachdenken gibt.</li>
 <li>Bestätigen, bedanken, nächsten Schritt konkretisieren, gehen.</li>
-<li>Kaufreue verhindern: Innerhalb von 24 Stunden eine Bestätigung mit den vom Kunden genannten Gründen senden. Das festigt das Commitment.</li>
+<li>Kaufreue, der Zweifel, der in den Stunden nach einer Entscheidung einsetzt, verhinderst du mit einer Bestätigung innerhalb von 24 Stunden, die die vom Kunden genannten Gründe wiederholt. Das festigt das Commitment.</li>
 </ul>
 <h2>Nach dem Nein</h2>
-<p>„Darf ich fragen, was den Ausschlag gegeben hat?“ Die Antwort ist wertvoller als der Abschluss, weil sie die nächsten zehn Gespräche verbessert. Und: Tür offen halten. „Darf ich mich in drei Monaten melden?“</p>
+<p>„Darf ich fragen, was den Ausschlag gegeben hat?“ Die Antwort ist wertvoller als der Abschluss, weil sie die nächsten zehn Gespräche verbessert. Halte die Tür offen: „Darf ich mich in drei Monaten melden?“</p>
 <div class="callout practice"><div class="label">Beispiel</div>Ende eines Erstgesprächs mit dem Inhaber einer Autowerkstatt. Verkäufer: „Sie haben gesagt, dass Ihnen jede Woche etwa zwei Kunden wegbleiben, weil niemand ans Telefon geht, also rund 800 Euro Umsatz. Wir übernehmen die Anrufannahme ab der dritten Sekunde. Der logische nächste Schritt wäre ein zweiwöchiger Test auf Ihrer Hauptnummer. Passt Ihnen Montag oder Mittwoch für die Einrichtung?“ Dann Stille. Nach fünf Sekunden: „Mittwoch.“ Verkäufer: „Mittwoch, 9 Uhr. Ich schicke Ihnen heute noch die Bestätigung mit den drei Punkten, die Sie genannt haben. Danke für Ihre Zeit.“ Er packt ein und geht, ohne ein weiteres Argument.</div>
+<p><strong>Gegenprobe.</strong> Der Werkstattinhaber gehört zu einer Kette, und der Test muss durch den Regionalleiter, der in vier Wochen tagt. „Montag oder Mittwoch?“ übergeht jetzt seine Entscheidungsstruktur und wird zu dem Druck, der in Rackhams Daten bei großen Verkäufen die Erfolgsquote senkte. Der passende Fortschritt ist ein anderer: „Schicken Sie mir bis Freitag die Anrufzahlen der Hauptnummer, dann bauen wir daraus die Vorlage für den Regionalleiter, und ich bin bei dem Termin dabei?“ Ein Fortschritt ist immer eine Handlung des Kunden, die zu seinem Entscheidungsweg passt; der Termin ist nur die häufigste Form davon.</p>
 `,
       quellen: [
         "Rackham, N. (1988). <em>SPIN Selling</em>, Kapitel 2 (Obtaining Commitment: Closing the Sale). McGraw-Hill.",

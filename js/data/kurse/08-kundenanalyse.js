@@ -21,35 +21,41 @@ KURSE.push({
         "Die erste Frage des Kunden verrät meist sein Hauptmotiv; zweimal „Warum ist Ihnen das wichtig?“ führt zum echten Motiv dahinter.",
         "Faustregel: etwa 70 % der Argumente auf das Hauptmotiv, 30 % auf das Nebenmotiv; wer alle Motive bedient, verwässert alles."
       ],
+      selbsterklaerung: [
+        "Warum verrät die erste Frage der Zahnärztin ihr Motiv zuverlässiger als eine Frage von dir, und warum reicht sie trotzdem erst mit den zwei Warum-Fragen?",
+        "Was ändert sich an der 70/30-Regel, wenn zwei Personen mit verschiedenen Hauptmotiven gemeinsam entscheiden?",
+        "Warum ist ein ROI-Argument bei einem Kunden mit Hauptmotiv Sicherheit schwächer, obwohl eine Amortisation in sechs Monaten auch sein Risiko senkt?"
+      ],
       inhalt: `
-<p>Niemand kauft ein Produkt. Alle kaufen ein Gefühl, eine Lösung, einen Status oder die Abwesenheit eines Schmerzes. Wer das Motiv kennt, verkauft das Motiv.</p>
+<p>Zwei Betriebe kaufen dieselbe Buchhaltungssoftware. Der eine Inhaber kauft, weil sie ihm Steuerberaterhonorar spart; die andere kauft, weil sie nie wieder am Sonntagabend Belege sortieren will. Beide hätten die Präsentation des jeweils anderen gelangweilt. Diese Lektion zeigt, wie du in den ersten Minuten herausfindest, welches Motiv vor dir sitzt, und wie du deine Argumente darauf verteilst.</p>
 <h2>Die Grundbedürfnisse (wissenschaftlich fundiert)</h2>
-<p>Die Selbstbestimmungstheorie von Deci und Ryan (1985, 2000), eine der am besten belegten Motivationstheorien, nennt drei universelle psychologische Grundbedürfnisse:</p>
+<p>Die Selbstbestimmungstheorie von Deci und Ryan (1985, 2000) erklärt, woraus Motivation entsteht, und gehört zu den am besten belegten Motivationstheorien. Sie nennt drei universelle psychologische Grundbedürfnisse:</p>
 <ul>
 <li><strong>Autonomie:</strong> Selbst entscheiden, Kontrolle haben. Verkaufssprache: „Sie behalten die volle Kontrolle“, „Sie entscheiden, wann“.</li>
 <li><strong>Kompetenz:</strong> Wirksam sein, Dinge beherrschen. „Damit wirken Sie vor Ihren Kunden wie ein Profi.“</li>
 <li><strong>Verbundenheit:</strong> Dazugehören, geschätzt werden. „Die meisten Betriebe in Ihrem Verband nutzen das bereits.“</li>
 </ul>
 <h2>Die Praktiker-Liste der Kaufmotive</h2>
-<p>Im Vertrieb hat sich eine Liste von sechs bis acht Motiven etabliert, die sich gut mit der Forschung verträgt (u. a. bei Zig Ziglar und in der deutschen Vertriebsliteratur, z. B. Limbeck). Sie ist kein wissenschaftliches Modell, sondern ein Beobachtungsraster:</p>
+<p>Im Vertrieb hat sich daneben eine Liste von sechs bis acht Kaufmotiven etabliert, unter anderem bei Zig Ziglar und in der deutschen Vertriebsliteratur (Limbeck). Ein Kaufmotiv ist der konkrete Grund, aus dem jemand gerade dieses Produkt will; ein Grundbedürfnis ist die allgemeine Kraft dahinter. Die Liste ist ein Beobachtungsraster aus der Praxis ohne wissenschaftliche Prüfung, verträgt sich aber mit der Forschung:</p>
 <table>
 <tr><th>Motiv</th><th>Erkennungszeichen</th><th>Sprache dafür</th></tr>
-<tr><td>Gewinn / Sparen</td><td>Fragt früh nach Preis, Rendite, Amortisation</td><td>Zahlen, ROI, „rechnet sich in X Monaten“</td></tr>
+<tr><td>Gewinn / Sparen</td><td>Fragt früh nach Preis, Rendite, Amortisation (wann die Ersparnis den Kaufpreis eingeholt hat)</td><td>Zahlen, ROI (Return on Investment, der Gewinn im Verhältnis zum eingesetzten Geld), „rechnet sich in X Monaten“</td></tr>
 <tr><td>Sicherheit</td><td>Fragt nach Garantie, Referenzen, Risiken</td><td>Garantien, Zertifikate, „bewährt seit“</td></tr>
 <tr><td>Bequemlichkeit</td><td>Fragt nach Aufwand, Zeit, Service</td><td>„Wir übernehmen das komplett“</td></tr>
 <tr><td>Ansehen / Status</td><td>Erwähnt Wettbewerber, Außenwirkung, Marke</td><td>Exklusivität, „führende Unternehmen“</td></tr>
 <tr><td>Gesundheit / Wohlbefinden</td><td>Spricht über Stress, Belastung</td><td>Entlastung, Ruhe</td></tr>
 <tr><td>Neugier / Innovation</td><td>Fragt nach Neuem, Technik, Trends</td><td>„Als einer der Ersten“</td></tr>
-<tr><td>Angst vor Verlust</td><td>Spricht über Probleme, Konkurrenzdruck</td><td>Kosten des Nichtstuns (Verlustaversion, Kahneman und Tversky, Modul 2)</td></tr>
+<tr><td>Angst vor Verlust</td><td>Spricht über Probleme, Konkurrenzdruck</td><td>Kosten des Nichtstuns (Verlustaversion: Verluste wiegen psychologisch etwa doppelt so schwer wie gleich große Gewinne; Kahneman und Tversky, Modul 2)</td></tr>
 </table>
 <h2>Wie du das Motiv findest</h2>
 <ol>
-<li>Höre auf die ERSTE Frage des Kunden. Sie verrät meist das Hauptmotiv.</li>
-<li>Frage: „Was ist Ihnen bei so einer Entscheidung am wichtigsten?“ und dann: „Und warum ist Ihnen das wichtig?“ Zweimal „warum“ führt meist zum echten Motiv.</li>
+<li>Höre auf die erste Frage des Kunden. Sie verrät meist das Hauptmotiv, weil er fragt, was ihn am meisten beschäftigt, bevor er weiß, was du betonen wirst.</li>
+<li>Frage: „Was ist Ihnen bei so einer Entscheidung am wichtigsten?“ und danach: „Und warum ist Ihnen das wichtig?“ Die erste Antwort nennt meist eine Eigenschaft (schnell, günstig, sicher), die zweite das Motiv dahinter.</li>
 <li>Beobachte, bei welchem Thema er sich vorbeugt oder lebendiger wird (Modul 4).</li>
 </ol>
-<div class="callout practice"><div class="label">Beispiel</div>Eine Zahnärztin interessiert sich für ein neues Terminbuchungssystem. Ihre erste Frage: „Wie lange dauert die Umstellung, und muss ich mich da selbst reinfuchsen?“ Das ist Bequemlichkeit, nicht Gewinn. Der Verkäufer fragt nach: „Was ist Ihnen dabei am wichtigsten?“ Antwort: „Dass meine Empfangskraft nicht wieder drei Wochen schlecht gelaunt ist.“ Und warum? „Weil sie dann kündigt, und ich finde keine neue.“ Das echte Motiv ist Angst vor Verlust. Die Präsentation betont nun: „Wir schulen Ihre Mitarbeiterin persönlich, die Umstellung läuft an einem Nachmittag, und in den ersten vier Wochen hat sie eine feste Ansprechpartnerin.“</div>
-<p>Dann sprichst du das Hauptmotiv in etwa 70 % deiner Argumente an, das Nebenmotiv in etwa 30 %. Das ist eine Faustregel aus der Praxis, keine Messgröße. Alle sieben Motive aufzuzählen verwässert alles.</p>
+<div class="callout practice"><div class="label">Beispiel</div>Eine Zahnärztin interessiert sich für ein neues Terminbuchungssystem. Ihre erste Frage: „Wie lange dauert die Umstellung, und muss ich mich da selbst reinfuchsen?“ Aufwand und Zeit sind die Erkennungszeichen für Bequemlichkeit. Der Verkäufer fragt nach: „Was ist Ihnen dabei am wichtigsten?“ Antwort: „Dass meine Empfangskraft nicht wieder drei Wochen schlecht gelaunt ist.“ Und warum? „Weil sie dann kündigt, und ich finde keine neue.“ Das echte Motiv ist Angst vor Verlust. Die Präsentation betont nun: „Wir schulen Ihre Mitarbeiterin persönlich, die Umstellung läuft an einem Nachmittag, und in den ersten vier Wochen hat sie eine feste Ansprechpartnerin.“</div>
+<p><strong>Gegenprobe.</strong> Beim Einkäufer eines Konzerns lautet die erste Frage fast immer „Was kostet das?“, weil die Frage zu seiner Rolle gehört; sie verrät seine Funktion, und sein persönliches Motiv kommt erst mit den beiden Warum-Fragen heraus. Sitzen die Zahnärztin und ihr Praxismanager gemeinsam am Tisch, kann sie Angst vor Verlust haben und er Gewinn; dann bekommt jeder seine eigenen 70 Prozent, platziert in den Momenten, in denen er zuhört. Die erste Frage ist eine Hypothese über eine Person; prüfe sie mit zwei Warum-Fragen und stelle sie für jeden Entscheider neu.</p>
+<p>Danach verteilst du deine Argumente: etwa 70 % auf das Hauptmotiv, etwa 30 % auf das Nebenmotiv. Die Zahlen sind eine Faustregel aus der Vertriebspraxis ohne Messung dahinter. Wer alle sieben Motive bedient, gibt jedem Argument ein Siebtel des Gewichts, und der Kunde behält keines davon.</p>
 `,
       quellen: [
         "Deci, E. L., & Ryan, R. M. (1985). <em>Intrinsic Motivation and Self-Determination in Human Behavior</em>. Plenum.",
@@ -86,30 +92,36 @@ KURSE.push({
         "Hoch verträgliche Kunden sagen höflich Ja ohne Substanz, Kunden mit hohem Neurotizismus brauchen Garantien und Rückversicherung.",
         "Die wichtigste Regel: Passe Tempo, Detailtiefe und Energielevel an den Kunden an, nicht umgekehrt."
       ],
+      selbsterklaerung: [
+        "Warum erkennt sich ein Kunde in seiner DISG-Farbe wieder, obwohl ein zweiter Test ihn in eine andere Farbe einordnen könnte?",
+        "Was ändert sich an deiner Hypothese „D-Typ“, wenn der Einkaufsleiter im zweiten Termin zehn Minuten von seiner Messe erzählt?",
+        "Warum braucht ein Kunde mit hohem Neurotizismus und hoher Gewissenhaftigkeit Garantien und Tabellen zugleich, und woran merkst du, dass eines davon fehlt?"
+      ],
       inhalt: `
 <h2>DISG: Beliebt, aber wissenschaftlich schwach</h2>
-<p>Das DISG-Modell (englisch DISC) geht auf den Psychologen William Marston (1928) zurück. Marston beschrieb vier Verhaltensmuster; die Fragebögen, die heute in Vertriebstrainings allgegenwärtig sind, wurden erst Jahrzehnte später von kommerziellen Anbietern entwickelt. Die vier Typen:</p>
+<p>DISG (englisch DISC) ist ein Vier-Typen-Modell für Verhalten, das auf den Psychologen William Marston (1928) zurückgeht; die Buchstaben stehen für dominant, initiativ, stetig und gewissenhaft. Marston beschrieb die vier Verhaltensmuster, die Fragebögen, die heute in Vertriebstrainings allgegenwärtig sind, entwickelten kommerzielle Anbieter erst Jahrzehnte später. Die vier Typen:</p>
 <table>
 <tr><th>Typ</th><th>Merkmale</th><th>Wie du ihn behandelst</th></tr>
-<tr><td><strong>D</strong>ominant (rot)</td><td>Direkt, ergebnisorientiert, ungeduldig, will Kontrolle</td><td>Kurz, auf den Punkt, Optionen statt Vorschriften, Ergebnisse zuerst. Kein Smalltalk.</td></tr>
+<tr><td><strong>D</strong>ominant (rot)</td><td>Direkt, ergebnisorientiert, ungeduldig, will Kontrolle</td><td>Kurz, auf den Punkt, Optionen statt Vorschriften, Ergebnisse zuerst, Smalltalk weglassen.</td></tr>
 <tr><td><strong>I</strong>nitiativ (gelb)</td><td>Gesellig, enthusiastisch, redet viel, impulsiv</td><td>Beziehung aufbauen, Begeisterung spiegeln, Geschichten, dann konkret werden und Details schriftlich nachliefern.</td></tr>
 <tr><td><strong>S</strong>tetig (grün)</td><td>Geduldig, loyal, harmoniebedürftig, risikoscheu</td><td>Langsam, Sicherheit, Garantien, Zeit lassen, nie drängen, persönliche Betreuung betonen.</td></tr>
 <tr><td><strong>G</strong>ewissenhaft (blau)</td><td>Analytisch, präzise, skeptisch, braucht Daten</td><td>Fakten, Zahlen, Belege, Vergleiche, keine Superlative, schriftliche Unterlagen.</td></tr>
 </table>
-<p><strong>Das Problem:</strong> DISG hat keine Basis in begutachteter Forschung. Menschen sind keine vier Typen, sondern verteilen sich auf jeder Eigenschaft entlang eines Spektrums, und Vier-Typen-Modelle haben in der Regel eine schwache Retest-Reliabilität (wer den Test zweimal macht, landet oft in einer anderen Farbe). Dass sich trotzdem fast jeder in seinem DISG-Profil wiedererkennt, erklärt der <strong>Forer-Effekt</strong> (Forer 1949): Allgemein gehaltene Persönlichkeitsbeschreibungen werden als treffend empfunden, egal ob sie auf einem Test beruhen oder aus dem Horoskop stammen. Die deutsche Fachliteratur zur Personaldiagnostik (z. B. Hossiep und Mühlhaus) rät deshalb von DISG als Auswahlinstrument ab. Für dich heißt das: DISG ist ein Gesprächsraster, kein Messinstrument.</p>
+<p>DISG hat keine Basis in begutachteter Forschung. Jede Eigenschaft verteilt sich in der Bevölkerung entlang eines Spektrums, und ein Modell mit vier Schubladen schneidet dieses Spektrum an willkürlichen Stellen; entsprechend schwach ist bei Vier-Typen-Modellen in der Regel die Retest-Reliabilität (wer den Test zweimal macht, landet oft in einer anderen Farbe). Dass sich trotzdem fast jeder in seinem DISG-Profil wiedererkennt, erklärt der <strong>Forer-Effekt</strong> (Forer 1949): Allgemein gehaltene Persönlichkeitsbeschreibungen werden als treffend empfunden, egal ob sie auf einem Test beruhen oder aus dem Horoskop stammen. Forer gab seinen Studierenden ein und dasselbe Profil als ihr persönliches Ergebnis, und sie bewerteten die Passung im Schnitt mit 4,3 von 5. Die deutsche Fachliteratur zur Personaldiagnostik, also zur Eignungsbeurteilung bei Einstellung und Beförderung (z. B. Hossiep und Mühlhaus), rät deshalb von DISG als Auswahlinstrument ab. Für das Verkaufsgespräch bleibt DISG ein Gesprächsraster, mit dem du in den ersten Minuten eine Hypothese über den Kunden bildest; eine Messung seiner Persönlichkeit ist es nicht.</p>
 <h2>Big Five: Das wissenschaftliche Modell</h2>
-<p>Die Big Five (Costa und McCrae 1992) sind das in der Forschung etablierte Persönlichkeitsmodell. McCrae und Costa (1997) zeigten, dass sich die fünf Faktoren in vielen Sprachen und Kulturen wiederfinden. Fünf Dimensionen, jeweils als Spektrum:</p>
+<p>Die Big Five (Costa und McCrae 1992) sind das in der Forschung etablierte Persönlichkeitsmodell: fünf Dimensionen, gewonnen aus statistischen Analysen, welche Eigenschaftswörter in Selbst- und Fremdbeschreibungen gemeinsam auftreten. McCrae und Costa (1997) zeigten, dass sich die fünf Faktoren in vielen Sprachen und Kulturen wiederfinden. Jeder Mensch bekommt fünf Werte auf Achsen zwischen niedrig und hoch; einen Typnamen vergibt das Modell nicht.</p>
 <ul>
-<li><strong>Offenheit:</strong> Hoch = will Neues, Innovation, Ideen. Niedrig = will Bewährtes.</li>
-<li><strong>Gewissenhaftigkeit:</strong> Hoch = will Details, Pläne, Zuverlässigkeit. Niedrig = will es unkompliziert.</li>
-<li><strong>Extraversion:</strong> Hoch = redet, will Energie, Tempo. Niedrig = will Ruhe, schriftlich, Zeit.</li>
-<li><strong>Verträglichkeit:</strong> Hoch = will Harmonie, vermeidet Konflikt, sagt selten direkt Nein (Achtung: höfliche Zusagen ohne Substanz). Niedrig = fordernd, skeptisch, verhandelt hart.</li>
-<li><strong>Neurotizismus:</strong> Hoch = ängstlich, braucht Sicherheit und Rückversicherung. Niedrig = gelassen, entscheidet schnell.</li>
+<li><strong>Offenheit</strong> (für neue Erfahrungen): Hoch = will Neues, Innovation, Ideen. Niedrig = will Bewährtes.</li>
+<li><strong>Gewissenhaftigkeit</strong> (Planung und Sorgfalt): Hoch = will Details, Pläne, Zuverlässigkeit. Niedrig = will es unkompliziert.</li>
+<li><strong>Extraversion</strong> (Bedürfnis nach Anregung und Gesellschaft): Hoch = redet, will Energie, Tempo. Niedrig = will Ruhe, schriftlich, Zeit.</li>
+<li><strong>Verträglichkeit</strong> (Bedürfnis nach Harmonie): Hoch = vermeidet Konflikt, sagt selten direkt Nein (Achtung: höfliche Zusagen ohne Substanz). Niedrig = fordernd, skeptisch, verhandelt hart.</li>
+<li><strong>Neurotizismus</strong> (emotionale Labilität, also wie schnell und stark jemand mit Sorge reagiert): Hoch = ängstlich, braucht Sicherheit und Rückversicherung. Niedrig = gelassen, entscheidet schnell.</li>
 </ul>
 <h2>Wie du es praktisch nutzt</h2>
-<p>Nutze DISG als schnelle Heuristik in den ersten zwei Minuten (Tempo? Gesprächigkeit? Fragt er nach Daten oder nach Beziehung?), aber bleibe flexibel. Nutze die Big Five, um deine Hypothese zu verfeinern: Ein ängstlicher, gewissenhafter Kunde braucht Garantien UND Daten. Ein extrovertierter, offener Kunde braucht Geschichten UND Neuheit.</p>
+<p>Nutze DISG als Heuristik, also als schnelle Faustregel, in den ersten zwei Minuten (Tempo? Gesprächigkeit? Fragt er nach Daten oder nach Beziehung?), und halte die Zuordnung offen. Mit den Big Five verfeinerst du die Hypothese, weil sie Kombinationen zulassen, die in vier Schubladen keinen Platz haben: Ein ängstlicher, gewissenhafter Kunde braucht Garantien und Daten. Ein extrovertierter, offener Kunde braucht Geschichten und Neuheit.</p>
 <div class="callout practice"><div class="label">Beispiel</div>Ein Verkäufer trifft den Einkaufsleiter eines Maschinenbauers. Der begrüßt ihn mit „Sie haben 20 Minuten, was kostet es und was bringt es?“ Erste Hypothese: D-Typ, niedrige Verträglichkeit. Der Verkäufer lässt den Smalltalk weg und nennt in zwei Sätzen Ergebnis und Preisrahmen. Dann fällt ihm auf, dass der Einkaufsleiter jede Zahl notiert und zweimal nach der Berechnungsgrundlage fragt. Hypothese verfeinert: hohe Gewissenhaftigkeit. Er bietet an, die Kalkulation als Tabelle nachzureichen, und bekommt dafür den zweiten Termin. Hätte er nur die rote Schublade bedient, wäre die Rechnung unglaubwürdig geblieben.</div>
-<p>Die wichtigste Regel: <strong>Passe dein Tempo, deine Detailtiefe und dein Energielevel an den Kunden an, nicht umgekehrt.</strong> Das ist Spiegeln auf Persönlichkeitsebene.</p>
+<p><strong>Gegenprobe.</strong> Beim zweiten Termin, eine Woche später, fragt derselbe Einkaufsleiter nach dem Kaffee und erzählt zehn Minuten von seiner Messe. Die „rote“ Begrüßung kam vom Zeitdruck an jenem Tag; wer die Schublade behält und wieder ohne Smalltalk startet, wirkt jetzt kalt. Und im Buying Center (Lektion 3) nützt die Anpassung an den extrovertierten Geschäftsführer wenig, wenn die gewissenhafte Controllerin die Tabelle vermisst, die er selbst nie lesen würde. Jede Typ-Zuordnung beschreibt zwei Minuten Verhalten; sie gilt, bis das nächste Signal ihr widerspricht, und sie gilt pro Person.</p>
+<p><strong>Passe dein Tempo, deine Detailtiefe und dein Energielevel an den Kunden an, nicht umgekehrt.</strong> Diese Regel gilt unabhängig davon, mit welchem Modell du den Kunden einordnest. Sie ist Spiegeln (Modul 4) auf Persönlichkeitsebene: Zu Haltung und Sprechtempo kommen Informationsmenge und Energie dazu.</p>
 `,
       quellen: [
         "Marston, W. M. (1928). <em>Emotions of Normal People</em>. Kegan Paul.",
@@ -147,29 +159,36 @@ KURSE.push({
         "Rote Flaggen: „Schicken Sie mir mal was zu“ ohne Termin, kein Zugang zum Entscheider nach dem zweiten Gespräch, keine Antwort auf „Was passiert, wenn Sie nichts tun?“.",
         "Ein rechtzeitiges „Ich glaube, wir passen nicht zusammen“ ist Prize Frame (Klaff 2011) und spart Monate."
       ],
+      selbsterklaerung: [
+        "Warum liefert die Frage „Wer muss unterschreiben, und welche Zahl überzeugt diese Person?“ zwei MEDDIC-Felder auf einmal, während die Budgetfrage nur eines liefert und Vertrauen kostet?",
+        "Was ändert sich an der Qualifizierung, wenn der begeisterte Lagerleiter selbst Inhaber des Betriebs ist?",
+        "Woran würdest du nach dem zweiten Gespräch merken, dass dein Champion intern gar nicht für dich kämpft?"
+      ],
       inhalt: `
-<p>Der teuerste Fehler im Vertrieb ist Zeit mit Menschen, die nie kaufen werden. Qualifizierung heißt: früh herausfinden, ob es sich lohnt.</p>
+<p>Ein Verkäufer, der drei Monate an einer Chance arbeitet, die am fehlenden Budget oder an einem Entscheider scheitert, den er nie gesprochen hat, hat drei Monate ohne Umsatz gearbeitet. Qualifizierung ist die Prüfung in den ersten Gesprächen, ob dieser Kunde kaufen kann (Geld, Befugnis, Zeitpunkt) und kaufen will (ein Problem, das ihn etwas kostet). Zwei Raster haben sich dafür durchgesetzt.</p>
 <h2>BANT (aus dem Vertrieb von IBM)</h2>
+<p>BANT steht für Budget, Authority, Need und Timing, also Geld, Entscheidungsbefugnis, Bedarf und Zeitpunkt; die vier Fragen prüfen, ob ein einzelner Ansprechpartner kaufen kann:</p>
 <ul>
 <li><strong>B</strong>udget: Gibt es Geld? „Welchen Rahmen haben Sie dafür vorgesehen?“</li>
 <li><strong>A</strong>uthority: Entscheidet diese Person? „Wer ist außer Ihnen an der Entscheidung beteiligt?“</li>
-<li><strong>N</strong>eed: Gibt es ein echtes Problem? (SPIN, Modul 5)</li>
+<li><strong>N</strong>eed: Gibt es ein echtes Problem? (SPIN, Rackhams Fragetechnik aus Situation, Problem, Implikation und Nutzen, Modul 5)</li>
 <li><strong>T</strong>iming: Wann? „Was passiert, wenn Sie es dieses Quartal nicht lösen?“</li>
 </ul>
-<p>BANT ist einfach und für kleine Verkäufe ausreichend. Kritik: Es fragt zu früh nach Budget (wirkt verkäuferisch) und ignoriert den Entscheidungsprozess.</p>
+<p>BANT reicht für kleine Verkäufe mit einem Entscheider. Bei größeren Käufen zeigt es zwei Schwächen: Die Budgetfrage kommt früh und wirkt wie Verkaufsdruck, und über den Entscheidungsprozess im Unternehmen, also wer wann worüber abstimmt, erfährst du nichts.</p>
 <h2>MEDDIC (PTC, 1990er, für komplexe B2B-Verkäufe)</h2>
-<p>Entwickelt von Jack Napoli und Dick Dunkel beim Softwarehersteller PTC:</p>
+<p>MEDDIC wurde in den 1990ern von Jack Napoli und Dick Dunkel beim Softwarehersteller PTC entwickelt, für Verkäufe mit mehreren Beteiligten und langen Entscheidungswegen. Die sechs Buchstaben:</p>
 <ul>
-<li><strong>M</strong>etrics: Welche messbare Verbesserung erwartet der Kunde?</li>
-<li><strong>E</strong>conomic Buyer: Wer hat die Budgethoheit? (Oft nicht dein Gesprächspartner.)</li>
-<li><strong>D</strong>ecision Criteria: Nach welchen Kriterien wird entschieden?</li>
-<li><strong>D</strong>ecision Process: Welche Schritte, wer, wann?</li>
-<li><strong>I</strong>dentify Pain: Was ist der konkrete Schmerz?</li>
-<li><strong>C</strong>hampion: Gibt es intern jemanden, der für dich kämpft?</li>
+<li><strong>M</strong>etrics (Messgrößen): Welche messbare Verbesserung erwartet der Kunde?</li>
+<li><strong>E</strong>conomic Buyer (wirtschaftlicher Entscheider): Wer hat die Budgethoheit und kann allein freigeben? (Oft nicht dein Gesprächspartner.)</li>
+<li><strong>D</strong>ecision Criteria (Entscheidungskriterien): Nach welchen Kriterien wird verglichen?</li>
+<li><strong>D</strong>ecision Process (Entscheidungsprozess): Welche Schritte, wer, wann?</li>
+<li><strong>I</strong>dentify Pain (Schmerz benennen): Was ist der konkrete Schmerz, in Stunden, Euro oder Ausfällen?</li>
+<li><strong>C</strong>hampion (interner Fürsprecher): Gibt es jemanden im Kundenunternehmen, der für dich kämpft, wenn du nicht im Raum bist? Der Champion hat Einfluss, aber oft kein Budget; der Economic Buyer hat Budget, aber oft keine Zeit für dich.</li>
 </ul>
 <h2>Das Buying Center</h2>
-<p>Webster und Wind (1972) beschrieben, dass bei Firmenkäufen mehrere Rollen beteiligt sind: Nutzer, Beeinflusser, Entscheider, Einkäufer, Gatekeeper. CEB (heute Teil von Gartner) ermittelte 2017 in einer Befragung, dass an einer typischen B2B-Kaufentscheidung durchschnittlich 6,8 Personen beteiligt sind. Wer nur mit einer redet, verliert.</p>
+<p>Das Buying Center ist die Gruppe aller Personen im Kundenunternehmen, die an einer Kaufentscheidung mitwirken, unabhängig von Titel und Hierarchie. Webster und Wind (1972) beschrieben darin fünf Rollen: Nutzer (arbeiten mit dem Produkt), Beeinflusser (liefern Kriterien, etwa die IT), Entscheider (geben frei; in MEDDIC der Economic Buyer), Einkäufer (verhandeln Konditionen) und Gatekeeper (steuern den Zugang zu den anderen, etwa Assistenz oder Einkauf). CEB (Corporate Executive Board, ein Forschungs- und Beratungsunternehmen, seit 2017 Teil von Gartner) ermittelte 2017 in einer Befragung, dass an einer typischen B2B-Kaufentscheidung durchschnittlich 6,8 Personen beteiligt sind. Wer von diesen 6,8 nur eine kennt, hört die Einwände der anderen erst, wenn der Deal abgesagt ist.</p>
 <div class="callout practice"><div class="label">Beispiel</div>Eine Vertrieblerin für Lagerverwaltungssoftware hat drei gute Gespräche mit dem Lagerleiter geführt. Er ist begeistert. Beim MEDDIC-Check stellt sie fest: Metrics unklar (er sagt „weniger Chaos“, keine Zahl), Economic Buyer unbekannt (die Geschäftsführung hat sie nie gesehen), Decision Process unbekannt. Ihr Champion ist ein Nutzer ohne Budgethoheit. Sie fragt ihn: „Wenn Sie das intern vorschlagen, wer muss dann unterschreiben, und welche Zahl würde diese Person überzeugen?“ Die Antwort („mein Chef, und ihn interessiert nur der Schwund“) liefert ihr Economic Buyer und Metric in einem Satz, und den Grund für ein Gespräch zu dritt.</div>
+<p><strong>Gegenprobe.</strong> Verkauft dieselbe Vertrieblerin ein kleines Lagermodul an einen Betrieb mit fünf Leuten, dessen Inhaber selbst im Lager steht, sind Champion, Economic Buyer und Nutzer eine Person; der vollständige MEDDIC-Check kostet dann mehr Zeit, als der Auftrag wert ist, und BANT in vier Fragen reicht. Umgekehrt kann ein Projekt über 180.000 Euro, bei dem sie nur BANT abgefragt hat, an dem einen Beeinflusser aus der IT scheitern, den niemand erwähnt hat. Die Tiefe der Qualifizierung folgt der Zahl der Beteiligten und der Summe: Je mehr Personen unterschreiben oder blockieren können, desto mehr der sechs Felder musst du ausfüllen, bevor du ein Angebot schreibst.</p>
 <h2>Rote Flaggen (Zeit sparen)</h2>
 <ul>
 <li>„Schicken Sie mir mal was zu“ ohne Termin ist meist ein Abwimmeln. Antwort: „Gern. Damit ich das Richtige schicke: Was genau soll es beantworten? Und wann besprechen wir es?“</li>
@@ -177,7 +196,7 @@ KURSE.push({
 <li>Der Kunde kann nicht sagen, was passiert, wenn er nichts tut.</li>
 <li>Reine Preisanfragen ohne Interesse am Problem (oft ein Vergleichsangebot für den bestehenden Anbieter).</li>
 </ul>
-<div class="callout practice"><div class="label">Bootcamp</div>Du wirst lernen, Nein zu Kunden zu sagen. Ein „Ich glaube, wir passen nicht zusammen“ zur richtigen Zeit ist Prize Frame (Klaff, Modul 6) und spart Monate.</div>
+<div class="callout practice"><div class="label">Bootcamp</div>Du wirst lernen, Nein zu Kunden zu sagen. Ein „Ich glaube, wir passen nicht zusammen“ zur richtigen Zeit ist Prize Frame (Klaff, Modul 6), also die Haltung, dass deine Zeit die knappe Ressource ist und der Kunde sich für sie qualifiziert, und spart Monate.</div>
 `,
       quellen: [
         "Webster, F. E., & Wind, Y. (1972). A general model for understanding organizational buying behavior. <em>Journal of Marketing</em>, 36(2), 12-19.",

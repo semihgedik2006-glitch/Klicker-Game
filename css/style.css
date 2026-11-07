@@ -299,7 +299,7 @@ html[data-textsize="sehr-gross"] { font-size: 20px; }
 .week-table { width: 100%; border-collapse: collapse; margin-top: 8px; font-size: .95rem; }
 .week-table th { text-align: left; font-weight: 500; color: var(--muted); font-size: .8rem; letter-spacing: .04em; text-transform: uppercase; padding: 6px 8px; }
 .week-table td { padding: 7px 8px; border-top: 1px solid var(--line); }
-.week-table .num { text-align: right; font-variant-numeric: tabular-nums; width: 110px; }
+.week-table .wk { text-align: right; font-variant-numeric: tabular-nums; width: 110px; }
 .week-table .up { color: #7fc48a; } .week-table .down { color: #d08b8b; }
 #onboarding label { display: block; margin-top: 12px; }
 .cert { display: flex; justify-content: center; padding: 20px 0; }
@@ -315,3 +315,20 @@ html[data-textsize="sehr-gross"] { font-size: 20px; }
 .cert-small { font-size: .75rem; color: var(--muted); margin-top: 24px; }
 @media (max-width: 700px) { .cert-inner { padding: 32px 20px; } .cert-stats { grid-template-columns: repeat(2, 1fr); } .cert h1 { font-size: 2.2rem; } .cert-name { font-size: 1.8rem; } }
 @media print { .sidebar, .menu-toggle, .no-print, .toast, .read-progress { display: none !important; } .main { margin: 0 !important; padding: 0 !important; } body { background: #fff; color: #111; } .cert-inner { background: #fff; color: #111; border-color: #8a6d2f; outline-color: #c9a558; } .cert-text, .cert-small, .cert-stats span { color: #444; } .cert-stats strong { color: #111; } }
+
+/* ---------- Runde 5: Kalibrierung, Rückblick, Selbsterklärung, Glossar ---------- */
+.quiz .sure { display: inline-flex; align-items: center; gap: 8px; font-size: .82rem; color: var(--muted); margin-top: 4px; cursor: pointer; }
+.quiz .sure input { accent-color: var(--gold); }
+.quiz-q.blind { border-color: var(--red); }
+.quiz-q .eyebrow { margin-bottom: 6px; font-size: .66rem; }
+.callout.selbst { margin-top: 20px; }
+.callout.selbst ul { margin-top: 8px; }
+.callout.selbst li { margin-bottom: .4em; }
+.glossar { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 8px; }
+.glossar .glos h3 { font-size: 1.25rem; margin-bottom: .3em; }
+.glossar .glos .syn { font-family: var(--sans); font-size: .78rem; font-weight: 400; margin-left: 6px; }
+.glossar .glos p { margin: 0 0 10px; font-size: .95rem; }
+.glossar .glos .meta { font-size: .82rem; }
+.week .small strong { color: var(--text); font-weight: 500; }
+.ico { display: inline-block; vertical-align: -2px; opacity: .75; }
+.lock .ico, .nav-lock .ico { color: var(--muted); }
