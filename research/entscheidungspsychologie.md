@@ -127,7 +127,7 @@ Die wichtigste Erkenntnis aus der Gegenprüfung: Die drei meistgelehrten Prinzip
 - Tversky, A. & Kahneman, D. (1981). The Framing of Decisions and the Psychology of Choice. *Science*, 211, 453–458. https://doi.org/10.1126/science.7455683
 - Levin, I. & Gaeth, G. (1988). How consumers are affected by the framing of attribute information. *Journal of Consumer Research*, 15(3), 374–378. https://doi.org/10.1086/209174
 - Kühberger, A. (1998). The influence of framing on risky decisions: A meta-analysis. *Organizational Behavior and Human Decision Processes*, 75(1), 23–55. https://doi.org/10.1006/obhd.1998.2781
-- Gourville, J. (1998). Pennies-a-Day: The Effect of Temporal Reframing on Transaction Evaluation. *Journal of Consumer Research*, 24(4), 395–408. https://doi.org/10.1086/209523
+- Gourville, J. (1998). Pennies-a-Day: The Effect of Temporal Reframing on Transaction Evaluation. *Journal of Consumer Research*, 24(4), 395–408.
 - Klein et al. (2014), siehe oben.
 
 ---
@@ -266,7 +266,7 @@ Die wichtigste Erkenntnis aus der Gegenprüfung: Die drei meistgelehrten Prinzip
 
 **Quellen.**
 - Shampanier, K., Mazar, N. & Ariely, D. (2007). Zero as a Special Price: The True Value of Free Products. *Marketing Science*, 26(6), 742–757. https://doi.org/10.1287/mksc.1060.0254
-- Nicolau, J. & Sellers, R. (2012). The Free Breakfast Effect: An Experimental Approach to the Zero Price Model in Tourism. *Journal of Travel Research*, 51(3), 243–249. https://doi.org/10.1177/0047287511400609
+- Nicolau, J. & Sellers, R. (2012). The Free Breakfast Effect: An Experimental Approach to the Zero Price Model in Tourism. *Journal of Travel Research*, 51(3), 243–249.
 
 ---
 
