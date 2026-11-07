@@ -9,6 +9,19 @@ KURSE.push({
       id: "w1",
       titel: "100 Millisekunden: Das Urteil fällt, bevor du sprichst",
       dauer: "12 Min",
+      lernziele: [
+        "Erklären, warum Menschen ein Urteil über Vertrauenswürdigkeit und Kompetenz nach etwa 100 Millisekunden fällen und was mehr Zeit daran ändert.",
+        "Unterscheiden der Dimensionen Wärme und Kompetenz nach Fiske und begründen, warum Wärme zuerst gezeigt werden sollte.",
+        "Anwenden der Thin-Slice-Befunde auf die ersten Sekunden eines Verkaufsgesprächs: Blick, Haltung, Lächeln, Stimme."
+      ],
+      vorfrage: "Wie lange braucht ein fremder Mensch deiner Einschätzung nach, um sich ein Urteil über deine Kompetenz zu bilden, und welche zwei Eigenschaften prüft er dabei zuerst?",
+      kernpunkte: [
+        "Willis und Todorov (2006): Nach 100 Millisekunden steht das Urteil über ein Gesicht; mehr Zeit erhöht nur die Sicherheit.",
+        "Fiske: Menschen bewerten andere auf zwei Achsen, Wärme und Kompetenz; Wärme wird zuerst beurteilt, und nur beides zusammen erzeugt Bewunderung.",
+        "Ambady und Rosenthal (1993): 30-Sekunden-Clips ohne Ton sagten die Semesterbewertung von Dozenten voraus, 6 Sekunden reichten noch.",
+        "Curhan und Pentland (2007): Die Gesprächsdynamik der ersten fünf Minuten erklärte rund 30 % der Varianz des Verhandlungsergebnisses.",
+        "Wang et al. (2017): Ein breites Lächeln wirkt wärmer, ein leichtes Lächeln kompetenter."
+      ],
       inhalt: `
 <p>Janine Willis und Alexander Todorov (Princeton, 2006) zeigten Probanden Gesichter für 100 Millisekunden, eine Zehntelsekunde. Die Urteile über Vertrauenswürdigkeit, Kompetenz, Sympathie und Aggressivität stimmten stark mit den Urteilen überein, die andere ohne Zeitlimit fällten. Mehr Zeit erhöhte nur die Sicherheit, nicht das Urteil.</p>
 <p>Todorov et al. (2005) ließen Probanden anhand von Fotos beurteilen, welcher von zwei US-Kongresskandidaten kompetenter aussieht. Das Kompetenz-Urteil aus dem Foto sagte in rund 70 % der Fälle den Wahlsieger voraus.</p>
@@ -19,11 +32,12 @@ KURSE.push({
 <tr><td><strong>Hohe Wärme</strong></td><td>Mitleid (nett, aber unfähig)</td><td>Bewunderung (das Ziel)</td></tr>
 <tr><td><strong>Niedrige Wärme</strong></td><td>Verachtung</td><td>Neid, Misstrauen (kompetent, aber kalt)</td></tr>
 </table>
-<p>Der häufigste Fehler von Verkäufern: Sie wollen kompetent wirken und vergessen Wärme. Ergebnis: „Der weiß viel, aber ich traue ihm nicht.“ Reihenfolge: Erst Wärme, dann Kompetenz. Amy Cuddy (deren Power-Posing-Forschung gescheitert ist, siehe Körpersprache-Modul) hat genau diese Reihenfolge in <em>Presence</em> (2015) gut zusammengefasst: Vertrauen vor Stärke.</p>
+<p>Der häufigste Fehler von Verkäufern: Sie wollen kompetent wirken und vergessen Wärme. Ergebnis: „Der weiß viel, aber ich traue ihm nicht.“ Reihenfolge: Erst Wärme, dann Kompetenz. Amy Cuddy, Mitautorin des Stereotype Content Model (deren spätere Power-Posing-Befunde sich nicht replizieren ließen, siehe Körpersprache-Modul), fasst diese Reihenfolge in <em>Presence</em> (2015) zusammen: Vertrauen vor Stärke.</p>
 <h2>Thin Slices</h2>
 <p>Ambady und Rosenthal (1993) ließen Studierende 30-Sekunden-Videoclips von Dozenten ohne Ton bewerten. Diese Bewertungen sagten die Semesterend-Bewertungen durch die echten Studierenden voraus. Bei 6-Sekunden-Clips funktionierte es immer noch. Menschen lesen nonverbale Signale extrem schnell und erstaunlich präzise.</p>
 <div class="callout practice"><span class="label">Konsequenz</span>Die ersten vier Sekunden eines Gesprächs entscheiden über den Rahmen. Belfort nennt es „die ersten vier Sekunden“, die Wissenschaft sagt: eher weniger. Was du in dieser Zeit tun musst: Blickkontakt, aufrechte Haltung, ein echtes Lächeln (Wärme), dann eine klare, ruhige Stimme (Kompetenz).</div>
-<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Die ersten fünf Minuten entscheiden.</strong> Curhan und Pentland (MIT, 2007) analysierten nur die Gesprächsdynamik der ersten fünf Minuten von Verhandlungen (Aktivität, Engagement, Betonung, Spiegeln) und konnten damit rund 30 % der Varianz des Endergebnisses vorhersagen. Ambady, Krabbenhoft und Hogan (2006) zeigten dasselbe für Verkäufer: 20-Sekunden-Ausschnitte ohne Ton sagten die Verkaufsleistung voraus („The 30-sec sale“). Und ein Händedruck vor einer Verhandlung erhöhte in sechs Studien (Schroeder et al., 2019) die Kooperationsbereitschaft und das gemeinsame Ergebnis. Wang et al. (2017): Ein breites Lächeln wirkt wärmer, ein leichtes Lächeln kompetenter. Wähle je nach Ziel des Moments.</div>
+<div class="callout practice"><div class="label">Beispiel</div>Zwei Verkäufer betreten nacheinander das Büro einer Einkaufsleiterin. Der erste kommt herein, schaut auf seine Mappe, sagt schnell „Guten Tag, ich bin wegen des Angebots hier“ und setzt sich, bevor sie den Platz anbietet. Der zweite bleibt kurz an der Tür stehen, sucht ihren Blick, lächelt, gibt ihr die Hand und sagt ruhig: „Frau Berger, danke, dass Sie sich die Zeit nehmen.“ Dann wartet er, bis sie auf den Stuhl zeigt. Inhaltlich haben beide noch nichts gesagt. Trotzdem hat die Einkaufsleiterin dem zweiten bereits Wärme zugeschrieben, und seine ruhige Stimme wird sie jetzt als Kompetenz lesen. Der erste muss gegen ein Urteil anarbeiten, das schon gefallen ist.</div>
+<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Die ersten fünf Minuten entscheiden.</strong> Curhan und Pentland (MIT, 2007) analysierten nur die Gesprächsdynamik der ersten fünf Minuten von Verhandlungen (Aktivität, Engagement, Betonung, Spiegeln) und konnten damit rund 30 % der Varianz des Endergebnisses vorhersagen. Ambady, Krabbenhoft und Hogan (2006) zeigten Ähnliches für Verkäufer: Fremde beurteilten Verkaufsleiter anhand von Ausschnitten von nur 20 Sekunden, und diese Urteile hingen mit der tatsächlichen Verkaufsleistung zusammen („The 30-sec sale“). Und ein Händedruck vor einer Verhandlung erhöhte in einer Serie von Experimenten (Schroeder et al., 2019) die Kooperationsbereitschaft und das gemeinsame Ergebnis. Wang et al. (2017): Ein breites Lächeln wirkt wärmer, ein leichtes Lächeln kompetenter. Wähle je nach Ziel des Moments.</div>
 `,
       quellen: [
         "Willis, J., & Todorov, A. (2006). First impressions: Making up your mind after a 100-ms exposure to a face. <em>Psychological Science</em>, 17(7), 592-598.",
@@ -50,6 +64,19 @@ KURSE.push({
       id: "w2",
       titel: "Stimme: Das unterschätzte Instrument",
       dauer: "12 Min",
+      lernziele: [
+        "Erklären, welche stimmlichen Merkmale (Tonhöhe, Satzmelodie, Tempo, Pausen, Füllwörter) die wahrgenommene Kompetenz beeinflussen und welche Studien das zeigen.",
+        "Erkennen von Uptalk, Knarrstimme und Füllwörtern in der eigenen Aufnahme und sie durch fallende Satzenden und Pausen ersetzen.",
+        "Anwenden von mindestens drei Tonalitäten nach Belfort passend zur Gesprächsphase."
+      ],
+      vorfrage: "Welche Eigenschaften deiner Stimme beeinflussen deiner Meinung nach am stärksten, ob du kompetent wirkst, und woran würdest du das bei einer Aufnahme von dir selbst festmachen?",
+      kernpunkte: [
+        "Klofstad, Anderson und Peters (2012): Tiefere Stimmen gewannen fiktive Wahlen, bei Männern wie Frauen; Mayew et al. (2013) fanden denselben Zusammenhang bei CEOs.",
+        "Uptalk (steigende Satzmelodie bei Aussagen) und Knarrstimme (Anderson et al. 2014) senken die wahrgenommene Autorität; Aussagen enden nach unten.",
+        "Füllwörter lassen Sprecher weniger sicher wirken (Brennan und Williams 1995); bewusste Pausen sind der Ersatz.",
+        "Tempo: Schnelles Sprechen wirkt kompetent (Miller et al. 1976), erschwert aber die Verarbeitung der Argumente (Smith und Shaffer 1991); Faustregel etwa 150-170 Wörter pro Minute mit Pausen.",
+        "Kraus (2017): Nur die Stimme liefert genauere Einschätzungen fremder Emotionen als Bild plus Ton; Telefonverkauf ist kein Verkauf zweiter Klasse."
+      ],
       inhalt: `
 <p>Dein Gegenüber hört nicht nur, was du sagst. Es bewertet Tonhöhe, Tempo, Pausen, Lautstärke und Melodie, und zieht daraus Schlüsse über Kompetenz und Dominanz.</p>
 <h2>Was die Forschung zeigt</h2>
@@ -57,9 +84,9 @@ KURSE.push({
 <li><strong>Tiefere Stimmen gewinnen.</strong> Klofstad, Anderson und Peters (2012) ließen Probanden über fiktive Kandidaten abstimmen, die mit identischem Text, aber manipulierter Tonhöhe sprachen. Tiefere Stimmen wurden bevorzugt, bei Männern und Frauen. Mayew, Parsons und Venkatachalam (2013): CEOs mit tieferen Stimmen führen größere Unternehmen und verdienen mehr.</li>
 <li><strong>Uptalk zerstört Autorität.</strong> Wenn Aussagesätze am Ende nach oben gehen wie Fragen, wirkt der Sprecher unsicher. Lektion: Aussagen enden nach unten.</li>
 <li><strong>Vocal Fry (Knarrstimme)</strong> wird in Berufskontexten negativ bewertet (Anderson et al., 2014, bei jungen Frauen besonders stark).</li>
-<li><strong>Tempo:</strong> Schnelles Sprechen signalisiert Kompetenz, aber nur bis zu einem Punkt. Über ca. 190 Wörter pro Minute kippt es in Nervosität. Ideal: ca. 150-170 Wörter pro Minute mit bewussten Pausen (Smith & Shaffer 1991; Miller et al. 1976).</li>
-<li><strong>Pausen</strong> sind das stärkste Signal für Souveränität. Wer pausieren kann, hat keine Angst, unterbrochen zu werden.</li>
-<li><strong>Füllwörter</strong> („äh“, „quasi“, „sozusagen“, „halt“) senken die wahrgenommene Kompetenz messbar (Brennan & Williams 1995).</li>
+<li><strong>Tempo:</strong> Schnelleres Sprechen wirkt kompetenter und überzeugender: Bei Miller et al. (1976) überzeugte ein Sprecher mit rund 195 Wörtern pro Minute mehr als derselbe Sprecher mit rund 100. Smith und Shaffer (1991) zeigten die Grenze: Hohes Tempo erschwert dem Zuhörer, die Argumente zu verarbeiten, und hilft deshalb nur, wenn die Argumente nicht genau geprüft werden müssen. Faustregel aus der Sprechpraxis (kein Studienwert): etwa 150-170 Wörter pro Minute mit bewussten Pausen, bei wichtigen Zahlen und Zusagen langsamer.</li>
+<li><strong>Pausen</strong> sind ein starkes Signal für Souveränität. Wer pausieren kann, hat keine Angst, unterbrochen zu werden.</li>
+<li><strong>Füllwörter</strong> („äh“, „quasi“, „sozusagen“, „halt“) lassen dich weniger sicher wirken: Bei Brennan und Williams (1995) schätzten Zuhörer Sprecher, die vor einer Antwort „äh“ sagten, als weniger überzeugt von ihrer eigenen Antwort ein.</li>
 </ul>
 <h2>Belforts Tonalitäten</h2>
 <p>Jordan Belfort beschreibt in <em>Way of the Wolf</em> zehn Kern-Tonalitäten, die er für die Straight-Line-Methode nutzt. Die wichtigsten:</p>
@@ -70,6 +97,7 @@ KURSE.push({
 <li><strong>Das Knappheits-Flüstern</strong>: leicht gesenkte Stimme bei exklusiver Information.</li>
 <li><strong>Die Aussage als Frage</strong>: eine Aussage mit minimal fragender Betonung, die Zustimmung einlädt („Sie kennen das sicher?“).</li>
 </ol>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Kunde fragt am Telefon: „Und das ist wirklich innerhalb von zwei Wochen lieferbar?“ Variante A: „Ähm, ja, also eigentlich schon, das sollte quasi klappen?“ Die Stimme geht am Ende nach oben, drei Füllwörter, kein Punkt. Der Kunde hört Unsicherheit und bittet um einen schriftlichen Nachweis. Variante B: „Ja.“ Pause. „Zwei Wochen ab Auftragseingang. Das halten wir seit drei Jahren bei jeder Bestellung.“ Die Stimme fällt am Satzende, die Pause nach dem „Ja“ sagt: Ich muss mich nicht beeilen. Gleicher Inhalt, andere Wirkung. In Variante B fragt der Kunde als Nächstes nach dem Bestellformular.</div>
 <div class="callout practice"><span class="label">Training</span>Lies einen Absatz laut und nimm dich auf. Zähle Füllwörter. Lies ihn erneut und ersetze jedes Füllwort durch eine Pause. Der Unterschied ist sofort hörbar.</div>
 <div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Nur Stimme schlägt Video.</strong> Michael Kraus (Yale, 2017) ließ Menschen Emotionen anderer einschätzen: nur mit Stimme, nur mit Bild oder mit beidem. Die reine Stimme lieferte die genauesten Einschätzungen. Für dich heißt das: Telefonverkauf ist kein Verkauf zweiter Klasse. Am Telefon hörst du mehr, wenn du nicht durch Bildschirm oder Mimik abgelenkt bist.</div>
 `,
@@ -77,6 +105,8 @@ KURSE.push({
         "Klofstad, C. A., Anderson, R. C., & Peters, S. (2012). Sounds like a winner: Voice pitch influences perception of leadership capacity in both men and women. <em>Proceedings of the Royal Society B</em>, 279(1738), 2698-2704.",
         "Mayew, W. J., Parsons, C. A., & Venkatachalam, M. (2013). Voice pitch and the labor market success of male chief executive officers. <em>Evolution and Human Behavior</em>, 34(4), 243-248.",
         "Anderson, R. C. et al. (2014). Vocal fry may undermine the success of young women in the labor market. <em>PLoS ONE</em>, 9(5), e97506.",
+        "Miller, N., Maruyama, G., Beaber, R. J., & Valone, K. (1976). Speed of speech and persuasion. <em>Journal of Personality and Social Psychology</em>, 34(4), 615-624.",
+        "Smith, S. M., & Shaffer, D. R. (1991). Celerity and cajolery: Rapid speech may promote or inhibit persuasion through its impact on message elaboration. <em>Personality and Social Psychology Bulletin</em>, 17(6), 663-669.",
         "Brennan, S. E., & Williams, M. (1995). The feeling of another's knowing: Prosody and filled pauses as cues to listeners about the metacognitive states of speakers. <em>Journal of Memory and Language</em>, 34(3), 383-398.",
         "Belfort, J. (2017). <em>Way of the Wolf</em>. Gallery Books. Kapitel 4-5 (Tonality).",
         "Kraus, M. W. (2017). Voice-only communication enhances empathic accuracy. <em>American Psychologist</em>, 72(7), 644-654."
@@ -84,7 +114,7 @@ KURSE.push({
       quiz: [
         { frage: "Was zeigten Klofstad et al. (2012) über Tonhöhe?", optionen: ["Höhere Stimmen wirken kompetenter", "Tiefere Stimmen werden bevorzugt, bei beiden Geschlechtern", "Tonhöhe ist egal", "Nur bei Männern relevant"], richtig: 1, erklaerung: "Tiefere Stimmen gewannen die fiktiven Wahlen bei Männern und Frauen." },
         { frage: "Was ist Uptalk?", optionen: ["Lautes Sprechen", "Aussagesätze mit steigender Satzmelodie wie Fragen", "Schnelles Sprechen", "Fachjargon"], richtig: 1, erklaerung: "Es lässt Aussagen wie Fragen klingen und senkt Autorität." },
-        { frage: "Was ist das stärkste stimmliche Signal für Souveränität?", optionen: ["Lautstärke", "Tempo", "Bewusste Pausen", "Fachbegriffe"], richtig: 2, erklaerung: "Wer pausieren kann, zeigt, dass er keine Angst vor Unterbrechung hat." },
+        { frage: "Womit solltest du Füllwörter ersetzen, um souverän zu wirken?", optionen: ["Mit lauterem Sprechen", "Mit schnellerem Tempo", "Mit bewussten Pausen", "Mit Fachbegriffen"], richtig: 2, erklaerung: "Füllwörter signalisieren Unsicherheit (Brennan und Williams 1995). Wer stattdessen pausieren kann, zeigt, dass er keine Angst vor Unterbrechung hat." },
         {"frage": "Welcher Kanal lieferte bei Kraus (2017) die genaueste Einschätzung fremder Emotionen?", "optionen": ["Nur Bild", "Bild und Ton zusammen", "Nur Stimme", "Geschriebener Text"], "richtig": 2, "erklaerung": "Nur-Stimme-Bedingungen führten zu höherer empathischer Genauigkeit als Video mit Ton."}
       ],
       uebung: "Nimm dich 60 Sekunden auf, wie du etwas erklärst. Zähle Füllwörter und Uptalk-Sätze. Wiederhole dreimal mit dem Ziel: null Füllwörter, jede Aussage endet nach unten."
@@ -93,6 +123,19 @@ KURSE.push({
       id: "w3",
       titel: "Kleidung, Status und das Halo-Prinzip",
       dauer: "10 Min",
+      lernziele: [
+        "Erklären, was der Halo-Effekt ist und wie Thorndike (1920) und Nisbett und Wilson (1977) ihn nachgewiesen haben.",
+        "Anwenden der Faustregel „eine Stufe über dem Kunden“ und begründen, warum Passform und Pflege mehr zählen als der Preis.",
+        "Unterscheiden, wann ein kleiner Patzer sympathisch macht (Pratfall-Effekt) und wann er schadet."
+      ],
+      vorfrage: "Angenommen, ein Kunde hält dich nach den ersten zwei Minuten für gepflegt und klar. Was glaubst du, wie das seine Einschätzung deiner Fachkompetenz beeinflusst, die er noch gar nicht geprüft hat?",
+      kernpunkte: [
+        "Halo-Effekt: Ein einzelnes starkes Merkmal färbt die Bewertung aller anderen (Thorndike 1920; Nisbett und Wilson 1977 mit dem warm oder kühl gespielten Dozenten).",
+        "Lefkowitz, Blake und Mouton (1955): Einem Mann im Anzug folgten 3,5-mal so viele Fußgänger bei Rot über die Straße wie demselben Mann in Arbeitskleidung.",
+        "Bellezza, Gino und Keinan (2014): Bewusste Abweichungen vom Dresscode wirken in Hochstatus-Kontexten als Statussignal, aber nur, wenn die Absicht erkennbar ist.",
+        "Der eigene Name löst besondere Hirnaktivierung aus (Carmody und Lewis 2006); nutze ihn früh, aber sparsam.",
+        "Pratfall-Effekt (Aronson, Willerman und Floyd 1966): Ein kleiner Patzer macht Kompetente sympathischer, Inkompetente unsympathischer."
+      ],
       inhalt: `
 <h2>Der Halo-Effekt</h2>
 <p>Edward Thorndike (1920) entdeckte, dass Offiziere ihre Soldaten in allen Eigenschaften ähnlich bewerteten: Wer groß und gutaussehend war, galt auch als intelligent und loyal. Ein positives Merkmal „strahlt“ auf alle anderen ab. Nisbett und Wilson (1977) bestätigten es: Derselbe Dozent, einmal freundlich, einmal kühl gespielt, wurde im freundlichen Fall auch als attraktiver und kompetenter bewertet, bei identischem Aussehen.</p>
@@ -103,7 +146,8 @@ KURSE.push({
 <li>Slepian et al. (2015): Formelle Kleidung erhöht abstraktes Denken beim Träger selbst und das Gefühl von Macht.</li>
 <li>Bellezza, Gino und Keinan (2014), „Red Sneakers Effect“: In Kontexten mit hohem Status (Luxusboutique, Harvard-Vorlesung) wirken bewusste Abweichungen vom Dresscode als Statussignal, aber nur, wenn klar ist, dass sie absichtlich sind.</li>
 </ul>
-<p><strong>Regel:</strong> Kleide dich eine Stufe über dem Kunden, nie zwei. Eine Stufe signalisiert Respekt und Kompetenz. Zwei Stufen erzeugen Distanz. Alles muss passen und sauber sein; das zählt mehr als der Preis.</p>
+<p><strong>Faustregel aus der Verkaufspraxis (keine Studie, aber bewährt):</strong> Kleide dich eine Stufe über dem Kunden, nie zwei. Eine Stufe signalisiert Respekt und Kompetenz. Zwei Stufen erzeugen Distanz. Alles muss passen und sauber sein; das zählt mehr als der Preis.</p>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Vertriebler besucht einen Handwerksbetrieb. Der Inhaber steht in Arbeitshose in der Halle. Der Vertriebler trägt ein sauberes Hemd, eine dunkle Jeans und gepflegte Schuhe, kein Sakko, keine Krawatte: eine Stufe über dem Kunden, nicht zwei. Beim Rundgang sagt er: „Herr Kaya, Ihre Fräse da hinten läuft im Zweischichtbetrieb, oder?“ Name, Blick auf das, was dem Kunden wichtig ist, eine konkrete Beobachtung. Als er später eine Zahl im Kopf falsch rechnet und sich lachend korrigiert, schadet das nicht mehr: Die Kompetenz war schon gezeigt, der Patzer macht ihn menschlich.</div>
 <h2>Namen und Erinnerung</h2>
 <p>Dale Carnegie schrieb 1936: „Der Name eines Menschen ist für ihn das süßeste und wichtigste Wort in jeder Sprache.“ Carmody und Lewis (2006) zeigten per fMRT, dass der eigene Name einzigartige Hirnaktivierung auslöst. Nutze den Namen des Kunden früh, aber nicht in jedem Satz (das wirkt wie ein Trick).</p>
 <h2>Das Kompetenz-Paradox</h2>
@@ -116,10 +160,11 @@ KURSE.push({
         "Slepian, M. L. et al. (2015). The cognitive consequences of formal clothing. <em>Social Psychological and Personality Science</em>, 6(6), 661-668.",
         "Bellezza, S., Gino, F., & Keinan, A. (2014). The red sneakers effect. <em>Journal of Consumer Research</em>, 41(1), 35-54.",
         "Aronson, E., Willerman, B., & Floyd, J. (1966). The effect of a pratfall on increasing interpersonal attractiveness. <em>Psychonomic Science</em>, 4(6), 227-228.",
-        "Carnegie, D. (1936). <em>How to Win Friends and Influence People</em>. Simon & Schuster."
+        "Carnegie, D. (1936). <em>How to Win Friends and Influence People</em>. Simon & Schuster.",
+        "Carmody, D. P., & Lewis, M. (2006). Brain activation when hearing one's own and others' names. <em>NeuroReport</em>, 17(12), 1281-1284."
       ],
       quiz: [
-        { frage: "Was beschreibt der Halo-Effekt?", optionen: ["Religiöse Symbole im Verkauf", "Ein positives Merkmal färbt die Bewertung aller anderen Merkmale", "Lichtverhältnisse im Büro", "Eine Verhandlungstaktik"], richtig: 1, erklaerung: "Thorndike 1920, Nisbett & Wilson 1977." },
+        { frage: "Was beschreibt der Halo-Effekt?", optionen: ["Religiöse Symbole im Verkauf", "Ein positives Merkmal färbt die Bewertung aller anderen Merkmale", "Lichtverhältnisse im Büro", "Eine Verhandlungstaktik"], richtig: 1, erklaerung: "Thorndike (1920) sah es bei Offiziersbewertungen, Nisbett und Wilson (1977) zeigten es experimentell: Der warm gespielte Dozent wirkte auch attraktiver und kompetenter." },
         { frage: "Wie viel häufiger wurde der Mann im Anzug beim Rot-Überqueren nachgeahmt?", optionen: ["Gar nicht", "1,5-mal", "3,5-mal", "10-mal"], richtig: 2, erklaerung: "Kleidung als Statussignal: 3,5-mal mehr Nachahmer." },
         { frage: "Was besagt der Pratfall Effect?", optionen: ["Fehler sind immer schlecht", "Ein kleiner Fehler nach gezeigter Kompetenz erhöht Sympathie", "Fehler machen inkompetent wirkende Menschen sympathischer", "Kaffee sollte vermieden werden"], richtig: 1, erklaerung: "Nur bei Kompetenten wirkt der Patzer sympathisch. Bei Inkompetenten verstärkt er den negativen Eindruck." },
         { frage: "Wie viele Stufen über dem Kunden solltest du dich kleiden?", optionen: ["Keine", "Eine", "Zwei", "So viele wie möglich"], richtig: 1, erklaerung: "Eine Stufe zeigt Respekt und Kompetenz, zwei erzeugen Distanz." }

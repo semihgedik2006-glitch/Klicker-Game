@@ -9,6 +9,19 @@ KURSE.push({
       id: "f1",
       titel: "SPIN: Die 35.000-Gespräche-Studie",
       dauer: "16 Min",
+      lernziele: [
+        "Erklären, warum Rackhams Daten klassischen Abschlusstechniken und der Offen-geschlossen-Regel widersprechen.",
+        "Unterscheiden die vier SPIN-Fragetypen und jedem eine passende Dosierung zuordnen.",
+        "Formulieren für ein eigenes Produkt Implikations- und Need-Payoff-Fragen, bevor eine Lösung genannt wird."
+      ],
+      vorfrage: "Welcher Fragetyp unterscheidet in Rackhams 35.000 Gesprächen Spitzenverkäufer von durchschnittlichen, und warum gerade der?",
+      kernpunkte: [
+        "Rackham (1988) wertete 35.000 Verkaufsgespräche in 23 Ländern aus: Abschlusstechniken helfen bei kleinen Verkäufen, schaden bei großen.",
+        "Nicht die Form der Frage (offen/geschlossen) zählt, sondern ihr Inhalt: Situation, Problem, Implikation, Need-Payoff.",
+        "Implikationsfragen unterscheiden Top-Verkäufer am deutlichsten; sie machen das Problem in der Wahrnehmung des Kunden groß.",
+        "Need-Payoff-Fragen lassen den Kunden den Nutzen selbst aussprechen; was er selbst sagt, verteidigt er.",
+        "Huang et al. (2017): Nachfragen macht sympathisch. Homburg et al. (2011): zu viel Kundenorientierung senkt den Ertrag wieder."
+      ],
       inhalt: `
 <p>Neil Rackham und sein Team bei Huthwaite begleiteten über zwölf Jahre 35.000 Verkaufsgespräche in 23 Ländern. Sie wollten wissen, was erfolgreiche Verkäufer anders machen. Das Ergebnis (1988) widersprach fast allem, was Verkaufstrainings lehrten.</p>
 <h2>Die Kernbefunde</h2>
@@ -23,15 +36,16 @@ KURSE.push({
 <tr><th>Typ</th><th>Zweck</th><th>Beispiel</th><th>Dosierung</th></tr>
 <tr><td><strong>S</strong>ituation</td><td>Fakten sammeln</td><td>„Wie viele Mitarbeiter haben Sie im Vertrieb?“</td><td>Wenige. Kunden langweilen sich schnell. Recherchiere vorher.</td></tr>
 <tr><td><strong>P</strong>roblem</td><td>Unzufriedenheit aufdecken</td><td>„Wo verlieren Sie dabei am meisten Zeit?“</td><td>Mehrere. Hier beginnt der Verkauf.</td></tr>
-<tr><td><strong>I</strong>mplikation</td><td>Konsequenzen des Problems spürbar machen</td><td>„Was bedeutet diese Verzögerung für Ihre Kunden? Und für Ihre Zahlen?“</td><td>Die wichtigste Kategorie. Top-Verkäufer stellten hier 4-mal mehr Fragen.</td></tr>
+<tr><td><strong>I</strong>mplikation</td><td>Konsequenzen des Problems spürbar machen</td><td>„Was bedeutet diese Verzögerung für Ihre Kunden? Und für Ihre Zahlen?“</td><td>Die wichtigste Kategorie bei großen Verkäufen. Hier unterschieden sich Spitzenverkäufer am deutlichsten vom Durchschnitt.</td></tr>
 <tr><td><strong>N</strong>eed-Payoff</td><td>Kunde formuliert den Nutzen selbst</td><td>„Wenn das gelöst wäre, was würde das für Sie ändern?“</td><td>Der Kunde verkauft sich selbst. Was er sagt, glaubt er.</td></tr>
 </table>
 <h2>Warum Implikationsfragen so stark sind</h2>
 <p>Ein Problem, das der Kunde als klein empfindet, rechtfertigt keinen Preis. Implikationsfragen vergrößern das Problem in der Wahrnehmung des Kunden, ohne dass du etwas behauptest. Er kommt selbst darauf, dass das Problem groß ist. Das verbindet SPIN mit Cialdinis Commitment: Was der Kunde selbst ausspricht, verteidigt er.</p>
 <h2>Need-Payoff: Der Kunde übernimmt</h2>
 <p>Rackham fand: Je mehr der Kunde selbst über Nutzen spricht, desto höher die Abschlusswahrscheinlichkeit. Deine Aufgabe ist nicht, den Nutzen zu erklären, sondern Fragen zu stellen, die ihn erklären lassen. „Warum wäre das wichtig für Sie?“, „Wie würde das Ihrem Team helfen?“, „Was wäre der Wert davon, wenn Sie es in Zahlen fassen müssten?“</p>
+<div class="callout practice"><div class="label">Beispiel</div>Eine Verkäuferin für Terminsoftware spricht mit einer Physiotherapiepraxis. Situation: „Wie viele Termine vergeben Sie pro Woche?“ (ca. 180). Problem: „Wie oft kommt jemand nicht und sagt vorher nicht ab?“ („Vielleicht fünf, sechs Mal.“) Implikation: „Was kostet Sie so ein leerer Slot? Und was macht das über das Jahr mit dem Umsatz?“ (Die Inhaberin rechnet: rund 15.000 Euro.) Need-Payoff: „Wenn die Hälfte davon wegfiele, was würden Sie mit der Zeit und dem Geld machen?“ Erst nachdem die Inhaberin selbst von „einer zusätzlichen Halbtagskraft“ spricht, nennt die Verkäuferin die automatische Terminerinnerung.</div>
 <div class="callout practice"><span class="label">Bootcamp-Regel</span>In jedem Rollenspiel dieser App wirst du bewertet, wie viele I- und N-Fragen du stellst, bevor du eine Lösung nennst. Weniger als drei: nicht bestanden.</div>
-<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Fragen machen sympathisch, aber Kundenorientierung hat ein Optimum.</strong> Huang, Yeomans, Brooks, Minson und Gino (2017) zeigten in Gesprächsexperimenten und Speed-Datings: Wer mehr Nachfragen stellt, wird deutlich sympathischer eingeschätzt. Gleichzeitig fanden Homburg, Müller und Klarmann (2011) bei 56 Unternehmen ein umgekehrtes U: Zu viel Eingehen auf den Kunden senkt den Ertrag wieder, weil der Verkäufer seine eigene Position aufgibt. Frag viel, aber bleib der Experte, der auch Richtung vorgibt.</div>
+<div class="callout study"><div class="label">Neu aus der Forschung</div><strong>Fragen machen sympathisch, aber Kundenorientierung hat ein Optimum.</strong> Huang, Yeomans, Brooks, Minson und Gino (2017) zeigten in Gesprächsexperimenten und Speed-Datings: Wer mehr Nachfragen stellt, wird deutlich sympathischer eingeschätzt. Gleichzeitig fanden Homburg, Müller und Klarmann (2011) in einer Studie mit Verkäufern und ihren Kunden ein umgekehrtes U: Zu viel Eingehen auf den Kunden senkt den Ertrag wieder, weil der Verkäufer seine eigene Position aufgibt. Frag viel, aber bleib der Experte, der auch Richtung vorgibt.</div>
 `,
       quellen: [
         "Rackham, N. (1988). <em>SPIN Selling</em>. McGraw-Hill. (Deutsch: <em>SPIN-Selling</em>, Campus)",
@@ -53,35 +67,50 @@ KURSE.push({
       id: "f2",
       titel: "Was 500.000 Verkaufsgespräche zeigen",
       dauer: "10 Min",
+      lernziele: [
+        "Nennen die Gong-Richtwerte für Redeanteil, Fragenzahl und Preis-Timing und einordnen, dass es Firmen-Felddaten sind.",
+        "Erklären, warum Korrelationen aus Gesprächsdaten keine Kausalität belegen und warum das Muster trotzdem belastbar ist.",
+        "Anwenden eines terminierten nächsten Schritts am Ende jedes Gesprächs."
+      ],
+      vorfrage: "Wie viel Prozent der Gesprächszeit sollte ein Verkäufer in einem Erstgespräch selbst reden, und wo liegen die meisten Verkäufer tatsächlich?",
+      kernpunkte: [
+        "Gong-Felddaten (nicht peer-reviewed): Top-Verkäufer reden etwa 43 % der Zeit, Durchschnittsverkäufer 65-72 %.",
+        "Erfolgreiche Discovery-Calls enthalten laut Gong 11-14 Fragen, über das Gespräch verteilt statt als Block.",
+        "Der Preis fällt in erfolgreichen Gesprächen spät, etwa im letzten Viertel, nachdem Wert aufgebaut ist.",
+        "Ein konkreter, terminierter nächster Schritt am Ende korreliert deutlich mit höheren Abschlussraten.",
+        "Korrelation ist nicht Kausalität; belastbar wird das Muster erst, weil Rackham (1988) und Grant (2013) in dieselbe Richtung zeigen."
+      ],
       inhalt: `
-<p>Gong.io analysiert mit Software Millionen aufgezeichneter B2B-Verkaufsgespräche. Die Befunde sind Korrelationen aus Firmendaten, kein Peer-Review, aber die Datenmenge ist beispiellos. Die wichtigsten Muster:</p>
+<p>Gong.io analysiert mit Software Millionen aufgezeichneter B2B-Verkaufsgespräche; die Auswertung zu Discovery-Fragen beruhte auf über 500.000 Gesprächen, die zum Redeanteil auf rund 25.000. Die Befunde sind Korrelationen aus Firmendaten eines Software-Anbieters, nicht peer-reviewed und nicht unabhängig geprüft, aber die Datenmenge ist beispiellos. Die wichtigsten Muster:</p>
 <h2>Redeanteil</h2>
-<p>Top-Verkäufer reden etwa 43 % der Zeit, der Kunde 57 %. Durchschnittsverkäufer reden 65-72 %. Je mehr der Verkäufer redet, desto schlechter die Abschlussquote. Das deckt sich mit Rackham und mit Grants Ambivert-Studie.</p>
+<p>Top-Verkäufer reden etwa 43 % der Zeit, der Kunde 57 %. Durchschnittsverkäufer reden 65-72 %. Je mehr der Verkäufer redet, desto schlechter die Abschlussquote. Das deckt sich mit Rackham und mit Grants Ambivert-Studie (2013), in der weder die lautesten noch die stillsten Verkäufer am meisten verkauften, sondern die in der Mitte.</p>
 <h2>Fragen</h2>
 <ul>
-<li>Erfolgreiche Discovery-Calls enthalten 11-14 Fragen. Unter 6: zu wenig Bedarf aufgebaut. Über 14: Verhör.</li>
+<li>Erfolgreiche Discovery-Calls enthalten 11-14 Fragen. Unter 6: zu wenig Bedarf aufgebaut. Deutlich über 14: Verhör.</li>
 <li>Die Fragen sind über das Gespräch verteilt, nicht als Block am Anfang.</li>
-<li>Top-Verkäufer stellen Fragen zu Problemen in einem Verhältnis von etwa 4:1 gegenüber Fragen zum Status quo.</li>
+<li>Top-Verkäufer fragen mehr nach Problemen und Zielen des Kunden als nach dem Status quo, genau wie Rackhams P- und I-Fragen.</li>
 </ul>
 <h2>Preis und Timing</h2>
 <ul>
 <li>Erfolgreiche Gespräche nennen den Preis spät, etwa in den letzten 20-25 % der Gesprächszeit, nachdem Wert aufgebaut ist.</li>
-<li>Wer Preisfragen mit „Das hängt davon ab“ beantwortet und dann weiterfragt, schließt häufiger ab als wer sofort eine Zahl nennt.</li>
+<li>Wer eine frühe Preisfrage mit „Das hängt davon ab“ beantwortet und dann weiterfragt, schließt laut Gong häufiger ab als wer sofort eine Zahl nennt.</li>
 </ul>
+<div class="callout practice"><div class="label">Beispiel</div>Minute 4 eines Erstgesprächs. Kunde: „Was kostet das denn?“ Verkäufer: „Das hängt davon ab, wie viele Standorte wir anbinden und ob Sie die Schulung brauchen. Darf ich zwei Fragen stellen, damit ich Ihnen eine ehrliche Zahl nennen kann? Wie viele Standorte sind es heute, und wo klemmt es dort am meisten?“ Der Kunde antwortet, das Gespräch bleibt beim Problem. Der Preis fällt 25 Minuten später, als der Kunde selbst gesagt hat, was ihn das Problem im Jahr kostet.</div>
 <h2>Sprache</h2>
 <ul>
 <li>„Wir“ und „gemeinsam“ korrelieren mit Erfolg. „Ich“ und „unser Produkt“ korrelieren mit Misserfolg.</li>
-<li>Wörter wie „ehrlich gesagt“, „um ehrlich zu sein“ senken das Vertrauen (sie implizieren, dass der Rest nicht ehrlich war).</li>
+<li>Wörter wie „ehrlich gesagt“, „um ehrlich zu sein“ korrelieren mit niedrigeren Abschlussraten; die naheliegende Erklärung: Sie implizieren, dass der Rest nicht ehrlich war.</li>
 <li>Konkrete Zahlen und Kundengeschichten in der Präsentationsphase steigern Abschlüsse.</li>
 </ul>
 <h2>Der nächste Schritt</h2>
-<p>Gespräche, die mit einem konkreten, terminierten nächsten Schritt enden („Dienstag 14 Uhr, Sie bringen die Zahlen, ich bringe den Vorschlag“), haben eine um ein Vielfaches höhere Abschlussrate als „Ich melde mich“.</p>
-<div class="callout warn"><span class="label">Einordnung</span>Korrelation ist nicht Kausalität. Dass gute Verkäufer weniger reden, heißt nicht, dass weniger reden automatisch besser verkauft. Aber die Kombination aus Rackham, Grant und Gong zeigt in dieselbe Richtung, und das macht das Muster belastbar.</div>
+<p>Gespräche, die mit einem konkreten, terminierten nächsten Schritt enden („Dienstag 14 Uhr, Sie bringen die Zahlen, ich bringe den Vorschlag“), haben laut Gong eine deutlich höhere Abschlussrate als „Ich melde mich“.</p>
+<div class="callout warn"><span class="label">Einordnung</span>Korrelation ist nicht Kausalität. Dass gute Verkäufer weniger reden, heißt nicht, dass weniger reden automatisch besser verkauft. Gong ist außerdem ein Anbieter, der mit solchen Zahlen sein Produkt vermarktet. Aber die Kombination aus Rackham (35.000 beobachtete Gespräche, als Buch veröffentlicht), Grant (peer-reviewed) und Gong (Felddaten) zeigt in dieselbe Richtung, und das macht das Muster belastbar.</div>
 `,
       quellen: [
-        "Gong Labs (2017-2023): Talk-to-listen ratio, discovery call questions, pricing timing. gong.io/blog. Firmenforschung, nicht peer-reviewed.",
+        "Gong Labs (2017-2023): Talk-to-listen ratio, discovery call questions, pricing timing, next steps. gong.io/blog. Firmen-Felddaten, nicht peer-reviewed.",
         "Orlob, C. (2017). The 7 Elements of Successful Discovery Calls. Gong.io.",
-        "Rackham, N. (1988). <em>SPIN Selling</em>."
+        "Grant, A. M. (2013). Rethinking the extraverted sales ideal: The ambivert advantage. <em>Psychological Science</em>, 24(6), 1024-1030.",
+        "Rackham, N. (1988). <em>SPIN Selling</em>. McGraw-Hill."
       ],
       quiz: [
         { frage: "Welchen Redeanteil haben Top-Verkäufer laut Gong?", optionen: ["Etwa 20 %", "Etwa 43 %", "Etwa 65 %", "Etwa 80 %"], richtig: 1, erklaerung: "43:57. Der Kunde redet mehr." },
@@ -95,8 +124,21 @@ KURSE.push({
       id: "f3",
       titel: "Aktives Zuhören und Chris Voss",
       dauer: "14 Min",
+      lernziele: [
+        "Anwenden von Mirroring, Labeling und kalibrierten Fragen auf einen Kundeneinwand, bevor argumentiert wird.",
+        "Erklären mit Lieberman et al. (2007) und Weger et al. (2014), warum Benennen beruhigt und aktives Zuhören sympathisch macht.",
+        "Unterscheiden „Das stimmt“ von „Sie haben recht“ und die Stille nach einer Frage mindestens vier Sekunden halten."
+      ],
+      vorfrage: "Ein Kunde sagt „Das ist mir zu teuer“. Was wäre der erste Satz, der ihn zum Weiterreden bringt, ohne dass du ein einziges Argument nennst?",
+      kernpunkte: [
+        "Chris Voss (2016): Mirroring heißt, die letzten ein bis drei Wörter fragend wiederholen und dann schweigen.",
+        "Labeling („Es klingt, als ...“) benennt die Emotion; Lieberman et al. (2007) zeigten per fMRT, dass das die Amygdala-Aktivität senkt.",
+        "Weger et al. (2014): Wer paraphrasiert und nachfragt, wird als verständnisvoller und sympathischer bewertet als wer nur Rat gibt.",
+        "Kalibrierte Fragen beginnen mit „Wie“ oder „Was“, nicht mit „Warum“; Ziel ist das „Das stimmt“ des Kunden.",
+        "Nach einer Frage mindestens vier Sekunden Stille: Die echte Antwort kommt nach der höflichen."
+      ],
       inhalt: `
-<p>Zuhören ist keine Pause zwischen deinen Sätzen. Es ist die Arbeit. Chris Voss, 24 Jahre FBI-Geiselverhandler, hat in <em>Never Split the Difference</em> (2016) Techniken beschrieben, die er in Situationen mit Todesgefahr einsetzte, und die in jedem Verkaufsgespräch funktionieren.</p>
+<p>Zuhören ist keine Pause zwischen deinen Sätzen. Es ist die Arbeit. Chris Voss, 24 Jahre beim FBI und zuletzt dessen leitender internationaler Geiselverhandler, hat in <em>Never Split the Difference</em> (2016) Techniken beschrieben, die er in Situationen mit Todesgefahr einsetzte und die in jedem Verkaufsgespräch funktionieren.</p>
 <h2>Die Wissenschaft des Zuhörens</h2>
 <p>Weger, Castle Bell, Minei und Robinson (2014) zeigten: Gesprächspartner, die aktiv zuhörten (paraphrasieren, nachfragen, nonverbale Aufmerksamkeit), wurden als deutlich verständnisvoller und sympathischer bewertet als Partner, die nur Ratschläge gaben oder einfach bestätigten. Itzchakov und Kluger (2018) fanden: Gutes Zuhören senkt die Abwehrhaltung des Sprechers und macht ihn offener für andere Sichtweisen.</p>
 <h2>Voss' Techniken</h2>
@@ -110,6 +152,7 @@ KURSE.push({
 </ol>
 <h2>Die Pause</h2>
 <p>Nach einer Frage: Schweigen. Mindestens vier Sekunden. Die meisten Verkäufer halten Stille nicht aus und füllen sie mit einer zweiten Frage oder einer Antwort. Wer die Stille hält, bekommt die echte Antwort, die nach der höflichen Antwort kommt.</p>
+<div class="callout practice"><div class="label">Beispiel</div>Kunde: „Ehrlich gesagt, das Angebot ist uns zu teuer.“ Verkäufer: „Zu teuer?“ (Stille, vier Sekunden.) Kunde: „Na ja, der Geschäftsführer hat letztes Jahr ein ähnliches Tool gekauft, das keiner nutzt.“ Verkäufer: „Es klingt, als hätten Sie Sorge, dass Sie intern dafür geradestehen müssen, wenn es wieder nicht genutzt wird.“ Kunde: „Das stimmt. Genau das.“ Verkäufer: „Wie müsste eine Einführung aussehen, damit Ihr Team es diesmal wirklich nutzt?“ Der echte Einwand war nie der Preis.</div>
 <div class="callout practice"><span class="label">Übung im Coach</span>Der KI-Coach wird im Rollenspiel prüfen, ob du nach Einwänden spiegelst und labelst, bevor du argumentierst. Argumentieren vor dem Labeln: Punktabzug.</div>
 `,
       quellen: [

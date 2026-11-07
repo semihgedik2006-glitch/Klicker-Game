@@ -9,11 +9,24 @@ KURSE.push({
       id: "p1",
       titel: "Reziprozität und Commitment",
       dauer: "14 Min",
+      lernziele: [
+        "Erklären, warum ein unerwartetes Geschenk die Kaufbereitschaft erhöht, auch ohne Sympathie.",
+        "Unterscheiden der Techniken „Door in the face“ und „Foot in the door“ und beide einem Experiment zuordnen.",
+        "Anwenden kleiner Zustimmungen im Gespräch, ohne den Kunden zu manipulieren."
+      ],
+      vorfrage: "Warum bringt ein Kellner, der ein Bonbon gibt, kurz weggeht und dann „für Sie noch eins“ sagt, deutlich mehr Trinkgeld als einer, der gleich zwei Bonbons hinlegt?",
+      kernpunkte: [
+        "Regan (1971): Beschenkte kauften doppelt so viele Lose, unabhängig davon, ob sie den Schenker mochten.",
+        "Strohmetz et al. (2002): Ein Bonbon plus 3 %, zwei Bonbons plus 14 %, ein Bonbon und dann „noch eins“ plus 23 % Trinkgeld.",
+        "Cialdini et al. (1975), Door in the face: Nach einer abgelehnten großen Bitte stimmten 50 % der kleineren zu, direkt gefragt nur 17 %.",
+        "Freedman und Fraser (1966), Foot in the door: Nach einem kleinen Fensterschild stimmten 76 % dem großen Vorgartenschild zu, sonst 17 %.",
+        "Öffentliche, schriftliche und selbst formulierte Commitments verteidigt man am stärksten."
+      ],
       inhalt: `
-<p>Robert Cialdini, Professor für Psychologie an der Arizona State University, verbrachte drei Jahre undercover bei Autoverkäufern, Spendensammlern und Versicherungsvertretern. Sein Buch <em>Influence</em> (1984) ist das meistzitierte Werk zur Überzeugung. Wir gehen seine Prinzipien in drei Lektionen durch.</p>
+<p>Robert Cialdini, Professor für Psychologie an der Arizona State University, verbrachte drei Jahre undercover bei Autoverkäufern, Spendensammlern und Versicherungsvertretern. Sein Buch <em>Influence</em> (1984) gehört zu den meistzitierten Werken über Überzeugung. Wir gehen seine Prinzipien in drei Lektionen durch.</p>
 <h2>1. Reziprozität: Wer gibt, bekommt</h2>
 <p>Menschen fühlen sich verpflichtet, Gefälligkeiten zu erwidern. Das Experiment: Dennis Regan (1971) ließ einen Komplizen Probanden eine Cola schenken. Später bat der Komplize, Lose zu kaufen. Beschenkte kauften doppelt so viele wie Unbeschenkte, und zwar unabhängig davon, ob sie den Komplizen sympathisch fanden.</p>
-<p><strong>Anwendung:</strong> Gib zuerst. Eine echte Information, ein Tipp, eine Analyse, eine Probe. Nicht als Trick, sondern als Haltung: Du bist derjenige, der Wert liefert, bevor er fragt. Kellner, die mit der Rechnung ein Bonbon bringen, bekommen 3 % mehr Trinkgeld. Mit zwei Bonbons 14 %. Mit einem Bonbon, kurzem Weggehen und dann „für Sie noch eins“: 23 % (Strohmetz et al., 2002).</p>
+<p><strong>Anwendung:</strong> Gib zuerst. Eine echte Information, ein Tipp, eine Analyse, eine Probe. Nicht als Trick, sondern als Haltung: Du bist derjenige, der Wert liefert, bevor er fragt. Kellner, die mit der Rechnung ein Bonbon bringen, bekommen gut 3 % mehr Trinkgeld. Mit zwei Bonbons 14 %. Mit einem Bonbon, kurzem Weggehen und dann „für Sie noch eins“: 23 % (Strohmetz et al., 2002).</p>
 <p><strong>Variante „Door in the face“:</strong> Erst eine große Bitte, die abgelehnt wird, dann eine kleinere. Die kleinere wirkt wie ein Zugeständnis, das erwidert werden muss. Cialdini (1975): Studenten, die erst gebeten wurden, zwei Jahre ehrenamtlich zu arbeiten (abgelehnt), stimmten zu 50 % einem Zoo-Ausflug zu, gegenüber 17 % bei direkter Frage.</p>
 <h2>2. Commitment und Konsistenz: Kleine Ja führen zu großen Ja</h2>
 <p>Menschen wollen konsistent mit dem erscheinen, was sie bereits gesagt oder getan haben. Freedman und Fraser (1966): Hausbesitzer, die zuvor ein kleines Schild „Fahr vorsichtig“ ins Fenster gestellt hatten, stimmten zu 76 % einem riesigen hässlichen Schild im Vorgarten zu. Ohne Vorab-Bitte: 17 %. Das ist die „Foot in the door“-Technik.</p>
@@ -23,6 +36,7 @@ KURSE.push({
 <li>Lass ihn seine Ziele selbst formulieren. Was er selbst gesagt hat, verteidigt er.</li>
 <li>Schriftliche Commitments sind stärker als mündliche. Öffentliche stärker als private.</li>
 </ul>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Anbieter für Zeiterfassung besucht einen Handwerksbetrieb. Statt mit der Präsentation zu beginnen, bringt er eine einseitige Auswertung mit: „Ich habe mir Ihre Branche angesehen. Betriebe Ihrer Größe verlieren im Schnitt etwa drei Stunden pro Woche mit Stundenzetteln. Das ist die Rechnung, behalten Sie sie gern.“ (Reziprozität: Wert zuerst.) Dann fragt er: „Ist das bei Ihnen ähnlich?“ „Eher mehr.“ „Wäre es Ihnen wichtig, dass die Zettel wegfallen?“ „Ja, klar.“ (Zwei kleine Ja.) Erst jetzt zeigt er das Produkt, und der Kunde bewertet es an dem Ziel, das er gerade selbst ausgesprochen hat.</div>
 <div class="callout warn"><span class="label">Bei dir selbst erkennen</span>Wenn du merkst, dass du einer Entscheidung zustimmst, nur weil du vorher etwas Ähnliches gesagt hast: Stopp. Frag dich, ob du sie heute, ohne Vorgeschichte, auch treffen würdest.</div>
 `,
       quellen: [
@@ -44,24 +58,40 @@ KURSE.push({
       id: "p2",
       titel: "Soziale Bewährtheit, Sympathie, Autorität",
       dauer: "14 Min",
+      lernziele: [
+        "Erklären, warum die Ähnlichkeit der Referenzgruppe über die Stärke sozialer Bewährtheit entscheidet.",
+        "Erkennen und vermeiden negativer sozialer Bewährtheit in eigenen Formulierungen.",
+        "Anwenden von Autoritätssignalen, die von Dritten eingeführt werden, statt sich selbst zu loben."
+      ],
+      vorfrage: "Warum wirkt „Die meisten Gäste in diesem Zimmer haben ihr Handtuch wiederverwendet“ stärker als „Helfen Sie der Umwelt“?",
+      kernpunkte: [
+        "Goldstein, Cialdini und Griskevicius (2008): Umwelt-Appell 35 %, „die meisten Gäste“ 44 %, „die meisten Gäste in diesem Zimmer“ 49 % Handtuch-Wiederverwendung.",
+        "Negative soziale Bewährtheit („viele zahlen zu spät“) normalisiert das unerwünschte Verhalten.",
+        "Sympathie entsteht laut Cialdini vor allem über Ähnlichkeit und ehrliche Komplimente; beides ist steuerbar.",
+        "Milgram (1963): 65 % gehorchten; Bickman (1974): 92 % Folgsamkeit in Uniform gegenüber 42 % in Zivil.",
+        "Eine zuerst zugegebene kleine Schwäche macht die danach genannte Stärke glaubwürdiger."
+      ],
       inhalt: `
 <h2>3. Soziale Bewährtheit: Was andere tun, muss richtig sein</h2>
 <p>Bei Unsicherheit orientieren wir uns an anderen. Goldstein, Cialdini und Griskevicius (2008) testeten Hotel-Handtuchschilder: „Helfen Sie der Umwelt“ brachte 35 % Wiederverwendung. „Die meisten Gäste verwenden ihre Handtücher wieder“ brachte 44 %. „Die meisten Gäste in diesem Zimmer“ brachte 49 %. Je ähnlicher die Referenzgruppe, desto stärker.</p>
 <p><strong>Anwendung:</strong> Referenzen, Testimonials und Zahlen („über 400 Betriebe in Ihrer Region“). Entscheidend ist Ähnlichkeit: Ein Bäcker glaubt einem anderen Bäcker, nicht einem Konzern.</p>
-<p><strong>Gefahr:</strong> Negative soziale Bewährtheit. „Leider zahlen viele Kunden zu spät“ erhöht Zahlungsverzug, weil es ihn normalisiert. Formuliere immer das gewünschte Verhalten als Norm.</p>
+<p><strong>Gefahr:</strong> Negative soziale Bewährtheit. „Leider zahlen viele Kunden zu spät“ kann den Zahlungsverzug sogar erhöhen, weil es ihn normalisiert. Formuliere immer das gewünschte Verhalten als Norm.</p>
 <h2>4. Sympathie: Wir kaufen von Menschen, die wir mögen</h2>
-<p>Fünf Faktoren laut Cialdini: physische Attraktivität, Ähnlichkeit, Komplimente, Kontakt und Kooperation, Assoziation. Die stärksten davon kannst du steuern: <strong>Ähnlichkeit</strong> (gemeinsame Interessen, Herkunft, Sprache) und <strong>ehrliche Komplimente</strong>. Tupperware-Partys funktionieren ausschließlich über Sympathie: Man kauft bei der Freundin, nicht bei der Firma.</p>
-<p>Studie: Verhandler, die vor der Verhandlung fünf Minuten Smalltalk über Gemeinsamkeiten führten, kamen zu 18 % häufiger zu einer Einigung als jene, die sofort begannen (Morris et al., 2002, E-Mail-Verhandlungen).</p>
+<p>Fünf Faktoren laut Cialdini: physische Attraktivität, Ähnlichkeit, Komplimente, Kontakt und Kooperation, Assoziation. Die stärksten davon kannst du steuern: <strong>Ähnlichkeit</strong> (gemeinsame Interessen, Herkunft, Sprache) und <strong>ehrliche Komplimente</strong>. Tupperware-Partys funktionieren vor allem über Sympathie: Man kauft bei der Freundin, nicht bei der Firma.</p>
+<p>Studie: Verhandler, die vor einer E-Mail-Verhandlung kurz telefonierten und Persönliches austauschten („Schmoozing“), landeten deutlich seltener in einer Sackgasse, vertrauten einander mehr und erzielten bessere gemeinsame Ergebnisse als jene, die sofort begannen (Morris et al., 2002).</p>
 <h2>5. Autorität: Symbole wirken stärker als Substanz</h2>
 <p>Milgrams Gehorsamsexperimente (1963): 65 % der Probanden verabreichten auf Anweisung eines Mannes im Laborkittel vermeintlich tödliche Stromschläge. Der Kittel war das Symbol. Cialdini nennt drei Autoritätssymbole: Titel, Kleidung, Statussymbole. Bickman (1974): Ein Mann in Wachuniform, der Passanten aufforderte, einem Fremden Kleingeld zu geben, erreichte 92 % Folgsamkeit. In Zivil: 42 %.</p>
-<p><strong>Anwendung:</strong> Lass deine Expertise sichtbar werden, bevor du sie brauchst. Qualifikationen, Erfahrung, Zahlen, am besten durch Dritte eingeführt. Cialdini beschreibt eine Immobilienfirma, die Anrufer mit „Ich verbinde Sie mit Herrn X, unserem Leiter für Vermietung mit 20 Jahren Erfahrung“ weiterleitete: 20 % mehr Beratungstermine, 15 % mehr Abschlüsse.</p>
+<p><strong>Anwendung:</strong> Lass deine Expertise sichtbar werden, bevor du sie brauchst. Qualifikationen, Erfahrung, Zahlen, am besten durch Dritte eingeführt. Cialdini beschreibt in <em>Yes!</em> (Goldstein, Martin & Cialdini, 2008) eine Immobilienfirma, die Anrufer mit „Ich verbinde Sie mit Herrn X, unserem Leiter für Vermietung mit 20 Jahren Erfahrung“ weiterleitete: 20 % mehr Beratungstermine, 15 % mehr Abschlüsse.</p>
+<div class="callout practice"><div class="label">Beispiel</div>Eine Agentur für Firmenwebsites hat zwei Vertriebler. Der erste eröffnet: „Wir sind die Besten in der Region, ich habe 15 Jahre Erfahrung.“ Der Kunde denkt: „Sagt jeder.“ Der zweite lässt sich von der Assistentin ankündigen: „Ich verbinde Sie mit Frau Yilmaz, sie betreut unsere Handwerksbetriebe, darunter die Schreinerei Berg hier im Ort.“ Im Gespräch sagt Frau Yilmaz: „Ganz ehrlich: Wir sind nicht die günstigsten. Dafür haben Sie bei uns eine feste Ansprechpartnerin, und die Schreinerei Berg hat im ersten Jahr 30 % mehr Anfragen bekommen.“ Autorität durch Dritte, ähnliche Referenz, zugegebene Schwäche, dann Stärke. Der Kunde fragt nach dem Angebot.</div>
 <div class="callout study"><span class="label">Die ehrliche Schwäche</span>Autorität steigt, wenn du zuerst eine kleine Schwäche zugibst und dann die Stärke nennst. „Unser Preis liegt etwas höher, dafür...“ wirkt glaubwürdiger als reines Lob. Das nutzte Avis mit „We're number two. We try harder.“</div>
 `,
       quellen: [
         "Goldstein, N. J., Cialdini, R. B., & Griskevicius, V. (2008). A room with a viewpoint: Using social norms to motivate environmental conservation in hotels. <em>Journal of Consumer Research</em>, 35(3), 472-482.",
         "Milgram, S. (1963). Behavioral study of obedience. <em>Journal of Abnormal and Social Psychology</em>, 67(4), 371-378.",
         "Bickman, L. (1974). The social power of a uniform. <em>Journal of Applied Social Psychology</em>, 4(1), 47-61.",
-        "Morris, M., Nadler, J., Kurtzberg, T., & Thompson, L. (2002). Schmooze or lose: Social friction and lubrication in e-mail negotiations. <em>Group Dynamics</em>, 6(1), 89-100."
+        "Morris, M., Nadler, J., Kurtzberg, T., & Thompson, L. (2002). Schmooze or lose: Social friction and lubrication in e-mail negotiations. <em>Group Dynamics: Theory, Research, and Practice</em>, 6(1), 89-100.",
+        "Goldstein, N. J., Martin, S. J., & Cialdini, R. B. (2008). <em>Yes! 50 Scientifically Proven Ways to Be Persuasive</em>. Free Press.",
+        "Cialdini, R. B. (2021). <em>Influence, New and Expanded: The Psychology of Persuasion</em>. Harper Business."
       ],
       quiz: [
         { frage: "Welches Hotel-Schild erzeugte die höchste Handtuch-Wiederverwendung?", optionen: ["Helfen Sie der Umwelt", "Die meisten Gäste verwenden wieder", "Die meisten Gäste in diesem Zimmer verwenden wieder", "Bitte nicht wechseln"], richtig: 2, erklaerung: "Je ähnlicher und näher die Referenzgruppe, desto stärker die soziale Bewährtheit (49 %)." },
@@ -75,10 +105,23 @@ KURSE.push({
       id: "p3",
       titel: "Knappheit und Einheit",
       dauer: "10 Min",
+      lernziele: [
+        "Erklären, warum ein Keks aus einem fast leeren Glas höher bewertet wird, besonders wenn andere ihn weggenommen haben.",
+        "Unterscheiden von echter und erfundener Knappheit und die Folgen von Fake-Knappheit benennen.",
+        "Anwenden des Prinzips Einheit, indem du eine echte gemeinsame Gruppe mit dem Kunden benennst."
+      ],
+      vorfrage: "Warum ist ein Keks aus einem Glas, das gerade von zehn auf zwei Kekse geleert wurde, mehr wert als derselbe Keks aus einem Glas, in dem immer nur zwei lagen?",
+      kernpunkte: [
+        "Worchel, Lee und Adewole (1975): Zwei Kekse schlagen zehn; von zehn auf zwei reduziert schlägt beides, am stärksten, wenn andere die Kekse genommen haben.",
+        "Cialdini führt Knappheit auf Verlustaversion zurück: Ein drohender Verlust motiviert stärker als ein gleich großer Gewinn.",
+        "Knappheit wirkt nur, wenn sie wahr ist; erkannte Fake-Knappheit zerstört Vertrauen dauerhaft.",
+        "Einheit (Cialdini, 2016) ist geteilte Identität („einer von uns“), nicht bloß Ähnlichkeit oder Sympathie.",
+        "Buffett spricht Aktionäre als „Partner“ an und schreibt, als schreibe er an seine Schwestern."
+      ],
       inhalt: `
 <h2>6. Knappheit: Was selten ist, wirkt wertvoller</h2>
 <p>Worchel, Lee und Adewole (1975) ließen Probanden Kekse aus einem Glas bewerten. Glas mit zwei Keksen: besser bewertet als Glas mit zehn. Noch besser: Wenn das Glas erst zehn hatte und dann auf zwei reduziert wurde. Am besten: Wenn die Reduktion durch Nachfrage anderer erklärt wurde.</p>
-<p>Das ist das Herz der Verlustaversion (siehe Kahneman-Lektion): Die Aussicht, etwas zu verlieren, motiviert stärker als die Aussicht, etwas zu gewinnen.</p>
+<p>Cialdini erklärt Knappheit über die Verlustaversion (siehe Kahneman-Lektion): Die Aussicht, etwas zu verlieren, motiviert stärker als die Aussicht, etwas Gleichwertiges zu gewinnen.</p>
 <p><strong>Anwendung:</strong></p>
 <ul>
 <li>Begrenzte Stückzahl, begrenzte Zeit, begrenzter Zugang: alles wirkt, aber nur, wenn es WAHR ist. Fake-Knappheit zerstört Vertrauen beim ersten Erkennen.</li>
@@ -89,6 +132,7 @@ KURSE.push({
 <p>Das siebte Prinzip fügte Cialdini 2016 in <em>Pre-Suasion</em> hinzu. Menschen lassen sich am stärksten von jenen beeinflussen, mit denen sie eine gemeinsame Identität teilen: Familie, Heimat, Verein, Ethnie, Beruf. Es geht nicht um Ähnlichkeit (Sympathie), sondern um Zugehörigkeit: „Einer von uns“.</p>
 <p>Beispiel: Buffett schreibt seine Aktionärsbriefe so, als spreche er mit seinen Schwestern. Er nennt die Aktionäre „Partner“. Das ist Einheit.</p>
 <p><strong>Anwendung:</strong> Finde die Gruppe, zu der ihr beide gehört, und benenne sie. „Wir Unternehmer wissen...“, „Als jemand, der auch aus dieser Region kommt...“. Gemeinsame Gegner wirken ebenfalls (der Markt, die Bürokratie, der Wettbewerber).</p>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Maschinenhändler hat noch zwei Geräte eines auslaufenden Modells auf Lager. Unehrlich wäre: „Nur noch heute, danach ist der Preis weg.“ Ehrlich und trotzdem wirksam: „Von diesem Modell habe ich noch zwei Stück, ein Nachfolger kommt im Frühjahr und wird rund 15 % teurer. Wenn Sie es nehmen wollen, sollten wir das diese Woche klären, ich kann es Ihnen nicht reservieren, wenn ein anderer Kunde zuerst zahlt.“ Dazu die Einheit: „Ich komme selbst aus einem Familienbetrieb, ich weiß, wie weh so eine Investition tut. Deshalb sage ich Ihnen auch, wenn es sich nicht lohnt.“ Alles daran ist wahr, und der Kunde entscheidet mit vollständiger Information.</div>
 <div class="callout warn"><span class="label">Grenze</span>Knappheit ist die am häufigsten missbrauchte Technik. Countdown-Timer, die nach Ablauf neu starten, erfundene „nur noch 3 verfügbar“: Das ist Betrug, und Kunden merken es. Nutze Knappheit nur, wenn sie real ist.</div>
 `,
       quellen: [
@@ -99,7 +143,8 @@ KURSE.push({
       quiz: [
         { frage: "Welches Keks-Glas wurde am höchsten bewertet?", optionen: ["Zehn Kekse", "Zwei Kekse von Anfang an", "Von zehn auf zwei reduziert wegen Nachfrage anderer", "Leeres Glas"], richtig: 2, erklaerung: "Knappheit durch Nachfrage anderer kombiniert Knappheit mit sozialer Bewährtheit." },
         { frage: "Was unterscheidet Einheit von Sympathie?", optionen: ["Nichts", "Einheit beruht auf geteilter Identität, Sympathie auf Ähnlichkeit und Mögen", "Einheit ist schwächer", "Einheit gilt nur in Familien"], richtig: 1, erklaerung: "Einheit heißt „einer von uns“, nicht nur „ich mag dich“." },
-        { frage: "Welche Formulierung nutzt Verlustaversion?", optionen: ["Sie sparen 400 Euro", "Sie gewinnen 400 Euro", "Sie verlieren jeden Monat 400 Euro", "400 Euro sind möglich"], richtig: 2, erklaerung: "Verluste wiegen etwa doppelt so schwer wie gleich große Gewinne." }
+        { frage: "Welche Formulierung nutzt Verlustaversion?", optionen: ["Sie sparen 400 Euro", "Sie gewinnen 400 Euro", "Sie verlieren jeden Monat 400 Euro", "400 Euro sind möglich"], richtig: 2, erklaerung: "Verluste wiegen etwa doppelt so schwer wie gleich große Gewinne." },
+        { frage: "Welche Knappheits-Aussage darf ein ehrlicher Verkäufer verwenden?", optionen: ["Ein Countdown, der nach Ablauf neu startet", "„Nur noch 3 verfügbar“, obwohl das Lager voll ist", "„Ich habe noch zwei Stück, der Nachfolger wird teurer“, wenn das stimmt", "„Das Angebot gilt nur heute“, obwohl es morgen auch gilt"], richtig: 2, erklaerung: "Knappheit wirkt nur, wenn sie real ist. Erfundene Knappheit ist Betrug und zerstört Vertrauen, sobald der Kunde sie erkennt." }
       ],
       uebung: "Formuliere für ein Produkt oder eine Dienstleistung deiner Wahl drei Sätze: einen mit echter Knappheit, einen mit Verlust-Framing, einen mit Einheit. Sprich sie laut und nimm dich auf."
     },
@@ -107,18 +152,32 @@ KURSE.push({
       id: "p4",
       titel: "Kahneman: Anker, Framing, Verlustaversion",
       dauer: "16 Min",
+      lernziele: [
+        "Erklären, wie eine zufällige Zahl spätere Schätzungen und Preisurteile verschiebt (Ankereffekt).",
+        "Anwenden von Verlust-Framing und Decoy-Angeboten und die Grenzen beider Techniken benennen.",
+        "Einordnen, welche Befunde Kahnemans robust repliziert sind und welche nicht."
+      ],
+      vorfrage: "Warum wählen 84 % der Leser ein Kombi-Abo, sobald eine offensichtlich sinnlose dritte Option daneben steht, aber nur 32 % ohne sie?",
+      kernpunkte: [
+        "Tversky und Kahneman (1974): Nach Glücksrad-Anker 10 schätzten Probanden 25 % afrikanische UN-Staaten, nach Anker 65 schätzten sie 45 %.",
+        "Prospect Theory (1979): Ein Verlust wiegt etwa doppelt so schwer wie ein gleich großer Gewinn; Ruggeri et al. (2020) bestätigten das in 19 Ländern.",
+        "Ariely (2008): Mit Decoy wählten 84 % das Economist-Kombi-Abo, ohne Decoy 32 %.",
+        "Das Priming-Kapitel aus Thinking, Fast and Slow gilt als nicht zuverlässig repliziert; Anker, Verlustaversion und Framing sind robust.",
+        "DellaVigna und Linos (2022): Nudge-Effekte im Feld sind etwa sechsmal kleiner als in Studien (1,4 statt 8,7 Prozentpunkte)."
+      ],
       inhalt: `
 <p>Daniel Kahneman erhielt 2002 den Wirtschaftsnobelpreis für Arbeiten, die er mit Amos Tversky begann. Ihr Kern: Menschen entscheiden nicht rational. Sie nutzen Abkürzungen (Heuristiken), die systematisch zu Fehlern führen. Diese Fehler sind vorhersagbar, und wer sie kennt, versteht Kaufentscheidungen.</p>
 <h2>System 1 und System 2</h2>
-<p><strong>System 1</strong>: schnell, automatisch, emotional, mühelos. <strong>System 2</strong>: langsam, bewusst, anstrengend, faul. Die meisten Kaufentscheidungen trifft System 1, und System 2 liefert danach die Begründung. Dein Ziel als Verkäufer: System 1 ein gutes Gefühl geben und System 2 gute Argumente, damit es die Entscheidung absegnet.</p>
+<p><strong>System 1</strong>: schnell, automatisch, emotional, mühelos. <strong>System 2</strong>: langsam, bewusst, anstrengend, faul. Viele Kaufentscheidungen fällt System 1 vor, und System 2 liefert danach die Begründung. Dein Ziel als Verkäufer: System 1 ein gutes Gefühl geben und System 2 gute Argumente, damit es die Entscheidung absegnet.</p>
 <h2>Der Ankereffekt</h2>
 <p>Tversky und Kahneman (1974) drehten ein manipuliertes Glücksrad, das bei 10 oder 65 stehen blieb. Danach fragten sie: Wie viel Prozent der UN-Staaten sind afrikanisch? Gruppe „10“ schätzte im Mittel 25 %, Gruppe „65“ schätzte 45 %. Eine zufällige Zahl verschob die Schätzung massiv.</p>
-<p><strong>Im Verkauf:</strong> Die erste Zahl im Gespräch wird zum Anker. Wer zuerst einen Preis nennt, setzt den Rahmen. Nenne den hochwertigen Preis zuerst, dann die günstigere Option. Northcraft und Neale (1987): Selbst Immobilienprofis ließen sich vom genannten Listenpreis um bis zu 12 % in ihrer Bewertung verschieben.</p>
+<p><strong>Im Verkauf:</strong> Die erste Zahl im Gespräch wird zum Anker. Wer zuerst einen Preis nennt, setzt den Rahmen. Nenne den hochwertigen Preis zuerst, dann die günstigere Option. Northcraft und Neale (1987): Selbst Immobilienprofis ließen sich bei der Bewertung desselben Hauses vom genannten Listenpreis um gut 10 % verschieben, und die meisten bestritten anschließend, dass der Listenpreis sie beeinflusst habe.</p>
 <h2>Verlustaversion</h2>
 <p>Prospect Theory (1979): Der Schmerz eines Verlustes ist etwa doppelt so stark wie die Freude über einen gleich großen Gewinn. Verlustaversion wurde 2020 in einer Replikation in 19 Ländern mit über 4.000 Teilnehmern bestätigt (Ruggeri et al.).</p>
 <p><strong>Im Verkauf:</strong> Kostenlose Testphasen funktionieren, weil der Kunde das Produkt danach nicht mehr „verlieren“ will (Endowment-Effekt: Kahneman, Knetsch & Thaler 1990, das Tassen-Experiment: Besitzer verlangten etwa das Doppelte dessen, was Käufer zahlen wollten).</p>
 <h2>Framing</h2>
 <p>Dasselbe Faktum, anders verpackt, erzeugt andere Entscheidungen. „90 % Überlebensrate“ wird anders bewertet als „10 % Sterblichkeit“ (McNeil et al., 1982, sogar bei Ärzten). „Hackfleisch 75 % mager“ schmeckt besser als „25 % Fett“ (Levin & Gaeth, 1988).</p>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Kunde fragt eine Beraterin: „Was kostet die Beratung?“ Anfänger-Antwort: „Das Basispaket gibt es für 900 Euro.“ Der Anker liegt nun bei 900, und jedes weitere Paket wirkt teuer. Trainierte Antwort: „Die meisten Kunden Ihrer Größe nehmen das Komplettpaket für 2.400 Euro, das deckt alles ab. Wenn Sie nur den ersten Schritt wollen, gibt es das Basispaket für 900.“ Jetzt wirkt 900 günstig, und 2.400 ist die Normalvariante. Dazu das Framing: nicht „Sie sparen 200 Euro im Monat“, sondern „Im Moment gehen Ihnen jeden Monat 200 Euro verloren.“ Ehrlich bleibt das nur, wenn beide Pakete echten Wert haben und die Zahl stimmt.</div>
 <h2>Der Decoy-Effekt</h2>
 <p>Dan Ariely testete das Abo-Angebot des <em>Economist</em>: Online 59 $, Print 125 $, Print+Online 125 $. Mit der sinnlosen Print-Option wählten 84 % das Kombi-Paket. Ohne sie: 32 %. Eine dritte, offensichtlich schlechtere Option lenkt die Wahl auf die, die du verkaufen willst.</p>
 <div class="callout warn"><span class="label">Ehrliche Einordnung</span>Nicht alles aus <em>Thinking, Fast and Slow</em> hat die Replikationskrise überstanden. Das Kapitel über Priming (z. B. „Wer an Alter denkt, geht langsamer“) gilt heute als unzuverlässig; Kahneman selbst räumte das 2017 öffentlich ein. Anker, Verlustaversion und Framing dagegen sind robust repliziert.</div>
@@ -133,6 +192,7 @@ KURSE.push({
         "Northcraft, G. B., & Neale, M. A. (1987). Experts, amateurs, and real estate. <em>Organizational Behavior and Human Decision Processes</em>, 39(1), 84-97.",
         "Ariely, D. (2008). <em>Predictably Irrational</em>. HarperCollins.",
         "Levin, I. P., & Gaeth, G. J. (1988). How consumers are affected by the framing of attribute information. <em>Journal of Consumer Research</em>, 15(3), 374-378.",
+        "McNeil, B. J., Pauker, S. G., Sox, H. C., & Tversky, A. (1982). On the elicitation of preferences for alternative therapies. <em>New England Journal of Medicine</em>, 306(21), 1259-1262.",
         "Gourville, J. T. (1998). Pennies-a-day: The effect of temporal reframing on transaction evaluation. <em>Journal of Consumer Research</em>, 24(4), 395-408.",
         "Scheibehenne, B., Greifeneder, R., & Todd, P. M. (2010). Can there ever be too many options? A meta-analytic review of choice overload. <em>Journal of Consumer Research</em>, 37(3), 409-425.",
         "DellaVigna, S., & Linos, E. (2022). RCTs to scale: Comprehensive evidence from two nudge units. <em>Econometrica</em>, 90(1), 81-116."
@@ -152,8 +212,21 @@ KURSE.push({
       id: "p5",
       titel: "Munger: Die Psychologie menschlicher Fehlurteile",
       dauer: "12 Min",
+      lernziele: [
+        "Erklären, warum Munger Anreize für die stärkste Kraft hinter menschlichem Verhalten hält, und das auf den Einkäufer übertragen.",
+        "Erkennen eines Lollapalooza-Effekts, wenn mehrere Tendenzen gleichzeitig wirken.",
+        "Anwenden der Inversion: ein Verkaufsziel über die sicheren Wege zum Scheitern planen."
+      ],
+      vorfrage: "Warum kauft ein Einkäufer oft nicht das beste Produkt, und welche Frage musst du dir vor jedem Gespräch über ihn stellen?",
+      kernpunkte: [
+        "Munger (1995, überarbeitet 2005): 25 psychologische Tendenzen, die zu Fehlurteilen führen; die stärkste ist die Reaktion auf Anreize.",
+        "„Show me the incentive and I will show you the outcome“: Frag immer, wofür dein Gegenüber belohnt wird.",
+        "Doubt-Avoidance: Unsichere Kunden kaufen nicht, sie vertagen; gib Gewissheit.",
+        "Lollapalooza: Mehrere Tendenzen gleichzeitig (Tupperware-Party) erzeugen überproportionale Wirkung.",
+        "Invertieren nach Jacobi: Liste die sicheren Wege zum Scheitern und vermeide sie."
+      ],
       inhalt: `
-<p>Charlie Munger, Warren Buffetts Partner bei Berkshire Hathaway, hielt 1995 an der Harvard Law School einen Vortrag mit dem Titel „The Psychology of Human Misjudgment“. Er listete 25 psychologische Tendenzen auf, die zu Fehlentscheidungen führen. Ein Milliardär, der Cialdini las und ihm dafür Berkshire-Aktien schenkte. Die wichtigsten für den Verkauf:</p>
+<p>Charlie Munger, Warren Buffetts Partner bei Berkshire Hathaway, hielt 1995 an der Harvard Law School einen Vortrag mit dem Titel „The Psychology of Human Misjudgment“. Er listete darin 24 psychologische Tendenzen auf, die zu Fehlentscheidungen führen; in der überarbeiteten Fassung von 2005 sind es 25. Munger hatte Cialdinis <em>Influence</em> gelesen und schickte ihm als Dank eine Berkshire-Aktie. Die wichtigsten Tendenzen für den Verkauf:</p>
 <h2>Die verkaufsrelevanten Tendenzen</h2>
 <table>
 <tr><th>Tendenz</th><th>Was sie bedeutet</th><th>Im Verkauf</th></tr>
@@ -170,6 +243,7 @@ KURSE.push({
 <blockquote>"I think I've been in the top 5% of my age cohort all my life in understanding the power of incentives, and all my life I've underestimated it."<cite>Charlie Munger, „The Psychology of Human Misjudgment“, Harvard Law School, 1995. Übersetzung: „Ich glaube, ich gehörte mein Leben lang zu den oberen 5 % meiner Altersgruppe im Verständnis der Macht von Anreizen, und mein Leben lang habe ich sie unterschätzt.“</cite></blockquote>
 <h2>Mungers Anwendung: Invertieren</h2>
 <p>„Invert, always invert“ (nach dem Mathematiker Jacobi). Statt zu fragen „Wie gewinne ich diesen Kunden?“, frag „Was würde garantiert dazu führen, dass ich ihn verliere?“ und vermeide genau das. Die Liste der Fehler ist meist klarer als die Liste der Erfolgsfaktoren.</p>
+<div class="callout practice"><div class="label">Beispiel</div>Ein Softwareanbieter verliert eine Ausschreibung, obwohl sein Produkt objektiv besser und günstiger war. Im Nachgespräch sagt der Einkäufer: „Ihr Produkt war gut. Aber wenn das Projekt schiefgeht, fragt mich mein Chef, warum ich nicht den Marktführer genommen habe.“ Das ist Reward and Punishment Superresponse: Der Einkäufer wird nicht für das beste Produkt belohnt, sondern dafür, keinen Ärger zu bekommen. Beim nächsten Mal invertiert der Anbieter: „Was würde garantiert dazu führen, dass der Einkäufer uns nicht wählt? Dass er sich allein fühlt, wenn es schiefgeht.“ Also liefert er Referenzen aus derselben Branche, einen Pilotbetrieb mit Ausstiegsklausel und eine schriftliche Zusage, wer im Störfall binnen zwei Stunden erreichbar ist.</div>
 `,
       quellen: [
         "Munger, C. T. (1995). The Psychology of Human Misjudgment. Vortrag, Harvard Law School. Überarbeitete Fassung in: <em>Poor Charlie's Almanack</em> (2005), Hrsg. Peter Kaufman.",
@@ -179,7 +253,8 @@ KURSE.push({
       quiz: [
         { frage: "Was ist laut Munger die stärkste Kraft, die Verhalten steuert?", optionen: ["Intelligenz", "Anreize", "Bildung", "Zufall"], richtig: 1, erklaerung: "„Show me the incentive and I will show you the outcome.“" },
         { frage: "Was ist der Lollapalooza-Effekt?", optionen: ["Ein Musikfestival-Verkaufstrick", "Mehrere psychologische Tendenzen wirken gleichzeitig und verstärken sich extrem", "Ein Fehler beim Anker", "Eine Verhandlungstaktik"], richtig: 1, erklaerung: "Die Kombination mehrerer Tendenzen erzeugt überproportionale Wirkung." },
-        { frage: "Was bedeutet „Invert, always invert“ im Verkauf?", optionen: ["Preise umdrehen", "Fragen, was garantiert zum Verlust des Kunden führt, und das vermeiden", "Den Kunden verwirren", "Rückwärts präsentieren"], richtig: 1, erklaerung: "Fehlervermeidung ist oft klarer definierbar als Erfolg." }
+        { frage: "Was bedeutet „Invert, always invert“ im Verkauf?", optionen: ["Preise umdrehen", "Fragen, was garantiert zum Verlust des Kunden führt, und das vermeiden", "Den Kunden verwirren", "Rückwärts präsentieren"], richtig: 1, erklaerung: "Fehlervermeidung ist oft klarer definierbar als Erfolg." },
+        { frage: "Ein Kunde sagt am Ende des Gesprächs „Ich muss das noch überdenken“. Welche Munger-Tendenz ist am wahrscheinlichsten im Spiel?", optionen: ["Doubt-Avoidance: Er ist unsicher und vertagt, statt zu entscheiden", "Lollapalooza-Effekt", "Contrast-Misreaction", "Reward and Punishment Superresponse"], richtig: 0, erklaerung: "Unsichere Kunden kaufen nicht, sie vertagen. Die Aufgabe ist, den offenen Zweifel zu finden und Gewissheit zu geben, nicht mehr Argumente zu stapeln." }
       ],
       uebung: "Invertiere: Schreibe die zehn sichersten Wege auf, wie du ein Verkaufsgespräch garantiert verlieren würdest. Markiere dann die drei, die du selbst am ehesten tust."
     }
