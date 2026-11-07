@@ -20,7 +20,13 @@ Jedes Quiz enthält neben Wissensfragen zwei **Anwendungsfragen** mit einer konk
 
 Bewusst weggelassen, weil Nutzer anderer Lern-Apps es am häufigsten kritisieren: Herzen oder Energie, Werbung, Bezahlschranken, Schuld-Benachrichtigungen, Ranglisten, harte Serien (hier ein Ruhetag pro Woche), Rückstau in der Wiederholung.
 
-`node tools/check-kurse.js` prüft, dass jede Lektion alle Pflichtfelder hat (lernziele, vorfrage, kernpunkte, quiz mit mindestens 3 Fragen und 2 Anwendungsfragen, uebung, quellen).
+`node tools/check-kurse.js` prüft, dass jede Lektion alle Pflichtfelder hat (lernziele, vorfrage, kernpunkte, selbsterklaerung, quiz mit mindestens 3 Fragen und 2 Anwendungsfragen, uebung, quellen).
+
+Seit Runde 5 kommen dazu: Nach den Kernpunkten stehen zwei bis drei **Selbsterklärungs-Fragen** („Warum funktioniert X gerade in Situation Y?“, Chi et al. 1994). Jedes Lektionsquiz enthält zwei **Rückblick-Fragen** aus früher abgeschlossenen Lektionen, jede Modulprüfung drei Fragen aus früheren Modulen (verschachteltes Üben, Rohrer & Taylor 2007). Zu jeder Quizfrage kann man „Ich bin mir sicher“ ankreuzen; sicher und falsch wird als **blinder Fleck** markiert, landet sofort in der Wiederholung und fließt in eine Selbsteinschätzungs-Zeile im Wochenrückblick. Jede Lektion hat nach dem Beispiel eine **Gegenprobe** (wann das Prinzip nicht greift). Das **Glossar** (`#/glossar`, `js/data/glossar.js`) erklärt 90 Fachbegriffe mit der Lektion, die sie einführt. Die Berichtsvorlage (Situation, Handlung, Reaktion, Lernpunkt) lässt sich per Knopf einfügen.
+
+Sicherheit: `index.html` setzt eine Content-Security-Policy (Skripte nur aus der App, Verbindungen nur zu api.anthropic.com), es gibt kein Inline-Skript mehr, und Coach-Antworten werden vor dem Rendern escaped.
+
+Tests: `node tests/test.js`, `node tests/flow.js`, `node tests/runde5.js`, `node tests/coachmock.js`, `node tests/rp.js` (Playwright mit dem vorinstallierten Chromium, kein Server nötig).
 
 ## Struktur
 
