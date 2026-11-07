@@ -425,3 +425,7 @@ Daten, die die App dafür speichern sollte (localStorage): Erfolgsleiter-Stufen 
 - Die meisten Studien stammen aus den USA und mit Studierenden. Übertragbarkeit auf deutsche Verkaufsgespräche ist plausibel, aber nicht eigens geprüft.
 - Zu Selbstbewusstsein speziell **bei Verkäufern** gibt es wenig experimentelle Forschung. Die stärkste verkaufsspezifische Quelle ist Seligman (1986), und die ist alt und nicht unabhängig repliziert.
 - Coaching-Aussagen wurden nur dann als "bestätigt" eingestuft, wenn mindestens eine Peer-Review-Studie oder Metaanalyse den Kern stützt.
+
+---
+
+Vollständige Quellenliste (159 Quellen mit Typ, Kernaussage, Evidenzstufe und Link): [quellen/selbstbewusstsein-kompetenzwirkung.md](quellen/selbstbewusstsein-kompetenzwirkung.md)
