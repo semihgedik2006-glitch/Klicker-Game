@@ -98,12 +98,13 @@
     const parts = hash.split('?')[0].slice(2).split('/').filter(Boolean);
     const name = parts[0] || 'start';
     const fn = routes[name] || routes.start;
+    if (examState && name !== 'pruefung') { const ex = S.exams[examState.kid] = S.exams[examState.kid] || { attempts: [], passed: false, best: 0 }; ex.attempts.push({ ts: Date.now(), pct: 0, passed: false, abgebrochen: true }); examState = null; save(); toast('Prüfung verlassen. Das zählt als nicht bestanden.', 'bad'); }
     const main = $('#main');
     main.className = 'main fade';
     try { main.innerHTML = fn(parts.slice(1)) || ''; }
     catch (e) { main.innerHTML = `<div class="callout warn"><div class="label">Fehler</div>${esc(e.message)}</div>`; console.error(e); }
     main.scrollTop = 0; window.scrollTo(0, 0);
-    renderNav(); $('#sidebar').classList.remove('open');
+    renderNav(); setMenu(false);
     if (typeof afterRender === 'function') afterRender(name, parts.slice(1));
     document.querySelectorAll('[data-route]').forEach(el => el.onclick = () => location.hash = el.dataset.route);
   }
@@ -238,12 +239,12 @@
           const ul = lessonUnlocked(k, i); const done = lessonDone(l.id);
           return `<div class="card ${ul ? 'clickable' : 'locked'}" ${ul ? `data-route="#/lektion/${k.id}/${l.id}"` : ''}>
             <div class="num">${k.nr}.${i + 1}</div>
-            <div class="meta">${l.dauer} · ${done ? '<span class="tag green">abgeschlossen</span>' : quizPassed(l.id) ? '<span class="tag gold">Bericht offen</span>' : ul ? '' : lock('Vorherige Lektion abschließen')}</div>
+            <div class="meta"><span>${l.dauer}</span>${done ? '<span class="tag green">abgeschlossen</span>' : quizPassed(l.id) ? '<span class="tag gold">Bericht offen</span>' : ul ? '' : lock('Vorherige Lektion abschließen')}</div>
             <h3>${esc(l.titel)}</h3></div>`;
         }).join('')}
         <div class="card ${allLessonsDone(k) ? 'clickable exam' : 'locked'}" ${allLessonsDone(k) ? `data-route="#/pruefung/${k.id}"` : ''}>
           <div class="num">★</div>
-          <div class="meta">Mindestens ${PASS} % · ${examPassed(k.id) ? `<span class="tag green">bestanden mit ${S.exams[k.id].best} %</span>` : allLessonsDone(k) ? 'freigeschaltet' : lock('Alle Lektionen abschließen')}</div>
+          <div class="meta"><span>Mindestens ${PASS} %</span>${examPassed(k.id) ? `<span class="tag green">bestanden mit ${S.exams[k.id].best} %</span>` : allLessonsDone(k) ? '<span class="tag gold">freigeschaltet</span>' : lock('Alle Lektionen abschließen')}</div>
           <h3>Modulprüfung ${k.nr}</h3></div>
       </div>`;
   });
@@ -281,7 +282,7 @@
   function renderQuiz(quiz, lid) {
     return `<form class="quiz" data-lid="${lid}">
       ${quiz.map((q, qi) => `<div class="quiz-q" data-qi="${qi}"><div class="q">${qi + 1}. ${esc(q.frage)}</div>
-        ${q.optionen.map((o, oi) => `<label class="opt"><input type="radio" name="q${qi}" value="${oi}"> <span>${esc(o)}</span></label>`).join('')}
+        ${shuffle(q.optionen.map((o, oi) => oi)).map(oi => `<label class="opt" data-oi="${oi}"><input type="radio" name="q${qi}" value="${oi}"> <span>${esc(q.optionen[oi])}</span></label>`).join('')}
         <div class="explain" hidden>${esc(q.erklaerung)}</div></div>`).join('')}
       <div class="btn-row"><button class="btn primary" type="submit">Auswerten</button><div class="score" id="score-${lid}"></div></div></form>`;
   }
@@ -294,8 +295,8 @@
       box.querySelectorAll('.opt').forEach(o => o.classList.remove('correct', 'wrong'));
       if (!sel) { missing++; return; }
       const ok = Number(sel.value) === q.richtig; if (ok) score++;
-      box.querySelectorAll('.opt')[Number(sel.value)].classList.add(ok ? 'correct' : 'wrong');
-      box.querySelectorAll('.opt')[q.richtig].classList.add('correct');
+      box.querySelector(`.opt[data-oi="${sel.value}"]`).classList.add(ok ? 'correct' : 'wrong');
+      box.querySelector(`.opt[data-oi="${q.richtig}"]`).classList.add('correct');
       box.querySelector('.explain').hidden = false;
     });
     if (missing) { toast(`${missing} Frage(n) unbeantwortet.`, 'bad'); return; }
@@ -360,7 +361,7 @@
       <div class="breadcrumb"><a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Prüfung</div>
       <section class="hero small"><div class="eyebrow">Modulprüfung</div><h1>${esc(k.titel)}</h1>
         <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen, zufällig gemischt. Mindestens ${PASS} %. Keine Hilfsmittel, kein Zurückblättern.</p>
-        ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
+        ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length}${ex.attempts.some(a => a.abgebrochen) ? ' (davon ' + ex.attempts.filter(a => a.abgebrochen).length + ' abgebrochen)' : ''} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
         ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Du hast dieses Modul mit ${ex.best} % bestanden. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
         ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nicht bestanden. Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten. Nutze die Zeit: Lies die Lektionen, in denen du Fehler hattest.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="${kid}">Prüfung starten</button></div>`}
       </section>`;
@@ -373,10 +374,11 @@
   }
   function renderExam(k) {
     const e = examState; const q = e.fragen[e.i];
-    return `<div class="breadcrumb">Prüfung Modul ${k.nr} · Frage ${e.i + 1} von ${e.fragen.length}</div>
+    if (!q.order) q.order = shuffle(q.optionen.map((_, i) => i));
+    return `<div class="breadcrumb">Prüfung Modul ${k.nr} · Frage ${e.i + 1} von ${e.fragen.length} · Seite nicht verlassen</div>
       <div class="bar"><div class="bar-fill" style="width:${(e.i) / e.fragen.length * 100}%"></div></div>
       <section class="card exam-q"><div class="eyebrow">${esc(q.lektion)}</div><h2>${esc(q.frage)}</h2>
-        ${q.optionen.map((o, oi) => `<button class="opt btn-opt" data-act="exam-answer" data-oi="${oi}">${esc(o)}</button>`).join('')}
+        ${q.order.map(oi => `<button class="opt btn-opt" data-act="exam-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')}
       </section>`;
   }
   function examAnswer(oi) {
@@ -457,7 +459,7 @@
   route('rollenspiel', ([sid]) => {
     const SZ = window.SZENARIEN;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
-      <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. Offline spielst du den Entscheidungsbaum. Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
+      <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. Drei Szenarien spielst du offline als Entscheidungsbaum. Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
       <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = runs.length ? Math.max(...runs.map(r => r.score || 0)) : null;
         return `<div class="card clickable" data-route="#/rollenspiel/${s.id}"><div class="meta"><span class="tag">${esc(s.level)}</span> ${s.offline ? '<span class="tag gold">offline spielbar</span>' : ''} ${best !== null ? `<span class="tag green">beste Wertung ${best}</span>` : ''}</div><h3>${esc(s.titel)}</h3><p class="muted">${esc(s.lage)}</p></div>`; }).join('')}</div>`;
     const s = SZ.find(x => x.id === sid); if (!s) return routes.rollenspiel([]);
@@ -509,7 +511,7 @@
   route('koerper', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Körpersprache-Trainer</h1>
       <p class="lead">Zeitgesteuerte Drills vor Spiegel oder Kamera. Nach jedem Drill bewertest du dich an festen Kriterien. Die Belege stehen bei jedem Drill, inklusive dem, was NICHT belegt ist (Power Posing, 7-38-55).</p></section>
       <div class="grid">${window.KOERPER_DRILLS.map(d => { const runs = S.drills['kd_' + d.id] || []; const avg = runs.length ? Math.round(runs.reduce((a, r) => a + r.score, 0) / runs.length * 10) / 10 : null;
-        return `<div class="card"><div class="meta">${d.sekunden} Sek. · ${runs.length}× · ${avg !== null ? 'Ø ' + avg + '/' + d.kriterien.length : ''}</div><h3>${esc(d.name)}</h3><p class="muted">${esc(d.anleitung)}</p><button class="btn small" data-act="kd-start" data-id="${d.id}">Drill starten</button></div>`; }).join('')}</div>`);
+        return `<div class="card"><div class="meta"><span>${d.sekunden} Sek.</span><span>${runs.length}×</span>${avg !== null ? '<span>Ø ' + avg + '/' + d.kriterien.length + '</span>' : ''}</div><h3>${esc(d.name)}</h3><p class="muted">${esc(d.anleitung)}</p><button class="btn small" data-act="kd-start" data-id="${d.id}">Drill starten</button></div>`; }).join('')}</div>`);
   function startKd(id) {
     const d = window.KOERPER_DRILLS.find(x => x.id === id); let left = d.sekunden;
     const m = modal(`<div class="eyebrow">${esc(d.name)}</div><div class="timer" id="kd-timer">${left}</div><p>${esc(d.anleitung)}</p><div class="btn-row"><button class="btn ghost" data-act="kd-skip">Abbrechen</button></div>`);
@@ -640,9 +642,11 @@
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); save(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
   document.addEventListener('click', (e) => { const b = e.target.closest('#lib-kat button, #lib-thema button, #q-b button, #q-st button'); if (!b) return; if (b.dataset.kat) libFilter.kat = b.dataset.kat; if (b.dataset.thema) libFilter.thema = b.dataset.thema; if (b.dataset.b) qFilter.b = b.dataset.b; if (b.dataset.st) qFilter.st = b.dataset.st; navigate(); });
-  $('#menu-toggle').onclick = () => $('#sidebar').classList.toggle('open');
+  function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
+  $('#menu-toggle').onclick = () => setMenu(!$('#sidebar').classList.contains('open'));
   window.addEventListener('hashchange', navigate);
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+  window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
   // ---------- Öffentliche Schnittstelle für coach.js ----------
   window.VA = { get S() { return S; }, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };

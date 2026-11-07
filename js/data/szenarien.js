@@ -53,7 +53,34 @@ window.SZENARIEN = [
     ziel: "Vorwand erkennen, die Angst vor der Fehlentscheidung labeln, gemeinsamen Termin mit beiden als nächsten Schritt.",
     pflicht: ["Isolier-Frage („Angenommen, Ihre Frau wäre einverstanden…“)", "Label zur Angst vor Fehlentscheidung", "Konkreter Termin mit beiden Partnern"],
     persona: "Thomas Berger, 55, Hausbesitzer, Ingenieur, vorsichtig, stellt Detailfragen, vermeidet Konflikt. Gibt die eigentliche Sorge erst zu, wenn man sie für ihn ausspricht.",
-    offline: null
+    offline: {
+      start: "a1",
+      knoten: {
+        a1: { npc: "Das klingt alles gut, aber das muss ich erst mit meiner Frau besprechen.", optionen: [
+          { text: "Natürlich. Darf ich fragen: Angenommen, Ihre Frau wäre einverstanden, würden Sie es dann machen?", next: "a2", bewertung: "good", feedback: "Isolier-Frage. Du prüfst, ob der Partner der echte Grund ist oder ein Vorwand." },
+          { text: "Verstehe. Dann schicke ich Ihnen alles per Mail, und Sie melden sich.", next: "a_weg", bewertung: "bad", feedback: "Du hast den Vorwand akzeptiert und die Kontrolle abgegeben. „Wir melden uns“ ist in 80 % der Fälle ein Nein." },
+          { text: "Wenn Sie heute unterschreiben, bekommen Sie noch 5 % Rabatt. Das Angebot gilt nur heute.", next: "a_druck", bewertung: "bad", feedback: "Erfundene Knappheit und Druck. Genau das löst bei einem vorsichtigen Ingenieur Reaktanz aus. Und es ist unethisch." }
+        ]},
+        a2: { npc: "Hm… wahrscheinlich schon. Es ist nur viel Geld, und man liest ja so einiges über Pfusch bei Solaranlagen.", optionen: [
+          { text: "Es klingt, als hätten Sie weniger Sorge wegen Ihrer Frau als davor, eine Entscheidung zu treffen, die Sie später bereuen.", next: "a3", bewertung: "good", feedback: "Label. Du sprichst die eigentliche Angst aus, ohne zu werten. Jetzt kann er darüber reden." },
+          { text: "Pfusch gibt es bei uns nicht, wir haben 300 zufriedene Kunden.", next: "a_feature", bewertung: "ok", feedback: "Eine Behauptung gegen eine Angst. Die Angst gewinnt. Erst die Sorge anerkennen, dann Belege." },
+          { text: "Dann lassen Sie uns das Gespräch mit Ihrer Frau zusammen führen.", next: "a_zufrueh", bewertung: "ok", feedback: "Richtige Richtung, aber zu früh. Du hast die eigentliche Sorge noch nicht aufgedeckt." }
+        ]},
+        a3: { npc: "Ehrlich gesagt ja. Wir hatten vor zwei Jahren einen Handwerker, der hat das Bad verpfuscht, 18.000 Euro, und wir sitzen heute noch auf dem Schaden.", optionen: [
+          { text: "Das ist ein schwerer Schlag, und nach so etwas ist Vorsicht die einzig vernünftige Reaktion. Was müsste ein Anbieter tun, damit Sie dieses Mal sicher sein können?", next: "a4", bewertung: "good", feedback: "Anerkennung plus kalibrierte Frage. Er definiert jetzt selbst die Kriterien, die du erfüllen kannst." },
+          { text: "Das tut mir leid. Aber wir sind ja keine Badsanierer.", next: "a_feature", bewertung: "bad", feedback: "Du hast seine Erfahrung abgetan. Für ihn ist das dieselbe Kategorie: Handwerker, viel Geld, Risiko." }
+        ]},
+        a4: { npc: "Referenzen, die ich anrufen kann. Eine Garantie, die etwas wert ist. Und dass nicht alles vorab bezahlt wird.", optionen: [
+          { text: "Alle drei Punkte kann ich erfüllen: drei Kunden aus Ihrem Umkreis als Referenz, zehn Jahre Garantie schriftlich, Zahlung in drei Raten nach Baufortschritt. Vorschlag: Ich komme Donnerstagabend vorbei, wenn Ihre Frau da ist, bringe die Referenzen mit, und Sie entscheiden gemeinsam. Passt 19 Uhr?", next: "a_gut", bewertung: "good", feedback: "Seine Kriterien, deine Antworten, dann ein konkreter Termin mit beiden Entscheidern. Das ist der Abschluss dieses Gesprächs." },
+          { text: "Die Garantie steht im Angebot, Referenzen schicke ich. Melden Sie sich dann?", next: "a_weg", bewertung: "bad", feedback: "Du hast die Kontrolle wieder abgegeben. Ohne Termin mit beiden stirbt der Deal in der Schublade." }
+        ]},
+        a_weg: { npc: "Mache ich. Danke erst mal.", ende: true, fazit: "Nicht bestanden. Der Vorwand wurde nie geprüft, die Angst nie angesprochen, kein Termin. Dieser Kunde meldet sich nicht." },
+        a_druck: { npc: "So etwas mag ich nicht. Ich glaube, wir lassen das.", ende: true, fazit: "Nicht bestanden und Ethik nicht bestanden. Druck mit erfundener Frist beendet das Gespräch bei vorsichtigen Kunden sofort." },
+        a_feature: { npc: "Schon klar. Ich bespreche es trotzdem erst mal zu Hause.", ende: true, fazit: "Nicht bestanden. Argumente gegen eine Angst verlieren immer. Erst anerkennen, dann fragen, dann belegen." },
+        a_zufrueh: { npc: "Mal sehen. Ich melde mich.", ende: true, fazit: "Teilweise. Der gemeinsame Termin war die richtige Idee, aber ohne die eigentliche Sorge aufzudecken, hat er keinen Grund, ihn zu vereinbaren." },
+        a_gut: { npc: "Donnerstag 19 Uhr passt. Bringen Sie die Referenzen mit, dann schauen wir uns das zusammen an.", ende: true, fazit: "Bestanden. Isolier-Frage, Label, Anerkennung, kalibrierte Frage, seine Kriterien erfüllt, Termin mit beiden Entscheidern." }
+      }
+    }
   },
   {
     id: "anker-b2b", titel: "Ankern im B2B", level: "Fortgeschritten", modul: "verhandlung",
@@ -89,7 +116,36 @@ window.SZENARIEN = [
     ziel: "BATNA kennen, Spannen-Angebot mit Begründung, Paket statt nur Gehalt.",
     pflicht: ["Vorbereitungsblatt (BATNA, Ziel, Walk-away) vorher ausgefüllt", "Präzises oder Spannen-Gegenangebot mit Begründung", "Mindestens 2 Zusatzvariablen angesprochen", "Dank und Bestätigung am Ende"],
     persona: "Julia Schneider, 36, HR Business Partnerin. Freundlich, professionell, hält sich an Vorgaben, aber hat Spielraum.",
-    offline: null
+    offline: {
+      start: "h1",
+      knoten: {
+        h1: { npc: "Wir freuen uns sehr, Ihnen die Stelle anzubieten. Das Jahresgehalt liegt bei 52.000 Euro. Wie klingt das für Sie?", optionen: [
+          { text: "Vielen Dank, ich freue mich sehr über das Angebot. Bevor ich zum Gehalt komme: Was gehört sonst noch zum Paket, Homeoffice, Weiterbildung, Startdatum?", next: "h2", bewertung: "good", feedback: "Dank, Begeisterung, und du erweiterst zuerst die Verhandlungsmasse, bevor du über die Zahl sprichst." },
+          { text: "Das ist zu wenig. Ich hatte mit 60.000 gerechnet.", next: "h_hart", bewertung: "ok", feedback: "Zahl ist richtig, Ton ist falsch. Ohne Dank und ohne Begründung wirkt es wie eine Forderung, nicht wie ein Gespräch." },
+          { text: "Super, das passt. Wann kann ich anfangen?", next: "h_ja", bewertung: "bad", feedback: "Du hast ohne Gegenangebot akzeptiert. Die Firma hatte Spielraum bis 60.000. Das sind 8.000 Euro pro Jahr, die du verschenkt hast." }
+        ]},
+        h2: { npc: "Zwei Tage Homeoffice sind Standard, Weiterbildung nach Absprache, Start am liebsten zum Ersten des nächsten Monats.", optionen: [
+          { text: "Danke, das hilft. Zum Gehalt: Ich habe den Markt für diese Rolle recherchiert, vergleichbare Positionen liegen zwischen 56.000 und 62.000. Mit meiner Erfahrung in X und Y, die genau das Problem löst, das Sie im Gespräch beschrieben haben, halte ich 58.500 bis 61.000 für angemessen. Wie viel Spielraum haben Sie da?", next: "h3", bewertung: "good", feedback: "Marktdaten, Begründung mit ihrem Problem, präzise Spanne mit dem Ziel als Untergrenze, kalibrierte Frage. Lehrbuch." },
+          { text: "Okay. Und das Gehalt, geht da noch was?", next: "h_vage", bewertung: "bad", feedback: "Keine Zahl, keine Begründung. Die Antwort wird „leider nein“ sein, weil du nichts geliefert hast, worauf sie Ja sagen könnte." }
+        ]},
+        h3: { npc: "Das ist über dem, was wir für die Stelle eingeplant hatten. Ich könnte auf 55.000 gehen.", optionen: [
+          { text: "Ich verstehe, dass es ein Budget gibt. 55.000 liegt unter dem Marktband. Wenn wir uns bei 58.500 treffen, kann ich sofort zusagen. Falls das Gehalt wirklich nicht geht: Wäre ein drittes Homeoffice-Tag plus ein festes Weiterbildungsbudget von 2.000 Euro möglich, als Ausgleich?", next: "h4", bewertung: "good", feedback: "Du hältst die Zahl, bietest einen klaren Abschluss an und hast Tauschvariablen in der Hinterhand. Keine Drohung, kein Nachgeben." },
+          { text: "Okay, 55.000 nehme ich.", next: "h_55", bewertung: "ok", feedback: "Du hast 3.000 mehr geholt, aber beim ersten Gegenangebot aufgegeben. Das Band ging bis 60.000." },
+          { text: "Dann muss ich leider absagen.", next: "h_abbruch", bewertung: "bad", feedback: "Ein Ultimatum ohne BATNA-Check. Du hattest noch Spielraum über andere Variablen und ein zweites Gegenangebot." }
+        ]},
+        h4: { npc: "Lassen Sie mich mit der Fachabteilung sprechen. Ich denke, 58.000 plus das Weiterbildungsbudget bekomme ich durch.", optionen: [
+          { text: "Das klingt sehr gut, vielen Dank, dass Sie sich dafür einsetzen. Können wir festhalten, dass ich bei 58.000 plus 2.000 Euro Weiterbildung und zwei Tagen Homeoffice zusage, und Sie mir das bis Freitag schriftlich bestätigen?", next: "h_gut", bewertung: "good", feedback: "Dank, Bestätigung der Punkte, schriftlich, mit Datum. Du hast 6.000 Euro mehr pro Jahr plus Budget geholt, ohne die Beziehung zu belasten." },
+          { text: "Und die 61.000? Da geht doch bestimmt noch was.", next: "h_gier", bewertung: "bad", feedback: "Du hast ein gutes Ergebnis und verhandelst weiter nach oben. Das wirkt gierig und gefährdet den Start in die Beziehung." }
+        ]},
+        h_ja: { npc: "Wunderbar, dann schicke ich Ihnen den Vertrag.", ende: true, fazit: "Nicht bestanden. Kein Gegenangebot. Studien zeigen: Wer verhandelt, bekommt im Schnitt mehrere Tausend Euro mehr, und fast niemand verliert deswegen ein Angebot." },
+        h_hart: { npc: "Das übersteigt unser Budget deutlich. Mehr als 54.000 sehe ich nicht.", ende: true, fazit: "Teilweise. Du hast verhandelt, aber ohne Dank, Begründung und Variablen. Das Ergebnis ist entsprechend klein." },
+        h_vage: { npc: "Leider nicht, das ist unser Budget für die Stelle.", ende: true, fazit: "Nicht bestanden. Eine vage Frage bekommt ein klares Nein. Nenne Marktdaten und eine präzise Spanne." },
+        h_55: { npc: "Schön, dann machen wir das so.", ende: true, fazit: "Teilweise. 55.000 statt 52.000, aber das Band ging bis 60.000 und du hattest Tauschvariablen. Ein zweites Gegenangebot hätte nichts gekostet." },
+        h_abbruch: { npc: "Das bedauere ich. Alles Gute.", ende: true, fazit: "Nicht bestanden. Ultimatum ohne Not. Erst alle Variablen ausreizen, dann entscheiden." },
+        h_gier: { npc: "Hm. Ich muss das intern noch einmal grundsätzlich besprechen.", ende: true, fazit: "Nicht bestanden. Nach dem Ja weiterzuverhandeln zerstört Vertrauen. Nimm das gute Ergebnis und bedanke dich." },
+        h_gut: { npc: "Gerne, Sie bekommen die Bestätigung bis Freitag. Willkommen im Team.", ende: true, fazit: "Bestanden. Dank, Paket erweitert, Marktdaten, präzise Spanne, Variablen getauscht, schriftliche Bestätigung mit Datum. Plus 6.000 Euro im Jahr." }
+      }
+    }
   },
   {
     id: "grossdeal", titel: "Großdeal-Abschluss", level: "Profi", modul: "gespraech",

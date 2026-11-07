@@ -190,7 +190,8 @@ th { color: var(--gold); font-weight: 500; font-size: .78rem; letter-spacing: .1
 form.inline { display: flex; gap: 10px; }
 form.inline input { flex: 1; }
 label { display: block; margin-bottom: 14px; font-size: .9rem; color: var(--muted); }
-label input, label select { display: block; width: 100%; margin-top: 6px; background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px; color: var(--text); padding: 11px 12px; font-family: var(--sans); font-size: .95rem; }
+[hidden] { display: none !important; }
+label input:not([type=radio]):not([type=checkbox]), label select { display: block; width: 100%; margin-top: 6px; background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px; color: var(--text); padding: 11px 12px; font-family: var(--sans); font-size: .95rem; }
 label input:focus, label select:focus, input:focus { outline: none; border-color: var(--gold); }
 input:not([type=checkbox]):not([type=radio]) { background: var(--bg-3); border: 1px solid var(--line); border-radius: 10px; color: var(--text); padding: 11px 12px; font-family: var(--sans); font-size: .95rem; }
 label.check { color: var(--text); }
@@ -231,6 +232,8 @@ label.check { color: var(--text); }
 .chat-form textarea { flex: 1; min-width: 200px; background: var(--bg-3); border: 1px solid var(--line); border-radius: 12px; color: var(--text); padding: 12px 14px; font-family: var(--sans); font-size: .95rem; resize: none; }
 .chat-form textarea:focus { outline: none; border-color: var(--gold); }
 @media (max-width: 900px) {
+  .sidebar { padding-top: 70px; }
+  .sidebar-bg { position: fixed; inset: 0; background: rgba(0,0,0,.5); z-index: 15; }
   .two-col { grid-template-columns: 1fr; }
   .hero h1, .hero.small h1 { font-size: 2rem; }
   .msg { max-width: 95%; }
