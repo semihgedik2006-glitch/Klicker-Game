@@ -15,6 +15,7 @@ KURSE.push({
         "Anwenden, wie du deine Argumentation auf ein Hauptmotiv und ein Nebenmotiv konzentrierst, statt alle Motive aufzuzählen."
       ],
       vorfrage: "Ein Kunde fragt als Allererstes: „Und was ist, wenn das Gerät nach einem Jahr kaputtgeht?“ Welches Kaufmotiv verrät diese Frage, und mit welcher Art von Argument würdest du antworten?",
+      vorfrageAntwort: "Sicherheit: Die Frage nach dem Ausfall verrät Angst vor Verlust und Risiko. Antworte mit Garantie, Support, Referenzen und Ausfallzahlen, nicht mit Rendite oder Neuheit.",
       kernpunkte: [
         "Deci und Ryan (1985, 2000): Autonomie, Kompetenz und Verbundenheit sind drei universelle Grundbedürfnisse, die jede Kaufentscheidung mitprägen.",
         "Die Praktiker-Liste (u. a. Ziglar, Limbeck) nennt sieben Kaufmotive: Gewinn, Sicherheit, Bequemlichkeit, Ansehen, Wohlbefinden, Neugier und Angst vor Verlust.",
@@ -85,6 +86,7 @@ KURSE.push({
         "Anwenden, wie du Tempo, Detailtiefe und Energielevel in den ersten zwei Minuten an den Kunden anpasst."
       ],
       vorfrage: "Warum fühlen sich die meisten Menschen in ihrer DISG-Farbe gut beschrieben, obwohl das Modell kaum wissenschaftliche Belege hat, und welches Persönlichkeitsmodell würde die Forschung stattdessen empfehlen?",
+      vorfrageAntwort: "Forer-Effekt (1949): Allgemeine Beschreibungen fühlen sich persönlich zutreffend an. Validiert sind die Big Five (Costa und McCrae 1992): Offenheit, Gewissenhaftigkeit, Extraversion, Verträglichkeit, Neurotizismus.",
       kernpunkte: [
         "DISG geht auf Marston (1928) zurück; die vier Typen (dominant, initiativ, stetig, gewissenhaft) sind ein Gesprächsraster, kein validiertes Messinstrument.",
         "Die hohe Zustimmung zu DISG-Profilen erklärt sich zum Teil durch den Forer-Effekt (Forer 1949): Allgemeine Beschreibungen fühlen sich persönlich zutreffend an.",
@@ -152,6 +154,7 @@ KURSE.push({
         "Erkennen, an welchen roten Flaggen du eine Verkaufschance früh beendest, und darauf mit einer klärenden Frage reagieren."
       ],
       vorfrage: "Wie viele Personen sind an einer typischen B2B-Kaufentscheidung beteiligt, und was folgt daraus für einen Verkäufer, der bisher nur mit seinem netten Ansprechpartner redet?",
+      vorfrageAntwort: "Im Schnitt 6,8 Personen (CEB/Gartner 2017). Wer nur mit dem netten Ansprechpartner redet, kennt Entscheider, Einkäufer und Gatekeeper nicht; MEDDIC fragt deshalb früh nach Economic Buyer und Entscheidungsprozess.",
       kernpunkte: [
         "BANT (Budget, Authority, Need, Timing) stammt aus dem Vertrieb von IBM und reicht für kleine Verkäufe; Schwäche: fragt früh nach Budget und ignoriert den Prozess.",
         "MEDDIC (Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion) wurde in den 1990ern bei PTC entwickelt und passt zu komplexen B2B-Verkäufen.",
