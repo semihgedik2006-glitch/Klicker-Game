@@ -330,6 +330,20 @@ html[data-textsize="sehr-gross"] { font-size: 20px; }
 .callout.mitnehmen { margin-bottom: 18px; }
 .callout.mitnehmen a { margin-left: 6px; }
 .exam-q h3 { margin-top: 22px; }
+.callout.vertiefen div + div { margin-top: 6px; }
+.kontrast-grid { display: grid; gap: 14px; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin: 18px 0; }
+.card.kontrast h3 { font-size: 1.05rem; margin-bottom: 10px; color: var(--gold); }
+.card.kontrast .row { margin-top: 10px; } .card.kontrast .row p { margin: 2px 0 0; font-size: .92rem; }
+.kt-drill .situation { font-family: var(--serif); font-weight: 500; font-size: 1.25rem; line-height: 1.45; }
+.btn-row.wrap { flex-wrap: wrap; }
+.kt-review { list-style: none; padding: 0; margin: 16px 0; } .kt-review li { padding: 10px 12px 10px 16px; border-left: 3px solid var(--line); margin-bottom: 10px; } .kt-review li.ok { border-color: #7fc48a; } .kt-review li.bad { border-color: #d08b8b; }
+.stepper { display: flex; gap: 8px; list-style: none; padding: 0; margin: 0 0 18px; flex-wrap: wrap; } .stepper li { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--muted); padding: 6px 12px; border: 1px solid var(--line); border-radius: 999px; } .stepper li span { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .75rem; border: 1px solid currentColor; } .stepper li.cur { color: var(--gold); border-color: var(--gold); } .stepper li.done { color: #7fc48a; }
+.kontext { font-size: 1.02rem; line-height: 1.6; padding: 12px 16px; border-left: 3px solid var(--gold); background: rgba(255,255,255,.02); margin: 10px 0 18px; }
+.steps.wb li .warum { margin-top: 6px; font-size: .9rem; color: var(--muted); padding: 8px 12px; background: rgba(201,168,76,.06); border-radius: 6px; }
+.steps.wb li.gap { padding: 12px 12px 12px 48px; border: 1px dashed var(--gold); border-radius: 8px; }
+.krit { list-style: none; padding: 0; } .krit li { margin-bottom: 8px; } .krit label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; } .krit input { accent-color: var(--gold); margin-top: 4px; }
+details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; color: var(--gold); }
+@media (max-width: 720px) { .kontrast-grid { grid-template-columns: 1fr; } }
 .glossar { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 8px; }
 .glossar .glos h3 { font-size: 1.25rem; margin-bottom: .3em; }
 .glossar .glos .syn { font-family: var(--sans); font-size: .78rem; font-weight: 400; margin-left: 6px; }
