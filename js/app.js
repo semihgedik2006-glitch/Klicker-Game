@@ -157,6 +157,7 @@
       ${item('#/rollenspiel', 'Rollenspiele')}
       ${item('#/einwaende', 'Einwand-Drill')}
       ${item('#/kontraste', 'Konzept-Kontraste')}
+      ${item('#/faelle', 'Fälle')}
       ${item('#/beispiele', 'Schritt für Schritt')}
       ${item('#/training', 'Drills & Programm')}
       ${item('#/koerper', 'Körpersprache-Trainer')}
@@ -277,8 +278,13 @@
       row('Karten wiederholt', w => w.reduce((a, d) => a + (S.srsLog[d] || 0), 0)),
       row('Berichte bestanden', w => Object.values(S.reports).flat().filter(r => r.bestanden && inWeek(r.ts, w)).length),
       row('Neins gesammelt', w => S.nein.filter(n => inWeek(n.ts, w)).length),
-      row('Rollenspiele', w => Object.entries(S.drills).filter(([k]) => k.startsWith('rp_')).flatMap(([, v]) => v).filter(r => inWeek(r.ts, w)).length),
+      row('Rollenspiele', w => drillCount('rp_', w)),
+      row('Einwände geübt', w => drillCount('ew_', w)),
+      row('Kontrast-Drills', w => drillCount('kt_', w)),
+      row('Schritt-für-Schritt-Stufen', w => Object.entries(S.drills).filter(([k, v]) => k.startsWith('wb_') && v && inWeek(v.ts, w)).length),
+      row('Fälle bearbeitet', w => drillCount('fall_', w)),
     ];
+    function drillCount(prefix, w) { return Object.entries(S.drills).filter(([k]) => k.startsWith(prefix)).flatMap(([, v]) => Array.isArray(v) ? v : []).filter(r => inWeek(r.ts, w)).length; }
     if (rows.every(r => r.a === 0 && r.b === 0)) return '';
     return `<div class="card week"><div class="eyebrow">Wochenrückblick · letzte 7 Tage</div>
       <table class="week-table"><thead><tr><th></th><th>Diese Woche</th><th>Vorwoche</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.name}</td><td class="wk">${r.a}</td><td class="wk muted">${r.b}${r.a > r.b ? ' <span class="up">↑</span>' : r.a < r.b ? ' <span class="down">↓</span>' : ''}</td></tr>`).join('')}</tbody></table>
@@ -691,6 +697,52 @@
   }
 
   // ---------- Training: Drills, Ablehnung, Erfolgsleiter ----------
+  // ---------- Fälle: offene Checkpoint-Fälle mit Rubrik ----------
+  let faLoading = false, faState = null;
+  function ensureFaelle() {
+    if (window.FAELLE) return true;
+    if (!faLoading) { faLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/faelle.js'; sc.onload = () => navigate(); sc.onerror = () => { faLoading = false; toast('Fälle konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
+    return false;
+  }
+  function fallRuns(id) { return S.drills['fall_' + id] || []; }
+  route('faelle', ([fid]) => {
+    if (!ensureFaelle()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Fälle</h1><p class="muted">Lade Fälle…</p></section>';
+    const F = window.FAELLE, R = window.FAELLE_RUBRIK;
+    if (!fid) {
+      return `<section class="hero small"><div class="eyebrow">Training</div><h1>Fälle</h1>
+        <p class="lead">Zehn Situationen, wie sie im Beruf ankommen: ohne Überschrift, ohne Hinweis, welche Lektion gemeint ist. Du schreibst eine begründete Einschätzung, dann bewertest du sie an einer Rubrik mit sechs Dimensionen, erst danach siehst du, was eine starke Antwort enthält. Bewertet wird die Qualität des Denkwegs, nicht die Übereinstimmung mit einer Musterlösung. Mit API-Schlüssel bewertet der Coach zusätzlich, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen.</p></section>
+        <div class="grid">${F.map(f => { const k = KURSE.find(x => x.id === f.modul); const r = fallRuns(f.id); const last = r[r.length - 1]; const locked = k && !examPassed(k.id) && !lessonDone(k.lektionen[0].id); return `<div class="card ${locked ? 'locked' : 'clickable'}" ${locked ? '' : `data-route="#/faelle/${f.id}"`}><div class="meta"><span class="tag">Modul ${k ? k.nr : '?'}</span>${last ? `<span class="tag ${last.selbst >= 14 ? 'green' : 'gold'}">${last.coach != null ? 'Coach ' + last.coach : 'selbst ' + last.selbst}/18 · ${r.length}×</span>` : ''}${locked ? lock('Modul noch nicht begonnen') : ''}</div><h3>${esc(f.titel)}</h3></div>`; }).join('')}</div>
+        <div class="callout study"><div class="label">Warum Fälle</div>Im Verkauf kommt kein Problem mit dem Kapitelnamen. Wer nur Fragen beantwortet, bei denen die Methode schon im Titel steht, lernt Wiedererkennen, nicht Entscheiden. Offene Fälle mit Rubrik trainieren das, was später zählt: Problem erfassen, Informationen nutzen, Alternativen abwägen, entscheiden, prüfen, erklären.</div>`;
+    }
+    const f = F.find(x => x.id === fid); if (!f) return routes.faelle([]);
+    const k = KURSE.find(x => x.id === f.modul);
+    if (!faState || faState.id !== fid) faState = { id: fid, text: '', stufe: 0, wertung: {} };
+    const runs = fallRuns(f.id);
+    const head = `<div class="breadcrumb"><a href="#/faelle">Fälle</a> › ${esc(f.titel)}</div>
+      <section class="hero small"><div class="eyebrow">Fall · Modul ${k ? k.nr + ' ' + esc(k.titel) : ''}</div><h1>${esc(f.titel)}</h1></section>
+      <section class="card"><div class="eyebrow">Die Lage</div><p class="kontext">${esc(f.lage)}</p><div class="eyebrow">Dein Auftrag</div><p>${esc(f.auftrag)}</p></section>`;
+    if (faState.stufe === 0) {
+      return `${head}<section class="card"><h2>Deine Einschätzung</h2><p class="muted">Schreib so, wie du es der Person in der Lage schicken würdest: Befund, Begründung, Empfehlung, Prüfung, Risiko. Mindestens ${f.min} Zeichen. Keine Methode muss beim Namen genannt werden; es zählt, ob du sie anwendest.</p>
+        <form class="fall-form" data-min="${f.min}"><textarea class="journal" rows="12" placeholder="Was ist hier los, was empfiehlst du, woran prüft ihr es…">${esc(faState.text)}</textarea><div class="count muted"><span class="n">${faState.text.length}</span> / ${f.min} Zeichen</div><div class="btn-row"><button class="btn primary" type="submit">Einschätzung festhalten und an der Rubrik prüfen</button></div></form>
+        ${runs.length ? `<p class="muted small">Bisher ${runs.length} Durchgänge, zuletzt ${fmtTime(runs[runs.length - 1].ts)} mit ${runs[runs.length - 1].selbst}/18 (Selbstbewertung)${runs[runs.length - 1].coach != null ? `, Coach ${runs[runs.length - 1].coach}/18` : ''}.</p>` : ''}</section>`;
+    }
+    if (faState.stufe === 1) {
+      return `${head}<section class="card"><div class="log-entry"><div class="meta">Deine Einschätzung</div><div class="body">${esc(faState.text)}</div></div>
+        <h2>Rubrik: Wo steht deine Antwort?</h2><p class="muted">Lies je Dimension die drei Stufen und wähle ehrlich, welche deine Antwort erreicht. Stufe 3 heißt nicht „perfekt“, sondern „alles da, was die Dimension verlangt“. Die Musterelemente siehst du erst danach.</p>
+        <form class="fall-rubrik">${R.map(d => `<div class="rubrik-dim"><div class="eyebrow">${esc(d.name)}</div><p class="muted small">${esc(d.frage)}</p>${f.stufen[d.id].map((txt, i) => `<label class="opt"><input type="radio" name="r-${d.id}" value="${i + 1}" required> <span><strong>${i + 1}</strong> · ${esc(txt)}</span></label>`).join('')}</div>`).join('')}
+        <div class="btn-row"><button class="btn primary" type="submit">Bewertung speichern und Musterelemente sehen</button><button class="btn ghost" type="button" data-act="fall-back">Einschätzung überarbeiten</button></div></form></section>`;
+    }
+    const sum = Object.values(faState.wertung).reduce((a, b) => a + b, 0); const last = runs[runs.length - 1];
+    return `${head}<section class="card"><h2>${sum} von 18 · Selbstbewertung</h2>
+      <table class="week-table"><tbody>${R.map(d => `<tr><td>${esc(d.name)}</td><td class="wk">${faState.wertung[d.id]}/3</td></tr>`).join('')}</tbody></table>
+      ${last && last.coach != null ? `<p><strong>Coach:</strong> ${last.coach}/18</p>` : ''}
+      <h3>Was eine starke Antwort enthält</h3><ul class="kern">${f.stark.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
+      <div class="callout warn"><div class="label">Die häufigste Falle</div>${esc(f.falle)}</div>
+      <div class="log-entry"><div class="meta">Deine Einschätzung</div><div class="body">${esc(faState.text)}</div></div>
+      <p class="muted">Vergleiche jetzt Element für Element: Welche der fünf Punkte stehen bei dir, wenn auch in anderen Worten? Welche fehlen? Das Fehlende ist dein Lernpunkt, nicht die Punktzahl.</p>
+      <div class="btn-row">${S.apiKey ? `<a class="btn primary" href="#/coach?fall=${f.id}">Vom Coach bewerten lassen</a>` : ''}<button class="btn ghost" data-act="fall-restart">Noch einmal, mit dem Gelernten</button><a class="btn ghost" href="#/faelle">Alle Fälle</a></div></section>`;
+  });
+
   // ---------- Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird ----------
   let ktState = null;
   route('kontraste', ([kid]) => {
@@ -802,11 +854,27 @@
       ${w.length ? `<p class="muted small">Bisher ${w.length} Durchgänge, zuletzt ${fmtTime(w[w.length - 1].ts)}.</p>` : ''}
       <div class="btn-row"><a class="btn ghost" href="#/einwaende">Alle Einwände</a></div>`;
   });
+  function trainingsbilanz() {
+    const t7 = Date.now() - 7 * 864e5;
+    const arr = (prefix) => Object.entries(S.drills).filter(([k]) => k.startsWith(prefix)).flatMap(([, v]) => Array.isArray(v) ? v : []);
+    const rows = [
+      { name: 'Einwand-Drill', href: '#/einwaende', all: arr('ew_'), gut: x => x.wert === 2 },
+      { name: 'Konzept-Kontraste', href: '#/kontraste', all: arr('kt_'), gut: x => x.score === x.n },
+      { name: 'Rollenspiele', href: '#/rollenspiel', all: arr('rp_'), gut: x => x.bestanden || x.passed },
+      { name: 'Fälle', href: '#/faelle', all: arr('fall_'), gut: x => (x.coach != null ? x.coach : x.selbst) >= 14 },
+      { name: 'Schritt für Schritt', href: '#/beispiele', all: Object.entries(S.drills).filter(([k, v]) => k.startsWith('wb_') && v).map(([, v]) => v), gut: x => x.stufe >= 4 },
+    ];
+    if (rows.every(r => !r.all.length)) return '';
+    return `<div class="card"><div class="eyebrow">Trainingsbilanz</div>
+      <table class="week-table"><thead><tr><th>Übung</th><th>Gesamt</th><th>7 Tage</th><th>Getroffen</th></tr></thead><tbody>${rows.map(r => { const n7 = r.all.filter(x => x.ts > t7).length; const gut = r.all.filter(r.gut).length; return `<tr><td><a href="${r.href}">${r.name}</a></td><td class="wk">${r.all.length}</td><td class="wk ${n7 ? '' : 'muted'}">${n7}</td><td class="wk">${r.all.length ? Math.round(gut / r.all.length * 100) + ' %' : '–'}</td></tr>`; }).join('')}</tbody></table>
+      <p class="muted small">„Getroffen“ heißt: Einwand als getroffen bewertet, alle Kontrast-Fälle richtig, Rollenspiel bestanden, Fall mit mindestens 14 von 18, alle vier Stufen geschafft. Eine Übung, die seit sieben Tagen bei Null steht, ist die nächste.</p></div>`;
+  }
   route('training', () => {
     const day = Object.keys(S.ablehnung).length;
     const stufen = ['Rückblick', 'Stufe 1 · Mikro-Bitten', 'Stufe 2 · Fremde', 'Stufe 3 · Pitch & Rat', 'Stufe 4 · Kaltakquise', 'Stufe 5 · Echtgespräch'];
     return `<section class="hero small"><div class="eyebrow">Training</div><h1>Drills & Programm</h1>
       <p class="lead">Wissen ist billig. Hier zählt, was du draußen tust. Drei Instrumente: tägliche Drills, das 30-Tage-Ablehnungstraining (nach Jia Jiang und der Expositionsforschung) und die Erfolgsleiter (nach Bandura: Selbstwirksamkeit entsteht aus gestuften Erfolgen).</p></section>
+      ${trainingsbilanz()}
       <h2 class="section-title">Tägliche Drills</h2>
       <div class="grid">${window.TAGESDRILLS.map(d => { const n = (S.drills['tag_' + d.id] || []).length; const todayDone = (S.drills['tag_' + d.id] || []).some(x => x.ts > Date.now() - 864e5);
         return `<div class="card"><div class="meta">${d.dauer} Min. · ${n}× gemacht</div><h3>${esc(d.name)}</h3><p class="muted">${esc(d.text)}</p><button class="btn small ${todayDone ? 'ghost' : ''}" data-act="drill-done" data-id="${d.id}">${todayDone ? '✓ heute' : 'Erledigt'}</button></div>`; }).join('')}</div>
@@ -958,6 +1026,7 @@
   // ---------- Business-Planer und Coach-Seite werden von coach.js geliefert ----------
   route('coach', (p) => {
     if (/[?&]einwand=/.test(location.hash) && !ensureEinwaende()) return '<p class="muted">Lade Einwand…</p>';
+    if (/[?&]fall=/.test(location.hash) && !ensureFaelle()) return '<p class="muted">Lade Fall…</p>';
     return window.Coach ? window.Coach.page(p) : '<p>Coach-Modul fehlt.</p>';
   });
   route('business', (p) => window.Coach ? window.Coach.businessPage(p) : '<p>Coach-Modul fehlt.</p>');
@@ -971,6 +1040,8 @@
     else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
+    else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Befund, Empfehlung, Prüfung, Risiko: alles vier gehört hinein.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
+    else if (f.classList.contains('fall-rubrik')) { e.preventDefault(); const w = {}; window.FAELLE_RUBRIK.forEach(d => { const r = f.querySelector(`input[name="r-${d.id}"]:checked`); w[d.id] = r ? Number(r.value) : 1; }); faState.wertung = w; faState.stufe = 2; const sum = Object.values(w).reduce((a, b) => a + b, 0); (S.drills['fall_' + faState.id] = S.drills['fall_' + faState.id] || []).push({ ts: Date.now(), selbst: sum, wertung: w, text: faState.text.slice(0, 4000) }); touch(); save(); navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('wb-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Schreib alle Schritte aus.`, 'bad'); wbState.text = t; wbState.offen = true; navigate(); }
     else if (f.classList.contains('ew-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 60) return toast(`Zu kurz. ${60 - t.length} Zeichen fehlen. Sag es so, wie du es sagen würdest.`, 'bad'); ewState = { id: f.dataset.id, antwort: t, offen: true }; navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
@@ -992,6 +1063,8 @@
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
     else if (a === 'print') window.print();
+    else if (a === 'fall-back') { faState.stufe = 0; navigate(); }
+    else if (a === 'fall-restart') { faState = { id: faState.id, text: '', stufe: 0, wertung: {} }; navigate(); }
     else if (a === 'kt-wahl') { ktState.gewaehlt = Number(el.dataset.i); const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.antworten[ktState.i] = { wahl: ktState.gewaehlt, ok: ktState.gewaehlt === x.faelle[ktState.i].richtig }; navigate(); }
     else if (a === 'kt-next') { const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.i++; ktState.gewaehlt = null; if (ktState.i >= x.faelle.length) { (S.drills['kt_' + x.id] = S.drills['kt_' + x.id] || []).push({ ts: Date.now(), score: ktState.antworten.filter(z => z.ok).length, n: x.faelle.length }); touch(); save(); } navigate(); }
     else if (a === 'kt-restart') { ktState = null; navigate(); }
@@ -1017,7 +1090,7 @@
     else if (window.Coach && window.Coach.onClick) window.Coach.onClick(a, el, e);
   });
   document.addEventListener('input', (e) => {
-    if (e.target.matches('.report textarea, .abruf-form textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); const min = e.target.closest('.abruf-form') ? 120 : REPORT_MIN; c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= min); }
+    if (e.target.matches('.report textarea, .abruf-form textarea, .fall-form textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); const min = e.target.closest('.abruf-form') ? 120 : REPORT_MIN; c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= min); }
     if (e.target.id === 'lib-q' || e.target.id === 'q-q' || e.target.id === 'g-q') { const id = e.target.id; (id === 'lib-q' ? libFilter : id === 'g-q' ? gFilter : qFilter).q = e.target.value; clearTimeout(e.target._t); e.target._t = setTimeout(() => { const pos = e.target.selectionStart; navigate(); const n = $('#' + id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 250); }
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); if (Object.keys(S.activity || {}).length || S.name) S.onboarded = true; applyTextsize(); save(); renderNav(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });

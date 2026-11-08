@@ -133,6 +133,35 @@ ${m.blindN} blinde Flecken offen, ${m.dueN} Karten fällig. ${kal}
 ${m.items.length ? m.items.map((x, i) => `${i + 1}. [${(VA.S.blind && VA.S.blind[x.id]) ? 'BLINDER FLECK' : 'fällig'}] Lektion ${x.lektion}\n   Frage: ${x.frage}\n   Richtige Antwort: ${x.antwort}\n   Erklärung: ${x.erkl}\n   Kernpunkte der Lektion: ${x.kern.slice(0, 3).join(' · ')}`).join('\n') : 'Noch nichts fällig und keine Lektion abgeschlossen. Sag das in einem Satz und schick ihn in die nächste Lektion, keine Fragen erfinden.'}
 Stelle die Fragen frei formuliert als offene Abruffragen (ohne Antwortoptionen), nicht als Multiple Choice.\n\n${userContext()}`;
   }
+  function sysFall(f) {
+    const R = window.FAELLE_RUBRIK || [];
+    return `${RULES}\n\n# Modus: Fallbewertung
+Du bewertest die Einschätzung des Schülers zu einem offenen Fall. Nicht nach Übereinstimmung mit einer Musterlösung, sondern nach der Qualität des Denkwegs, streng nach der Rubrik unten. Vorgehen:
+1. Lies die Einschätzung vollständig. Zitiere zu jeder Dimension mindestens eine Stelle wörtlich („Du schreibst: ‚…‘“), auf die sich dein Urteil stützt. Ohne Zitat kein Urteil.
+2. Trenne ausdrücklich: Fehler (etwas ist sachlich falsch oder fehlt, obwohl die Lage es hergibt) von vertretbaren Ermessensentscheidungen (ein anderer Weg, der mit Begründung gangbar wäre). Sag bei jeder Kritik, welches von beiden du meinst.
+3. Bewerte jede Dimension mit 1, 2 oder 3 nach den drei Stufen. Im Zweifel die niedrigere Stufe, aber nie unter dem, was belegbar da ist.
+4. Nenne genau EINE Hauptkorrektur: der Punkt, der die Antwort am meisten verbessern würde, mit Ursache (warum ist das passiert) und Bezug zum Prinzip.
+5. Stelle zum Schluss eine Variation: dieselbe Struktur, andere Oberfläche (andere Branche, andere Zahlen), damit er die Korrektur sofort anwenden kann.
+6. Dein Urteil ist eine Hypothese, die er an der Wirklichkeit prüft; sag das in einem Satz.
+Formatiere die Bewertung exakt so:
+BEWERTUNG FALL
+${R.map(d => `${d.name}: X/3 – Zitat und Begründung`).join('\n')}
+Gesamt: X/18
+Hauptkorrektur: …
+Vertretbar anders: … (was du anders gemacht hättest, aber nicht als Fehler zählst)
+Variation: …
+
+## Der Fall
+${f.lage}
+## Auftrag
+${f.auftrag}
+## Rubrik (Stufe 1 / 2 / 3)
+${R.map(d => `${d.name} (${d.frage})\n  1: ${f.stufen[d.id][0]}\n  2: ${f.stufen[d.id][1]}\n  3: ${f.stufen[d.id][2]}`).join('\n')}
+## Elemente einer starken Antwort (als Prüfliste, nicht als Pflichtwortlaut)
+${f.stark.map(x => '- ' + x).join('\n')}
+## Häufigste Falle
+${f.falle}\n\n${userContext()}`;
+  }
   function sysEinwand(e) {
     return `${RULES}\n\n# Modus: Einwand-Drill
 Du spielst einen Kunden, der genau diesen Einwand bringt: „${e.einwand}“ (Kontext: ${e.kontext}). Was bei dir dahintersteckt: ${e.warum} Bleib in der Rolle, 1-3 Sätze pro Antwort, in gesprochener Sprache. Gib nicht nach, nur weil der Schüler argumentiert; gib nach, wenn er zuhört, anerkennt, isoliert oder fragt und dich dadurch zum Nachdenken bringt. Wenn er drängt, droht oder Rabatt ohne Gegenleistung anbietet, zieh dich zurück und sag warum (in der Rolle). Nach höchstens sechs Wechseln oder wenn der Schüler „ENDE“ schreibt, verlässt du die Rolle und bewertest in genau diesem Format:
@@ -285,8 +314,8 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   }
 
   // ---------- Chat-Seite ----------
-  let mode = 'coach', scenario = null, framework = null, einwand = null, busy = false, abort = null;
-  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'lern' ? 'lern_' + new Date().toISOString().slice(0, 10) : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
+  let mode = 'coach', scenario = null, framework = null, einwand = null, fall = null, busy = false, abort = null;
+  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'fall' ? 'fall_' + fall.id : mode === 'lern' ? 'lern_' + new Date().toISOString().slice(0, 10) : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
   function history() { const S = VA.S; return S.chats[chatKey()] = S.chats[chatKey()] || []; }
   function page(parts) {
     const S = VA.S; const qs = new URLSearchParams((location.hash.split('?')[1] || ''));
@@ -294,8 +323,9 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     else if (qs.has('biz')) { mode = 'business'; framework = FRAMEWORKS.find(f => f.id === qs.get('biz')) || null; }
     else if (qs.get('einwand') && (window.EINWAENDE || []).find(x => x.id === qs.get('einwand'))) { mode = 'einwand'; einwand = window.EINWAENDE.find(x => x.id === qs.get('einwand')); }
     else if (qs.has('lern')) { mode = 'lern'; }
+    else if (qs.get('fall') && (window.FAELLE || []).find(x => x.id === qs.get('fall'))) { mode = 'fall'; fall = window.FAELLE.find(x => x.id === qs.get('fall')); }
     else { mode = 'coach'; }
-    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'einwand' ? `Einwand: „${einwand.einwand}“` : mode === 'lern' ? 'Lernsitzung' : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
+    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'einwand' ? `Einwand: „${einwand.einwand}“` : mode === 'lern' ? 'Lernsitzung' : mode === 'fall' ? `Fallbewertung: ${fall.titel}` : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
     if (!S.apiKey && mode === 'business' && framework) return `<div class="breadcrumb"><a href="#/business">Business-Planer</a> › ${esc(framework.name)}</div><section class="hero small"><div class="eyebrow">Leitfaden ${framework.id} · ohne Coach</div><h1>${esc(framework.name)}</h1><p class="lead">${esc(framework.text)}</p>
       <p class="muted">Arbeite die Schritte schriftlich durch und speichere deine Antworten unten im Business-Planer. Mit API-Schlüssel führt dich der Coach Schritt für Schritt und widerspricht, wo du vage bleibst.</p></section>
       <div class="card"><ol class="steps">${framework.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
@@ -309,10 +339,10 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     return `<div class="chat-page">
       <div class="chat-head"><div><div class="eyebrow">${mode === 'rollenspiel' ? 'Rollenspiel · Schreib „ENDE“ für die Bewertung' : mode === 'business' ? 'Business-Planer' : 'Coaching'}</div><h1>${esc(title)}</h1></div>
         <div class="btn-row"><button class="btn small ghost" data-act="chat-mode" data-mode="coach" ${mode === 'coach' ? 'disabled' : ''}>Coach</button><a class="btn small ghost ${mode === 'lern' ? 'active' : ''}" href="#/coach?lern=1">Lernsitzung</a><a class="btn small ghost" href="#/rollenspiel">Rollenspiele</a><a class="btn small ghost" href="#/business">Business</a><button class="btn small ghost" data-act="chat-clear">Neu beginnen</button></div></div>
-      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : mode === 'einwand' ? `<div class="callout practice"><div class="label">Lage</div>${esc(einwand.kontext)}. Der Kunde bringt den Einwand, du antwortest nach LAER. Schreib „ENDE“ für die Bewertung. <a href="#/einwaende/${einwand.id}">Zurück zum Drill</a></div>` : mode === 'lern' ? `<div class="callout practice"><div class="label">So läuft die Sitzung</div>Der Coach fragt ab, du antwortest aus dem Kopf, dann sagst du „sicher, wahrscheinlich oder geraten“. Erst danach kommt Feedback. Blinde Flecken zuerst, dann fällige Karten. Er zeigt keine Antwort vor deinem Versuch, auch nicht auf Nachfrage. Schreib „ENDE“ für das Protokoll.</div>` : ''}
-      <div class="chat" id="chat">${h.length ? h.map(m => bubble(m.role, m.content)).join('') : `<div class="chat-empty">${mode === 'rollenspiel' ? 'Klick „Gespräch eröffnen“. Der Kunde beginnt.' : mode === 'lern' ? 'Klick „Sitzung starten“. Der Coach stellt die erste Frage.' : mode === 'business' ? 'Beschreibe deine Idee in zwei Sätzen. Der Coach übernimmt die Führung.' : 'Sag dem Coach, was du heute geübt hast, oder stell eine Frage. Er wird nachfragen.'}</div>`}</div>
+      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : mode === 'einwand' ? `<div class="callout practice"><div class="label">Lage</div>${esc(einwand.kontext)}. Der Kunde bringt den Einwand, du antwortest nach LAER. Schreib „ENDE“ für die Bewertung. <a href="#/einwaende/${einwand.id}">Zurück zum Drill</a></div>` : mode === 'fall' ? (() => { const r = (VA.S.drills['fall_' + fall.id] || []); const last = r[r.length - 1]; return `<div class="callout practice"><div class="label">Bewertung nach Rubrik</div>${last ? `Der Coach bewertet deine letzte Einschätzung (${new Date(last.ts).toLocaleDateString('de-DE')}, Selbstbewertung ${last.selbst}/18) in sechs Dimensionen, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen. Danach kannst du nachfragen.` : 'Noch keine Einschätzung gespeichert. Schreib sie zuerst im Fall.'} <a href="#/faelle/${fall.id}">Zum Fall</a></div>`; })() : mode === 'lern' ? `<div class="callout practice"><div class="label">So läuft die Sitzung</div>Der Coach fragt ab, du antwortest aus dem Kopf, dann sagst du „sicher, wahrscheinlich oder geraten“. Erst danach kommt Feedback. Blinde Flecken zuerst, dann fällige Karten. Er zeigt keine Antwort vor deinem Versuch, auch nicht auf Nachfrage. Schreib „ENDE“ für das Protokoll.</div>` : ''}
+      <div class="chat" id="chat">${h.length ? h.map(m => bubble(m.role, m.content)).join('') : `<div class="chat-empty">${mode === 'rollenspiel' ? 'Klick „Gespräch eröffnen“. Der Kunde beginnt.' : mode === 'lern' ? 'Klick „Sitzung starten“. Der Coach stellt die erste Frage.' : mode === 'fall' ? 'Klick „Bewerten lassen“. Deine gespeicherte Einschätzung wird mitgeschickt.' : mode === 'business' ? 'Beschreibe deine Idee in zwei Sätzen. Der Coach übernimmt die Führung.' : 'Sag dem Coach, was du heute geübt hast, oder stell eine Frage. Er wird nachfragen.'}</div>`}</div>
       <form class="chat-form" id="chat-form">
-        ${(mode === 'rollenspiel' || mode === 'einwand') && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : mode === 'lern' && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Sitzung starten</button>` : ''}
+        ${(mode === 'rollenspiel' || mode === 'einwand') && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : mode === 'lern' && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Sitzung starten</button>` : mode === 'fall' && !h.length && (VA.S.drills['fall_' + fall.id] || []).length ? `<button class="btn primary" type="button" data-act="rp-open">Bewerten lassen</button>` : ''}
         <textarea id="chat-input" rows="2" placeholder="${mode === 'rollenspiel' ? 'Deine Antwort an den Kunden…' : 'Nachricht an den Coach…'}  (Enter senden, Shift+Enter neue Zeile)"></textarea>
         <button class="btn primary" id="chat-send" ${busy ? 'disabled' : ''}>${busy ? '…' : 'Senden'}</button>
         ${busy ? '<button class="btn ghost" type="button" data-act="chat-stop">Stopp</button>' : ''}
@@ -328,7 +358,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     const id = 'm' + VA.uid(); chat.insertAdjacentHTML('beforeend', bubble('assistant', '…', id)); chat.scrollTop = chat.scrollHeight;
     busy = true; const sendBtn = document.getElementById('chat-send'); if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = '…'; }
     abort = new AbortController();
-    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'einwand' ? sysEinwand(einwand) : mode === 'lern' ? sysLern() : mode === 'business' ? sysBusiness(framework) : sysCoach();
+    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'einwand' ? sysEinwand(einwand) : mode === 'lern' ? sysLern() : mode === 'fall' ? sysFall(fall) : mode === 'business' ? sysBusiness(framework) : sysCoach();
     const msgs = h.slice(-40).map(m => ({ role: m.role, content: m.content }));
     if (hidden) msgs.push({ role: 'user', content: text });
     let out = '';
@@ -336,6 +366,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
       out = await call({ system: sys, messages: msgs }, { signal: abort.signal, onText: (t) => { const el = document.getElementById(id); if (el) { el.querySelector('.body').innerHTML = md(t); chat.scrollTop = chat.scrollHeight; } } });
       h.push({ role: 'assistant', content: out }); VA.touch(); VA.save();
       if (mode === 'rollenspiel' && /BEWERTUNG/.test(out)) saveRating(out);
+      if (mode === 'fall' && /BEWERTUNG FALL/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*18/); const r = VA.S.drills['fall_' + fall.id]; if (m && r && r.length) { r[r.length - 1].coach = Number(m[1]); VA.touch(); VA.save(); } }
       if (mode === 'einwand' && /BEWERTUNG EINWAND/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*40/); const falle = /Falle vermieden[^\n]*:\s*ja/i.test(out); const pts = m ? Number(m[1]) : 0; (VA.S.drills['ew_' + einwand.id] = VA.S.drills['ew_' + einwand.id] || []).push({ ts: Date.now(), wert: pts >= 28 && falle ? 2 : pts >= 20 ? 1 : 0, coach: pts, antwort: '(Coach-Gespräch)' }); VA.touch(); VA.save(); }
     } catch (e) {
       const el = document.getElementById(id); if (e.name === 'AbortError') { if (el) el.remove(); } else { if (el) el.querySelector('.body').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
@@ -357,7 +388,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     if (a === 'chat-clear') { delete VA.S.chats[chatKey()]; VA.save(); VA.navigate(); }
     else if (a === 'chat-mode') { mode = el.dataset.mode; location.hash = '#/coach?mode=coach'; VA.navigate(); }
     else if (a === 'chat-stop') { abort?.abort(); }
-    else if (a === 'rp-open') { el.remove(); send(mode === 'lern' ? '(Beginne die Lernsitzung jetzt mit der ersten Abruffrage, ohne Zusammenfassung.)' : '(Beginne jetzt das Gespräch in deiner Rolle mit dem ersten Satz.)', { hidden: true }); }
+    else if (a === 'rp-open') { el.remove(); if (mode === 'fall') { const r = VA.S.drills['fall_' + fall.id]; const last = r[r.length - 1]; const w = (window.FAELLE_RUBRIK || []).map(d => `${d.name} ${last.wertung ? last.wertung[d.id] : '?'}/3`).join(', '); return send(`Hier ist meine Einschätzung zum Fall „${fall.titel}“. Meine Selbstbewertung: ${w} (${last.selbst}/18).\n\n${last.text}`); } send(mode === 'lern' ? '(Beginne die Lernsitzung jetzt mit der ersten Abruffrage, ohne Zusammenfassung.)' : '(Beginne jetzt das Gespräch in deiner Rolle mit dem ersten Satz.)', { hidden: true }); }
     else if (a === 'biz-del') { VA.S.business = VA.S.business.filter(b => b.id !== el.dataset.id); VA.save(); VA.navigate(); }
   }
   document.addEventListener('keydown', (e) => { if (e.target.id === 'chat-input' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('chat-form').requestSubmit(); } });

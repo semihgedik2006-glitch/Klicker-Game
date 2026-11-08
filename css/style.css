@@ -342,6 +342,8 @@ html[data-textsize="sehr-gross"] { font-size: 20px; }
 .steps.wb li .warum { margin-top: 6px; font-size: .9rem; color: var(--muted); padding: 8px 12px; background: rgba(201,168,76,.06); border-radius: 6px; }
 .steps.wb li.gap { padding: 12px 12px 12px 48px; border: 1px dashed var(--gold); border-radius: 8px; }
 .krit { list-style: none; padding: 0; } .krit li { margin-bottom: 8px; } .krit label { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; } .krit input { accent-color: var(--gold); margin-top: 4px; }
+.rubrik-dim { margin: 18px 0; padding-top: 12px; border-top: 1px solid var(--line); } .rubrik-dim .opt { align-items: flex-start; } .rubrik-dim .opt span { font-size: .92rem; line-height: 1.5; }
+.card.locked { opacity: .6; }
 details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; color: var(--gold); }
 @media (max-width: 720px) { .kontrast-grid { grid-template-columns: 1fr; } }
 .glossar { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 14px; margin-bottom: 8px; }
