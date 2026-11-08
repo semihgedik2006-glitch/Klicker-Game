@@ -1,5 +1,3 @@
-// Glossar: Fachbegriffe des Curriculums mit Kurzdefinition und Fundstelle. Wird in #/glossar lazy geladen.
-// Felder: b Begriff, d Definition, syn Synonyme (optional), k Kurs-id, l Lektions-id der einführenden Lektion.
 window.GLOSSAR = [
   { b: "Besitztumseffekt", d: "Was man besitzt, bewertet man höher als dasselbe Ding, das man nicht besitzt; Besitzer verlangten im Tassenexperiment etwa das Doppelte des Käuferpreises (Kahneman, Knetsch & Thaler 1990). Grundlage von Probezeit und Probefahrt.", syn: ["Endowment-Effekt"], k: "psychologie", l: "p4" },
   { b: "Status-quo-Verzerrung", d: "Neigung, beim Bestehenden zu bleiben, nur weil es besteht; wächst mit der Zahl der Alternativen (Samuelson & Zeckhauser 1988). Gegenmittel im Verkauf: einen kleinen, umkehrbaren ersten Schritt anbieten.", syn: ["Status-quo-Bias"], k: "psychologie", l: "p4" },

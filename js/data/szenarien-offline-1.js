@@ -1,13 +1,5 @@
-// Offline-Entscheidungsbäume (Teil 1): anker-b2b, einkaeufer, skeptiker
-// Format wie in szenarien.js (preishammer, partner, gehalt): start, knoten{ id: { npc, optionen:[{text,next,bewertung,feedback}] } | { npc, ende:true, fazit } }
-// Fachliche Grundlage: research/verhandlung-einwaende-abschluss.md, Kurs 10 (Verhandlung) und Kurs 6 (Gespräch).
 window.SZENARIEN_OFFLINE = window.SZENARIEN_OFFLINE || {};
 
-// ---------------------------------------------------------------------------
-// Ankern im B2B: Markus Lindner, Geschäftsführer, fragt in Minute eins nach dem Preis.
-// Verdeckt: Angebote von 3.000 und 9.000 Euro, Budget bis 8.000, Messe in sechs Wochen.
-// Pflicht: 3 Fragen vor der ersten Zahl, präziser Anker mit Begründung, 2 weitere Variablen.
-// ---------------------------------------------------------------------------
 window.SZENARIEN_OFFLINE["anker-b2b"] = {
   start: "b1",
   knoten: {
@@ -53,12 +45,6 @@ window.SZENARIEN_OFFLINE["anker-b2b"] = {
   }
 };
 
-// ---------------------------------------------------------------------------
-// Der Einkäufer ankert zuerst: Petra Hofmann, Leiterin Einkauf, 40 Prozent weniger oder Schluss.
-// Du lieferst seit vier Jahren Kunststoff-Spritzgussteile, Jahresvolumen 184.000 Euro.
-// Verdeckt: Wettbewerber bei der Qualitätsprüfung durchgefallen, Zielvorgabe 10 Prozent, Wechsel kostet drei Monate.
-// Pflicht: kein Zugeständnis über 5 Prozent ohne Gegenleistung, 1 kalibrierte Frage, 1 objektives Kriterium.
-// ---------------------------------------------------------------------------
 window.SZENARIEN_OFFLINE["einkaeufer"] = {
   start: "e1",
   knoten: {
@@ -103,12 +89,6 @@ window.SZENARIEN_OFFLINE["einkaeufer"] = {
   }
 };
 
-// ---------------------------------------------------------------------------
-// Der Skeptiker: Dr. Frank Weber, Geschäftsführer Logistik, fünf Minuten, Arme verschränkt.
-// Du verkaufst Neukundengewinnung für Logistikunternehmen.
-// Verdeckt: 40.000 Euro bei zwei Agenturen verbrannt, braucht dringend neue Kunden, reagiert auf vorweggenommene Skepsis.
-// Pflicht: Accusation Audit in den ersten 60 Sekunden, Redeanteil unter 50 Prozent, kleiner bezahlter Pilot.
-// ---------------------------------------------------------------------------
 window.SZENARIEN_OFFLINE["skeptiker"] = {
   start: "k1",
   knoten: {

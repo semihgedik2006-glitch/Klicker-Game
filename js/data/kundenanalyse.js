@@ -1,4 +1,3 @@
-// Kundenanalyse-Tool: Fragebogen -> Profil (Kaufmotiv, DISG-Tendenz, Big-Five-Hinweise, Qualifizierung) -> Gesprächsempfehlung
 window.KA_FRAGEN = [
   { id: "erste_frage", text: "Was war die ERSTE Frage des Kunden?", typ: "wahl", optionen: [
     { text: "Was kostet das? / Was bringt mir das?", motiv: "gewinn" },

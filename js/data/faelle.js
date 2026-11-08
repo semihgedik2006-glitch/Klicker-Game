@@ -1,4 +1,3 @@
-// Checkpoint-Fälle: ein offener Fall je Modul. Keine Methode wird genannt. Bewertung nach sechs Dimensionen mit drei Stufen.
 window.FAELLE_RUBRIK = [
   { id: 'rahmen', name: 'Problem erfassen', frage: 'Trennt die Antwort Symptome vom eigentlichen Problem und benennt, wer was will?' },
   { id: 'info', name: 'Informationen nutzen', frage: 'Werden die gegebenen Fakten verwendet, Annahmen als Annahmen markiert und fehlende Daten benannt?' },

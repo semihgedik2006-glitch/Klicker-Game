@@ -1,6 +1,3 @@
-// Offline-Entscheidungsbäume (Teil 2): grossdeal, vorstellung
-// Fachliche Grundlage: Kurs 08 (MEDDIC, Buying Center, rote Flaggen), Kurs 05 (SPIN, kalibrierte Fragen),
-// Kurs 10 (Druck, Täuschung, Grenze), Kurs 09 (Vorstellungsgespräch, STAR), Kurs 03 (Ersteindruck, Wärme vor Kompetenz).
 window.SZENARIEN_OFFLINE = window.SZENARIEN_OFFLINE || {};
 
 window.SZENARIEN_OFFLINE["grossdeal"] = {

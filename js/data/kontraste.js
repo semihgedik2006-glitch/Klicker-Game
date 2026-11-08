@@ -1,5 +1,3 @@
-// Konzept-Kontraste: verwechselbare Begriffe nebeneinander, dazu Fälle, in denen die Methode nicht genannt wird.
-// Feld faelle[].richtig = Index in begriffe.
 window.KONTRASTE = [
   { id: 'label-mirror', titel: 'Labeln, Spiegeln oder Paraphrasieren?', lektion: 'f3',
     frage: 'Drei Werkzeuge des aktiven Zuhörens, die alle „den Kunden reden lassen“. Sie wirken auf verschiedene Dinge.',
