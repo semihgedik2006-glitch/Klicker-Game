@@ -27,17 +27,28 @@
     try { S = pickState(JSON.parse(localStorage.getItem(KEY) || '{}')); }
     catch (e) { S = pickState(null); }
     try { if (S.keySession) { const k = sessionStorage.getItem(KEY_SESSION); if (k) S.apiKey = k; } } catch (e) {}
+    normalisieren();
+  }
+  function normalisieren() {
     if (!S.leiter) S.leiter = window.ERFOLGSLEITER_VORLAGE.map(t => ({ text: t, done: false }));
     if (!S.kalib) S.kalib = { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }; if (!S.blind) S.blind = {}; if (!S.rpPlan) S.rpPlan = {};
     if (!S.onboarded && (Object.keys(S.activity).length > 0 || S.name)) S.onboarded = true;
     (window.SZENARIEN || []).forEach(sz => { if (!sz.offline && window.SZENARIEN_OFFLINE && window.SZENARIEN_OFFLINE[sz.id]) sz.offline = window.SZENARIEN_OFFLINE[sz.id]; });
   }
+  let stillSpeichern = false;
+  function uebernehmen(d, apiKey) {
+    S = Object.assign(pickState(d), { apiKey: apiKey ? apiKey : S.apiKey, keySession: S.keySession });
+    normalisieren(); stillSpeichern = true; save(); stillSpeichern = false;
+    applyTextsize(); navigate();
+  }
   function save() {
+    if (!stillSpeichern && window.Konto) window.Konto.geaendert();
     try {
       if (S.keySession) { try { sessionStorage.setItem(KEY_SESSION, S.apiKey || ''); } catch (e) {} localStorage.setItem(KEY, JSON.stringify({ ...S, apiKey: '' })); }
       else { try { sessionStorage.removeItem(KEY_SESSION); } catch (e) {} localStorage.setItem(KEY, JSON.stringify(S)); }
     } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message, 'bad'); }
   }
+  const konto = () => !!(window.Konto && window.Konto.angemeldet());
   function touch() { S.activity[today()] = (S.activity[today()] || 0) + 1; }
 
   const KURSE = window.KURSE;
@@ -385,7 +396,7 @@
   }
   function backupHinweis() {
     const aktiv = Object.keys(S.activity).length; const seit = Date.now() - Math.max(S.lastExport || 0, S.started || 0);
-    if (aktiv < 3 || seit < 14 * 864e5) return '';
+    if (aktiv < 3 || seit < 14 * 864e5 || konto()) return '';
     return `<div class="callout warn"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. Seit ${Math.floor(seit / 864e5)} Tagen keine Sicherung. <a href="#/einstellungen">Jetzt exportieren</a> (eine Datei, 10 Sekunden).</div>`;
   }
   const WV_TAGE = [1, 7, 30];
@@ -698,7 +709,7 @@
     $('#main').innerHTML = `<section class="hero small ${passed ? 'passed' : ''}"><div class="eyebrow">Ergebnis</div>
       <h1>${score} von ${e.fragen.length} · ${pct} %</h1>
       <p class="lead">${abschluss ? (passed ? `Bestanden. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig, nächster Versuch in 20 Minuten.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig, nächster Versuch in 20 Minuten.`}</p>
-      ${passed && Date.now() - Math.max(S.lastExport || 0, 0) > 864e5 ? `<div class="callout warn export-hinweis"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. ${S.lastExport ? `Letzte Sicherung vor ${Math.floor((Date.now() - S.lastExport) / 864e5)} Tagen.` : 'Noch nie gesichert.'} Eine Datei, zehn Sekunden: <button class="btn small" data-act="export">Jetzt exportieren</button></div>` : ''}
+      ${passed && !konto() && Date.now() - Math.max(S.lastExport || 0, 0) > 864e5 ? `<div class="callout warn export-hinweis"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. ${S.lastExport ? `Letzte Sicherung vor ${Math.floor((Date.now() - S.lastExport) / 864e5)} Tagen.` : 'Noch nie gesichert.'} Eine Datei, zehn Sekunden: <button class="btn small" data-act="export">Jetzt exportieren</button></div>` : ''}
       ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Fehler landen in der <a href="#/rueckschau">Prüfungs-Rückschau</a>.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
       <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul</a>` : '<a class="btn primary" href="#/training">Zum Training</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
@@ -1283,6 +1294,7 @@
   function jList(book) { return S[book].slice().reverse().slice(0, 30).map(e => `<div class="log-entry"><div class="meta">${fmtTime(e.ts)} <button class="x" data-act="j-del" data-book="${book}" data-id="${e.id}">×</button></div><div class="body">${esc(e.text)}</div></div>`).join(''); }
 
   route('einstellungen', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Einstellungen</h1></section>
+    ${window.Konto ? window.Konto.karte() : ''}
     <form id="settings" class="card settings">
       <div class="eyebrow">Profil</div>
       <label>Dein Name <input name="name" value="${esc(S.name)}" placeholder="Wie soll der Coach dich ansprechen?"></label>
@@ -1291,13 +1303,13 @@
       <div class="eyebrow gap">KI-Coach <span class="muted">(optional)</span></div>
       <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
       <label class="check-inline"><input type="checkbox" name="keySession" ${S.keySession ? 'checked' : ''}> Schlüssel nur für diese Sitzung merken. Er liegt dann im Sitzungsspeicher des Tabs statt dauerhaft im Browser und ist nach dem Schließen weg.</label>
-      <p class="muted">Bleibt in diesem Browser und geht nur an api.anthropic.com. Schlüssel gibt es unter console.anthropic.com.</p>
+      <p class="muted">${window.Konto ? window.Konto.schluesselHinweis() : 'Bleibt in diesem Browser und geht nur an api.anthropic.com.'} Schlüssel gibt es unter console.anthropic.com.</p>
       <label>Modell <select name="model">${['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'].map(m => `<option ${S.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <div class="btn-row"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-act="test-key">Verbindung testen</button></div>
     </form>
-    <div class="card"><div class="eyebrow">Daten</div><p class="muted">Alles liegt lokal in diesem Browser.</p>
+    <div class="card"><div class="eyebrow">Daten</div><p class="muted">${konto() ? 'Liegt in diesem Browser und in deinem Konto.' : 'Alles liegt lokal in diesem Browser.'}</p>
       <div class="btn-row"><button class="btn" data-act="export">Fortschritt exportieren (JSON)</button><label class="btn ghost">Importieren <input type="file" id="import-file" accept="application/json" hidden></label></div></div>
-    <div class="card gefahr"><div class="eyebrow">Gefahrenzone</div><p class="muted">Löscht Fortschritt, Berichte, Journal und Schlüssel in diesem Browser. Vorher exportieren.</p>
+    <div class="card gefahr"><div class="eyebrow">Gefahrenzone</div><p class="muted">${konto() ? 'Löscht Fortschritt, Berichte, Journal und Schlüssel auf allen Geräten.' : 'Löscht Fortschritt, Berichte, Journal und Schlüssel in diesem Browser. Vorher exportieren.'}</p>
       <div class="btn-row"><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
 
 
@@ -1415,7 +1427,7 @@
     else if (a === 'ka-del') { S.ka = S.ka.filter(p => p.id !== el.dataset.id); save(); navigate(); }
     else if (a === 'j-del') { S[el.dataset.book] = S[el.dataset.book].filter(x => x.id !== el.dataset.id); save(); navigate(); }
     else if (a === 'export') { const b = new Blob([JSON.stringify({ ...S, apiKey: '' }, null, 2)], { type: 'application/json' }); const u = URL.createObjectURL(b); const l = document.createElement('a'); l.href = u; l.download = 'verkaufsakademie-' + today() + '.json'; l.click(); S.lastExport = Date.now(); save(); toast('Sicherung heruntergeladen.', 'good'); }
-    else if (a === 'reset') { modal(`<h3>Wirklich alles löschen?</h3><p>Fortschritt, Berichte, Journal, Schlüssel. Das lässt sich nicht rückgängig machen.</p><div class="btn-row"><button class="btn danger" id="reset-yes">Ja, löschen</button><button class="btn ghost" data-act="close-modal">Abbrechen</button></div>`); $('#reset-yes').onclick = () => { localStorage.removeItem(KEY); load(); closeModal(); location.hash = '#/'; navigate(); toast('Zurückgesetzt.'); }; }
+    else if (a === 'reset') { modal(`<h3>Wirklich alles löschen?</h3><p>Fortschritt, Berichte, Journal, Schlüssel${konto() ? ', auch im Konto' : ''}. Das lässt sich nicht rückgängig machen.</p><div class="btn-row"><button class="btn danger" id="reset-yes">Ja, löschen</button><button class="btn ghost" data-act="close-modal">Abbrechen</button></div>`); $('#reset-yes').onclick = () => { localStorage.removeItem(KEY); load(); if (konto()) save(); closeModal(); location.hash = '#/'; navigate(); toast('Zurückgesetzt.'); }; }
     else if (a === 'close-modal') closeModal();
     else if (a === 'test-key') { if (!window.Coach) return; const key = $('#settings [name=apiKey]').value.trim(); if (!key) return toast('Erst einen Schlüssel eintragen.', 'bad'); el.textContent = 'Teste…'; window.Coach.test(key, $('#settings [name=model]').value).then(() => { el.textContent = 'Verbindung testen'; toast('Verbindung steht. Der Coach ist bereit.', 'good'); }).catch(err => { el.textContent = 'Verbindung testen'; toast('Fehler: ' + err.message, 'bad'); }); }
     else if (window.Coach && window.Coach.onClick) window.Coach.onClick(a, el, e);
@@ -1434,7 +1446,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
-  window.VA = { get S() { return S; }, wiedervorlagen, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
+  window.VA = { get S() { return S; }, uebernehmen, wiedervorlagen, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
 
   function applyTextsize() { document.documentElement.dataset.textsize = S.textsize || 'normal'; }
   load(); applyTextsize(); navigate();
