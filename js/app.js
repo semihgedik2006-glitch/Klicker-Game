@@ -1,8 +1,6 @@
-/* Verkaufsakademie – App-Kern: Zustand, Router, Lektionen, Prüfungen, Bibliothek, Training, Werkzeuge */
 (function () {
   'use strict';
 
-  // Hilfsfunktionen
   const $ = (sel, el = document) => el.querySelector(sel);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
@@ -10,11 +8,10 @@
   const fmtTime = (ts) => new Date(ts).toLocaleString('de-DE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
   const uid = () => Math.random().toString(36).slice(2, 10);
-  const PASS = 80;              // Prozent zum Bestehen
-  const REPORT_MIN = 250;       // Mindestzeichen für einen Übungsbericht
-  const EXAM_COOLDOWN = 20 * 60 * 1000; // 20 Minuten Sperre nach nicht bestandener Prüfung
+  const PASS = 80;
+  const REPORT_MIN = 250;
+  const EXAM_COOLDOWN = 20 * 60 * 1000;
 
-  // Zustand
   const KEY = 'verkaufsakademie_v1';
   const DEFAULT = {
     name: '', apiKey: '', model: 'claude-opus-5-5',
@@ -25,12 +22,11 @@
   };
   let S;
   const KEY_SESSION = KEY + '_key';
-  // Übernimmt aus fremden Daten (localStorage, Import) nur die Felder, die DEFAULT kennt. Verhindert __proto__-Tricks und Datenmüll.
   function pickState(d) { const out = Object.assign({}, DEFAULT); if (!d || typeof d !== 'object') return out; for (const k of Object.keys(DEFAULT)) if (Object.prototype.hasOwnProperty.call(d, k)) out[k] = d[k]; return out; }
   function load() {
     try { S = pickState(JSON.parse(localStorage.getItem(KEY) || '{}')); }
     catch (e) { S = pickState(null); }
-    try { if (S.keySession) { const k = sessionStorage.getItem(KEY_SESSION); if (k) S.apiKey = k; } } catch (e) { /* kein sessionStorage */ }
+    try { if (S.keySession) { const k = sessionStorage.getItem(KEY_SESSION); if (k) S.apiKey = k; } } catch (e) {}
     if (!S.leiter) S.leiter = window.ERFOLGSLEITER_VORLAGE.map(t => ({ text: t, done: false }));
     if (!S.kalib) S.kalib = { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }; if (!S.blind) S.blind = {}; if (!S.rpPlan) S.rpPlan = {};
     if (!S.onboarded && (Object.keys(S.activity).length > 0 || S.name)) S.onboarded = true;
@@ -38,13 +34,12 @@
   }
   function save() {
     try {
-      if (S.keySession) { try { sessionStorage.setItem(KEY_SESSION, S.apiKey || ''); } catch (e) { /* ignorieren */ } localStorage.setItem(KEY, JSON.stringify({ ...S, apiKey: '' })); }
-      else { try { sessionStorage.removeItem(KEY_SESSION); } catch (e) { /* ignorieren */ } localStorage.setItem(KEY, JSON.stringify(S)); }
+      if (S.keySession) { try { sessionStorage.setItem(KEY_SESSION, S.apiKey || ''); } catch (e) {} localStorage.setItem(KEY, JSON.stringify({ ...S, apiKey: '' })); }
+      else { try { sessionStorage.removeItem(KEY_SESSION); } catch (e) {} localStorage.setItem(KEY, JSON.stringify(S)); }
     } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message, 'bad'); }
   }
   function touch() { S.activity[today()] = (S.activity[today()] || 0) + 1; }
 
-  // Fortschrittslogik
   const KURSE = window.KURSE;
   const kursById = (id) => KURSE.find(k => k.id === id);
   function lessonIndex(kurs, lid) { return kurs.lektionen.findIndex(l => l.id === lid); }
@@ -71,7 +66,6 @@
   function rang() { if (abschlussPassed()) return 'Absolvent'; const n = KURSE.filter(k => examPassed(k.id)).length; let r = RAENGE[0][1]; for (const [m, t] of RAENGE) if (n >= m) r = t; return r; }
   function abschlussPassed() { return !!(S.exams.abschluss && S.exams.abschluss.passed); }
   function allExamsPassed() { return KURSE.every(k => examPassed(k.id)); }
-  // Serie mit einem Ruhetag pro sieben Tage: ein ausgelassener Tag bricht die Serie nicht, zwei innerhalb einer Woche schon.
   function streak() {
     let n = 0, lastRest = -99, i = 0; const d = new Date();
     if (!S.activity[today()]) { d.setDate(d.getDate() - 1); i = 1; }
@@ -87,7 +81,6 @@
   }
   function wocheAktiv() { let c = 0; const d = new Date(); for (let i = 0; i < 7; i++) { if (S.activity[d.toISOString().slice(0, 10)]) c++; d.setDate(d.getDate() - 1); } return c; }
 
-  // Wiederholung mit Abständen (Leitner, 6 Stufen)
   const SRS_INTERVALLE = [1, 3, 7, 14, 30, 60];
   const SRS_MAX_TAG = 20;
   function srsKarten() { const out = []; for (const k of KURSE) for (const l of k.lektionen) if (lessonDone(l.id)) l.quiz.forEach((q, i) => out.push({ id: l.id + ':' + i, q, lektion: l, kurs: k })); return out; }
@@ -103,7 +96,6 @@
     S.srs[id] = st; S.srsLog[today()] = (S.srsLog[today()] || 0) + 1; touch(); save();
   }
 
-  // UI-Bausteine
   function toast(msg, kind = '') {
     let t = $('#toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
     t.textContent = msg; t.className = 'show ' + kind; clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 3200);
@@ -116,7 +108,7 @@
     document.body.appendChild(m); return m;
   }
   function closeModal() { const m = $('#modal'); if (m) m.remove(); }
-  function md(text) { // kleines Markdown für Coach-Antworten
+  function md(text) {
     let h = esc(text);
     h = h.replace(/```([\s\S]*?)```/g, (_, c) => `<pre>${c}</pre>`);
     h = h.replace(/^### (.*)$/gm, '<h4>$1</h4>').replace(/^## (.*)$/gm, '<h3>$1</h3>').replace(/^# (.*)$/gm, '<h3>$1</h3>');
@@ -132,7 +124,6 @@
   const ICON_LOCK = '<svg class="ico" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
   const lock = (t) => `<span class="lock" title="${esc(t)}" aria-label="gesperrt">${ICON_LOCK}</span>`;
 
-  // Router
   const routes = {};
   function route(path, fn) { routes[path] = fn; }
   function navigate() {
@@ -152,18 +143,44 @@
     document.querySelectorAll('[data-route]').forEach(el => el.onclick = () => location.hash = el.dataset.route);
   }
   let afterRender = null;
+  const NAV_ICONS = {
+    '#/': '<path d="M3 9.5 10 4l7 5.5V16a1 1 0 0 1-1 1h-3.5v-4.5h-5V17H4a1 1 0 0 1-1-1z"/>',
+    '#/coach': '<path d="M4 5h12v8H9l-3.5 3v-3H4z"/><path d="M7.5 9h5"/>',
+    '#/wiederholen': '<path d="M15.5 8A6 6 0 0 0 4.6 6.5M4.5 12a6 6 0 0 0 10.9 1.5"/><path d="M4.5 3.5v3h3M15.5 16.5v-3h-3"/>',
+    '#/einstufung': '<path d="M4 16V11M8 16V7M12 16v-6M16 16V4"/>',
+    '#/rueckschau': '<circle cx="10" cy="10" r="6.5"/><path d="M10 6.5V10l2.5 1.5"/>',
+    '#/abschluss': '<circle cx="10" cy="8" r="4.5"/><path d="m7.5 12-1 5 3.5-2 3.5 2-1-5"/>',
+    '#/rollenspiel': '<circle cx="7" cy="7" r="2.5"/><circle cx="14" cy="8" r="2"/><path d="M2.5 16c.5-2.5 2.3-4 4.5-4s4 1.5 4.5 4M11.5 13c.6-.7 1.5-1 2.5-1 1.8 0 3.1 1.2 3.5 3"/>',
+    '#/einwaende': '<path d="M3.5 4.5h13v8h-6l-4 3v-3h-3z"/><path d="M10 6.5v3M10 11v.01"/>',
+    '#/kontraste': '<rect x="3" y="4" width="6" height="12" rx="1"/><rect x="11" y="4" width="6" height="12" rx="1"/>',
+    '#/faelle': '<rect x="3" y="6" width="14" height="10" rx="1.5"/><path d="M7.5 6V4.5h5V6M3 10.5h14"/>',
+    '#/beispiele': '<path d="M4 16h3v-3.5h3V9h3V5.5h3"/>',
+    '#/spielbuch': '<path d="M5 3.5h9.5v13H5a1.5 1.5 0 0 1-1.5-1.5V5A1.5 1.5 0 0 1 5 3.5z"/><path d="M7 7h5M7 10h5"/>',
+    '#/training': '<path d="M3 10h2M15 10h2M5 7v6M15 7v6M7 8.5v3M13 8.5v3M7 10h6"/>',
+    '#/koerper': '<circle cx="10" cy="4.5" r="1.8"/><path d="M5 8l5-1.5L15 8M10 6.5V12l-2.5 5M10 12l2.5 5"/>',
+    '#/checklisten': '<path d="m4 6 1.5 1.5L8 5M4 12l1.5 1.5L8 11M10.5 6.5H16M10.5 12.5H16"/>',
+    '#/milliardaere': '<path d="M3.5 5.5c2-1 4.5-1 6.5.5 2-1.5 4.5-1.5 6.5-.5v10c-2-1-4.5-1-6.5.5-2-1.5-4.5-1.5-6.5-.5z"/><path d="M10 6v10"/>',
+    '#/mythen': '<circle cx="10" cy="10" r="6.5"/><path d="M8 8a2 2 0 1 1 2.8 1.8c-.5.3-.8.7-.8 1.2v.5M10 13.5v.01"/>',
+    '#/kundenanalyse': '<circle cx="9" cy="9" r="5"/><path d="m13 13 3.5 3.5"/>',
+    '#/glossar': '<path d="M5.5 16.5V5a1.5 1.5 0 0 1 1.5-1.5h8.5v11H7a1.5 1.5 0 0 0-1.5 1.5z"/><path d="M8.5 7.5h4"/>',
+    '#/quellen': '<path d="M6 3.5h6l3 3v10H6z"/><path d="M12 3.5v3h3M8.5 10h4M8.5 13h4"/>',
+    '#/business': '<path d="M3.5 16.5h13M5.5 13.5v-3M9 13.5V7M12.5 13.5V9M16 13.5V5"/>',
+    '#/journal': '<path d="M13.5 3.5 16.5 6.5 8 15H5v-3z"/><path d="M11.5 5.5l3 3"/>',
+    '#/einstellungen': '<circle cx="10" cy="10" r="2.5"/><path d="M10 3v2M10 15v2M3 10h2M15 10h2M5 5l1.4 1.4M13.6 13.6 15 15M5 15l1.4-1.4M13.6 6.4 15 5"/>',
+  };
+  const navIcon = (href) => NAV_ICONS[href] ? `<svg class="nav-ico" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">${NAV_ICONS[href]}</svg>` : '';
   function renderNav() {
     const hash = location.hash || '#/';
     const cur = currentKurs();
     const path = hash.split('?')[0];
-    const item = (href, label, extra = '') => `<a href="${href}" class="${path === href || (href !== '#/' && path.startsWith(href)) ? 'active' : ''}">${label}${extra}</a>`;
+    const item = (href, label, extra = '') => `<a href="${href}" class="${path === href || (href !== '#/' && path.startsWith(href)) ? 'active' : ''}">${navIcon(href)}<span class="nav-label">${label}</span>${extra}</a>`;
     $('#nav').innerHTML = `
       <div class="nav-section">Start</div>
       ${item('#/', 'Übersicht')}
       ${item('#/coach', 'KI-Coach', S.apiKey ? '' : ' <span class="nav-dot" title="API-Schlüssel fehlt"></span>')}
       <div class="nav-section">Curriculum</div>
       ${(() => { const f = srsFaellig(); const n = Math.min(f.due.length, f.rest); return item('#/wiederholen', 'Wiederholen', n ? ` <span class="nav-badge">${n}</span>` : ''); })()}
-      ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ` <span class="nav-lock" title="Erst das vorherige Modul bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)).join('')}
+      ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span>${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ` <span class="nav-lock" title="Erst das vorherige Modul bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)).join('')}
       ${item('#/einstufung', 'Einstufung')}
       ${item('#/rueckschau', 'Prüfungs-Rückschau', (() => { const n = rueckschauListe().filter(x => !x.erledigt).length; return n ? ` <span class="nav-count">${n}</span>` : ''; })())}
       ${item('#/abschluss', 'Abschlussprüfung', abschlussPassed() ? ' <span class="nav-ok">✓</span>' : allExamsPassed() ? '' : ` <span class="nav-lock" title="Erst alle Module bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)}
@@ -190,7 +207,10 @@
     const p = totalProgress(); $('#total-pct').textContent = p + ' %'; $('#total-bar').style.width = p + '%';
   }
 
-  // Seiten
+  function ring(p, label) {
+    const r = 52, c = 2 * Math.PI * r;
+    return `<div class="ring" role="img" aria-label="${label} ${p} %"><svg viewBox="0 0 120 120" width="132" height="132"><circle cx="60" cy="60" r="${r}" class="ring-track"/><circle cx="60" cy="60" r="${r}" class="ring-fill" stroke-dasharray="${c.toFixed(1)}" stroke-dashoffset="${(c * (1 - p / 100)).toFixed(1)}"/></svg><div class="ring-text"><strong>${p}<small>%</small></strong><span>${label}</span></div></div>`;
+  }
   route('start', () => {
     if (!S.onboarded) return onboarding();
     const ns = nextStep(); const st = streak(); const k = currentKurs();
@@ -202,18 +222,20 @@
     const exams = KURSE.filter(x => examPassed(x.id)).length;
     const reports = Object.values(S.reports).flat().filter(r => r.bestanden).length;
     return `
-      <section class="hero">
-        <div class="eyebrow">${S.name ? 'Willkommen zurück, ' + esc(S.name) : 'Verkaufsakademie'} · Rang: <strong>${rang()}</strong></div>
-        <h1>Dein nächster Schritt</h1>
-        <p class="lead">${esc(ns.text)}</p>
-        <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
+      <section class="hero-panel">
+        <div class="hero-main">
+          <div class="eyebrow">${S.name ? 'Willkommen zurück, ' + esc(S.name) : 'Verkaufsakademie'} · Rang <strong>${rang()}</strong></div>
+          <h1>Dein nächster Schritt</h1>
+          <p class="lead">${esc(ns.text)}</p>
+          <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
+        </div>
+        ${ring(totalProgress(), 'Curriculum')}
       </section>
-      ${!S.einstufung && Object.keys(S.lessonsDone).length < 3 ? `<div class="callout practice"><div class="label">Quereinsteiger?</div>Wenn du schon verkauft hast: Die <a href="#/einstufung">Einstufung</a> (20 Fragen, 10 Minuten) zeigt dir, wo du Vorwissen hast und wo nicht. Sie schaltet nichts frei, aber du liest danach gezielter.</div>` : ''}
+      ${!S.einstufung && Object.keys(S.lessonsDone).length < 3 ? `<div class="callout practice"><div class="label">Quereinsteiger?</div>Die <a href="#/einstufung">Einstufung</a> zeigt in zehn Minuten, wo du Vorwissen hast.</div>` : ''}
       ${ersteSchritte()}
       ${wvCard(5)}
       <div class="grid stats">
-        <div class="stat"><div class="big">${totalProgress()} %</div><div class="lbl">Curriculum</div></div>
-        <div class="stat"><div class="big">${exams}/${KURSE.length}</div><div class="lbl">Prüfungen bestanden</div></div>
+                <div class="stat"><div class="big">${exams}/${KURSE.length}</div><div class="lbl">Prüfungen bestanden</div></div>
         <div class="stat"><div class="big">${st}</div><div class="lbl">Tage in Folge (Rekord ${S.streakBest})</div></div>
         <div class="stat"><div class="big">${S.nein.length}</div><div class="lbl">Gesammelte Neins</div></div>
         <div class="stat"><div class="big">${reports}</div><div class="lbl">Berichte bestanden</div></div>
@@ -221,8 +243,8 @@
       <div class="card today"><div class="eyebrow">Heute · ${new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
         <div class="today-row">${heute().map(t => `<a class="today-item ${t.done ? 'done' : ''}" href="${t.route}"><span class="ms-icon">${t.done ? '✓' : '○'}</span><span><strong>${esc(t.name)}</strong><br><span class="muted">${esc(t.text)}</span></span></a>`).join('')}</div>
         ${tagesplan()}
-        <p class="muted small">Die Serie zählt Tage mit mindestens einer dieser Handlungen. Ein Ruhetag pro Woche bricht sie nicht. Diese Woche: ${wocheAktiv()} von 7 Tagen aktiv.</p>
-        ${S.plan ? `<div class="plan">Dein Wenn-Dann-Plan: <strong>${esc(S.plan)}</strong></div>` : `<div class="plan muted">Noch kein Wenn-Dann-Plan. Menschen mit einem konkreten Auslöser („Wenn ich morgens den Kaffee aufsetze, dann…“) setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006). <a href="#/einstellungen">Plan festlegen</a></div>`}</div>
+        <p class="muted small">Diese Woche ${wocheAktiv()} von 7 Tagen aktiv. Ein Ruhetag bricht die Serie nicht.</p>
+        ${S.plan ? `<div class="plan">Dein Wenn-Dann-Plan: <strong>${esc(S.plan)}</strong></div>` : `<div class="plan muted">Noch kein Wenn-Dann-Plan. <a href="#/einstellungen">Festlegen</a></div>`}</div>
       ${backupHinweis()}
       ${wochenrueckblick()}
       <div class="two-col">
@@ -245,67 +267,50 @@
       </div>
       <h2 class="section-title">Meilensteine</h2>
       <div class="milestones">${meilensteine().map(m => `<div class="ms ${m.done ? 'done' : ''}" title="${esc(m.text)}"><span class="ms-icon">${m.done ? '✓' : '○'}</span><span>${esc(m.name)}</span></div>`).join('')}</div>
-      <h2 class="section-title">Aktuelles Modul</h2>
-      ${kursCard(k)}
-      <h2 class="section-title">Die Regeln dieses Bootcamps</h2>
-      <div class="card rules">
-        <ol class="steps">
-          <li><strong>Reihenfolge.</strong> Module und Lektionen werden in der vorgegebenen Reihenfolge freigeschaltet. Kein Überspringen.</li>
-          <li><strong>Lektion abschließen</strong> heißt: Vorab-Frage raten, lesen, aus dem Kopf zusammenfassen, Quiz mit mindestens ${PASS} %, dann Übungsbericht (mindestens ${REPORT_MIN} Zeichen), der vom Coach oder dem Selbst-Check bestanden wird. Diese Reihenfolge folgt der Lernforschung: Vorab-Raten, Abrufen und Testen festigen stärker als Lesen allein.</li>
-          <li><strong>Wiederholen.</strong> Fragen abgeschlossener Lektionen kommen in wachsenden Abständen wieder. Höchstens ${SRS_MAX_TAG} pro Tag, kein Rückstau.</li>
-          <li><strong>Abschluss.</strong> Nach allen zehn Modulen folgt die Abschlussprüfung über das gesamte Curriculum (30 Fragen, ${PASS} %). Dann gibt es das Zertifikat, und du bist Absolvent.</li>
-          <li><strong>Modulprüfung</strong> mit mindestens ${PASS} %. Nicht bestanden heißt 20 Minuten Sperre und zurück in die Lektionen.</li>
-          <li><strong>Echte Welt.</strong> Was du hier liest, zählt erst, wenn du es draußen getan hast. Deshalb verlangt jede Lektion einen Bericht über eine echte Handlung, und das Training zählt Drills und gesammelte Neins.</li>
-          <li><strong>Ehrlichkeit.</strong> Niemand kontrolliert dich außer dir. Wer sich selbst belügt, verkauft später auch schlechter.</li>
-          <li><strong>Keine Tricks.</strong> Die App kommt ohne Herzen, Werbung, Bezahlschranke und Schuld-Benachrichtigungen aus, und die Serie erlaubt einen Ruhetag pro Woche. Die Strenge steckt im Stoff und in den ${PASS} %.</li>
-        </ol>
-      </div>`;
+`;
   });
 
   function onboarding() {
     return `<section class="hero"><div class="eyebrow">Verkaufsakademie</div><h1>Bevor du anfängst</h1>
-      <p class="lead">Ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Jede Lektion endet mit einem Quiz und einem Bericht über ein echtes Gespräch; Durchklicken bringt deshalb nichts. Zwei Minuten Einrichtung, dann geht es los.</p></section>
+      <p class="lead">Zehn Module, eine Abschlussprüfung, echte Gespräche als Hausaufgabe.</p></section>
       <div class="two-col">
-        <div class="card"><div class="eyebrow">So lernst du hier</div>
-          <ol class="steps">
-            <li><strong>Raten, lesen, abrufen.</strong> Vor jedem Text eine Frage, nach jedem Text eine Zusammenfassung aus dem Kopf. Abrufen hält eine Woche später etwa ein Drittel mehr im Gedächtnis als noch einmal lesen (Roediger & Karpicke 2006).</li>
-            <li><strong>Quiz und Bericht.</strong> Mindestens ${PASS} % im Quiz, dann ein Bericht über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.</li>
-            <li><strong>Prüfung je Modul.</strong> ${PASS} % oder zurück in die Lektionen. Kein Überspringen.</li>
-            <li><strong>Wiederholen.</strong> Alte Fragen kommen in wachsenden Abständen wieder, höchstens ${SRS_MAX_TAG} am Tag.</li>
-            <li><strong>Draußen üben.</strong> Drills, Rollenspiele, 30 Tage Ablehnungstraining. Alles freiwillig, alles zählt.</li>
+        <div class="card"><div class="eyebrow">So läuft es</div>
+          <ol class="steps titled">
+            <li><strong>Lektion</strong>Vorab-Frage, Text, Zusammenfassung aus dem Kopf.</li>
+            <li><strong>Quiz und Bericht</strong>Mindestens ${PASS} %, dann ein Bericht über ein echtes Gespräch.</li>
+            <li><strong>Modulprüfung</strong>${PASS} % oder zurück in die Lektionen.</li>
+            <li><strong>Wiederholen</strong>Höchstens ${SRS_MAX_TAG} Karten am Tag.</li>
+            <li><strong>Training</strong>Drills, Rollenspiele, 30 Tage Ablehnungstraining.</li>
           </ol>
-          <p class="muted small">Die Strenge steckt im Stoff und in den ${PASS} %, nicht in Ranglisten oder Erinnerungen mit schlechtem Gewissen.</p></div>
+          </div>
         <form id="onboarding" class="card">
           <div class="eyebrow">Einrichtung</div>
           <label>Dein Vorname <input name="name" required placeholder="So spricht dich der Coach an"></label>
           <label>Dein Wenn-Dann-Plan <input name="plan" placeholder="Wenn ich morgens den Kaffee aufsetze, dann mache ich 15 Minuten Akademie."></label>
-          <p class="muted small">Ein konkreter Auslöser plus eine konkrete Handlung. Menschen mit so einem Plan setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006, 94 Studien). Du kannst ihn später ändern.</p>
+          <p class="muted small">Auslöser plus Handlung. Lässt sich später ändern.</p>
           <label>Textgröße <select name="textsize"><option value="normal">Normal</option><option value="gross">Groß</option><option value="sehr-gross">Sehr groß</option></select></label>
-          <p class="muted small">Der KI-Coach braucht später einen eigenen Anthropic-API-Schlüssel (Einstellungen). Ohne Schlüssel funktioniert alles andere.</p>
+          
           <div class="btn-row"><button class="btn primary" type="submit">Starten</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
         </form>
       </div>`;
   }
-  // Erste Schritte: Checkliste für die erste Woche. Der erste Punkt ist schon erledigt (Einrichtung), weil begonnene Listen eher beendet werden (Nunes & Drèze 2006).
   function ersteSchritte() {
     const drillsAny = Object.keys(S.drills).some(k => /^(tag_|ew_|kt_|fall_|wb_|rp_|kd_)/.test(k));
     const steps = [
       { name: 'Einrichtung', text: 'Name und Wenn-Dann-Plan festgelegt.', done: true, route: '#/einstellungen' },
-      { name: 'Erste Lektion lesen und aus dem Kopf zusammenfassen', text: 'Lektion 1.1, etwa 15 Minuten. Der Abruf nach dem Lesen ist der Teil, der hängen bleibt.', done: Object.keys(S.abruf).length > 0 || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
-      { name: 'Erstes Quiz bestehen', text: `Mindestens ${PASS} %. Die Optionen siehst du erst, wenn du selbst eine Antwort im Kopf hast.`, done: Object.keys(S.quiz).some(quizPassed) || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
-      { name: 'Ersten Bericht schreiben', text: 'Über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.', done: Object.values(S.reports).flat().some(r => r.bestanden), route: '#/lektion/grundlagen/g1' },
-      { name: 'Einen Drill machen', text: 'Fünf Minuten Einwand-Drill: schreiben, Muster vergleichen, selbst bewerten.', done: drillsAny, route: '#/einwaende' },
-      { name: 'Erstes Nein sammeln', text: 'Tag 1 des Ablehnungstrainings. Es geht nicht um das Ja.', done: S.nein.length >= 1 || Object.keys(S.ablehnung).length >= 1, route: '#/training' },
+      { name: 'Erste Lektion lesen und aus dem Kopf zusammenfassen', text: 'Lektion 1.1, etwa 15 Minuten.', done: Object.keys(S.abruf).length > 0 || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
+      { name: 'Erstes Quiz bestehen', text: `Mindestens ${PASS} %.`, done: Object.keys(S.quiz).some(quizPassed) || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
+      { name: 'Ersten Bericht schreiben', text: 'Über etwas, das du wirklich getan hast.', done: Object.values(S.reports).flat().some(r => r.bestanden), route: '#/lektion/grundlagen/g1' },
+      { name: 'Einen Drill machen', text: 'Fünf Minuten Einwand-Drill.', done: drillsAny, route: '#/einwaende' },
+      { name: 'Erstes Nein sammeln', text: 'Tag 1 des Ablehnungstrainings.', done: S.nein.length >= 1 || Object.keys(S.ablehnung).length >= 1, route: '#/training' },
     ];
     const n = steps.filter(x => x.done).length;
-    // Wer schon eine Modulprüfung bestanden hat, ist über die erste Woche hinaus: Liste weg, Startseite kürzer.
     if (S.tourWeg || n === steps.length || KURSE.some(k => examPassed(k.id))) return '';
     const next = steps.find(x => !x.done);
     return `<div class="card tour"><div class="eyebrow">Erste Schritte · ${n} von ${steps.length}</div>
       <div class="bar"><div class="bar-fill" style="width:${Math.round(n / steps.length * 100)}%"></div></div>
       <ol class="tour-list">${steps.map(x => `<li class="${x.done ? 'done' : x === next ? 'next' : ''}"><span class="ms-icon">${x.done ? '✓' : '○'}</span><span><a href="${x.route}">${esc(x.name)}</a>${x === next ? `<br><span class="muted small">${esc(x.text)}</span>` : ''}</span></li>`).join('')}</ol>
-      <div class="btn-row"><a class="btn small primary" href="${next.route}">${esc(next.name)}</a><button class="btn small ghost" data-act="tour-weg">Liste ausblenden</button></div>
-      ${!S.apiKey ? '<p class="muted small">Optional: Mit eigenem API-Schlüssel (Einstellungen) bewertet der Coach Berichte, Fälle und Rollenspiele. Ohne Schlüssel läuft alles andere.</p>' : ''}</div>`;
+      <button class="btn small ghost" data-act="tour-weg">Liste ausblenden</button></div>`;
   }
   function wochenrueckblick() {
     const tage = (n) => { const out = []; const d = new Date(); d.setDate(d.getDate() - n); for (let i = 0; i < 7; i++) { out.push(d.toISOString().slice(0, 10)); d.setDate(d.getDate() - 1); } return out; };
@@ -331,46 +336,43 @@
       ${kalibZeile()}
       ${wochenEmpfehlung(rows)}</div>`;
   }
-  // Eine Empfehlung für die kommende Woche, aus den Zahlen abgeleitet. Immer nur eine, mit Link und Zeitangabe.
   function wochenEmpfehlung(rows) {
     const g = (name) => rows.find(r => r.name === name) || { a: 0, b: 0 };
     const box = (t) => `<div class="callout practice wochen-tipp"><div class="label">Nächste Woche</div>${t}</div>`;
     const aktiv = g('Aktive Tage');
-    if (aktiv.a <= 2 && aktiv.b <= 2 && Object.keys(S.activity).length >= 3) return box(`Zwei kurze Einheiten schlagen eine lange: ${aktiv.a === 1 ? "ein aktiver Tag" : aktiv.a + " aktive Tage"} diese Woche. Leg zwei feste Tage mit je 15 Minuten fest, ${S.plan ? 'dein Wenn-Dann-Plan steht schon' : `<a href="#/einstellungen">ein Wenn-Dann-Plan</a> hilft dabei`} (verteiltes Lernen, Cepeda et al. 2006).`);
-    const f = srsFaellig(); if (f.due.length >= 10 && g('Karten wiederholt').a === 0) return box(`${f.due.length} Karten warten, und diese Woche hast du keine wiederholt. <a href="#/wiederholen">Zehn Minuten Wiederholung</a> an zwei Tagen holen das auf, bevor die Lücken in die nächste Prüfung wandern.`);
+    if (aktiv.a <= 2 && aktiv.b <= 2 && Object.keys(S.activity).length >= 3) return box(`${aktiv.a === 1 ? "Ein aktiver Tag" : aktiv.a + " aktive Tage"} diese Woche. Zwei feste Tage mit je 15 Minuten einplanen.`);
+    const f = srsFaellig(); if (f.due.length >= 10 && g('Karten wiederholt').a === 0) return box(`${f.due.length} Karten warten. <a href="#/wiederholen">Zehn Minuten Wiederholung</a> an zwei Tagen.`);
     const leer = [
-      ['Neins gesammelt', `Zwei Wochen ohne ein Nein. <a href="#/journal">Ein Nein diese Woche</a>: eine Frage stellen, deren Antwort wahrscheinlich Nein ist, und das Ergebnis eintragen (10 Minuten).`],
-      ['Einwände geübt', `Zwei Wochen ohne Einwand-Drill. <a href="#/einwaende">Ein Einwand</a>, laut beantwortet und selbst bewertet, dauert fünf Minuten.`],
-      ['Rollenspiele', `Zwei Wochen ohne Rollenspiel. <a href="#/rollenspiel">Eines offline</a> mit Vorbereitungsplan, 15 Minuten, und das Fazit mit dem Plan vergleichen.`],
-      ['Berichte bestanden', `Zwei Wochen ohne Bericht. Der nächste Bericht über ein echtes Gespräch zählt mehr als jede weitere Lektion: <a href="${nextStep().route}">weiter im Curriculum</a>.`],
-      ['Fälle bearbeitet', `Zwei Wochen ohne Fall. <a href="#/faelle">Ein Checkpoint-Fall</a> prüft, ob du das Gelernte ohne Methodennamen anwendest (20 Minuten).`],
+      ['Neins gesammelt', `Zwei Wochen ohne Nein. <a href="#/journal">Diese Woche eines holen</a>.`],
+      ['Einwände geübt', `Zwei Wochen ohne Einwand-Drill. <a href="#/einwaende">Fünf Minuten</a> reichen.`],
+      ['Rollenspiele', `Zwei Wochen ohne Rollenspiel. <a href="#/rollenspiel">Eines offline spielen</a>.`],
+      ['Berichte bestanden', `Zwei Wochen ohne Bericht. <a href="${nextStep().route}">Weiter im Curriculum</a>.`],
+      ['Fälle bearbeitet', `Zwei Wochen ohne Fall. <a href="#/faelle">Einen bearbeiten</a>.`],
     ];
     for (const [name, text] of leer) { const r = g(name); if (r.a === 0 && r.b === 0) return box(text); }
     const runter = rows.filter(r => r.b > 0 && r.a < r.b).sort((x, y) => (y.b - y.a) - (x.b - x.a))[0];
-    if (runter) return box(`„${runter.name}“ ist von ${runter.b} auf ${runter.a} gefallen. Halte diese Zahl nächste Woche, der Rest läuft.`);
-    return box('Alle Zeilen laufen. Nächste Stufe: ein Rollenspiel mit Vorbereitungsplan oder ein Fall, den du noch nicht bearbeitet hast.');
+    if (runter) return box(`„${runter.name}“ ist von ${runter.b} auf ${runter.a} gefallen.`);
+    return box('Alles im Plan. Als Nächstes ein neues Rollenspiel oder ein neuer Fall.');
   }
-  // Selbsteinschätzung: Trefferquote bei „sicher“ gegen „unsicher“, dazu die blinden Flecken (sicher und falsch) mit Fundstelle.
   function kalibKarte() {
     const c = S.kalib; const n = c.sicher + c.unsicher; const blindIds = Object.keys(S.blind);
     if (!n && !blindIds.length) return '';
     const ps = c.sicher ? Math.round(c.sicherOk / c.sicher * 100) : null, pu = c.unsicher ? Math.round(c.unsicherOk / c.unsicher * 100) : null;
-    let deutung = `Noch zu wenig Daten (${n} von 10 Antworten). Kreuz im Quiz „Ich bin mir sicher“ an, wenn es stimmt.`;
+    let deutung = `Noch zu wenig Daten (${n} von 10 Antworten).`;
     if (n >= 10) {
-      if (ps !== null && ps < 70) deutung = `Überkonfidenz: Wo du dir sicher warst, lagst du nur zu ${ps} % richtig. Das ist der Normalfall, nicht die Ausnahme (Lichtenstein, Fischhoff & Phillips 1982). Lies bei „sicher“ die Erklärung trotzdem.`;
-      else if (ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) deutung = `Du unterschätzt dich: Auch wo du unsicher warst, lagst du zu ${pu} % richtig. Dein Gefühl unterscheidet kaum zwischen Wissen und Raten. Entscheide dich öfter und prüf dann.`;
-      else if (ps !== null && ps >= 85) deutung = `Gut kalibriert: Dein „sicher“ ist verlässlich (${ps} % richtig)${pu !== null ? `, dein „unsicher“ liegt bei ${pu} %` : ''}. Diese Unterscheidung ist das Ziel: Sie sagt dir, was du wiederholen musst und was nicht.`;
-      else deutung = `Mittelfeld: ${ps !== null ? `${ps} % richtig bei „sicher“` : 'noch nie „sicher“ angekreuzt'}${pu !== null ? `, ${pu} % bei „unsicher“` : ''}. Je größer der Abstand zwischen beiden, desto besser kennst du dein eigenes Wissen.`;
+      if (ps !== null && ps < 70) deutung = `Überkonfidenz: Bei „sicher“ lagst du nur zu ${ps} % richtig.`;
+      else if (ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) deutung = `Du unterschätzt dich: Auch bei „unsicher“ lagst du zu ${pu} % richtig.`;
+      else if (ps !== null && ps >= 85) deutung = `Gut kalibriert: Dein „sicher“ stimmt zu ${ps} %.`;
+      else deutung = `Mittelfeld: ${ps !== null ? `${ps} % richtig bei „sicher“` : 'noch nie „sicher“ angekreuzt'}${pu !== null ? `, ${pu} % bei „unsicher“` : ''}.`;
     }
     const blind = blindIds.map(id => { const [lid, qi] = id.split(':'); const fl = findLesson(lid); const q = fl && fl.lektion.quiz[Number(qi)]; return fl && q ? { lid, kid: fl.kurs.id, titel: fl.lektion.titel, frage: q.frage, ts: S.blind[id] } : null; }).filter(Boolean).sort((a, b) => b.ts - a.ts);
-    // Nächster Schritt aus der Selbsteinschätzung: ein konkreter Link statt einer Diagnose ohne Folge
     let schritt = '';
-    if (blind.length) { const byK = {}; for (const b of blind) byK[b.kid] = (byK[b.kid] || 0) + 1; const top = Object.entries(byK).sort((a, b) => b[1] - a[1])[0]; const kurs = KURSE.find(k => k.id === top[0]); if (kurs) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>${top[1]} deiner blinden Flecken liegen in „${esc(kurs.titel)}“. Wiederhol die Karten unten, dann <a href="#/pruefung/${kurs.id}">leg die Modulprüfung noch einmal ab</a>: Erst wenn „sicher“ dort stimmt, trägt das Wissen im Gespräch.</div>`; }
-    else if (n >= 10 && ps !== null && ps < 70) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>Mach die nächsten zehn Quizfragen mit Gegenprobe: Sag dir vor dem Klick in einem Satz, was gegen deine Antwort spricht. Wer Gegengründe sucht, schätzt sich treffender ein (Koriat, Lichtenstein & Fischhoff 1980).</div>`;
-    else if (n >= 10 && ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>Trau deinem Wissen im Ernstfall: Nimm dir <a href="#/einwaende">einen Einwand</a> und antworte laut, ohne vorher die Musterlösung zu lesen. Bewerte erst danach.</div>`;
+    if (blind.length) { const byK = {}; for (const b of blind) byK[b.kid] = (byK[b.kid] || 0) + 1; const top = Object.entries(byK).sort((a, b) => b[1] - a[1])[0]; const kurs = KURSE.find(k => k.id === top[0]); if (kurs) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>${top[1]} deiner blinden Flecken liegen in „${esc(kurs.titel)}“. Karten wiederholen, dann <a href="#/pruefung/${kurs.id}">die Modulprüfung noch einmal ablegen</a>.</div>`; }
+    else if (n >= 10 && ps !== null && ps < 70) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>Vor jedem Klick kurz überlegen, was gegen deine Antwort spricht.</div>`;
+    else if (n >= 10 && ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div><a href="#/einwaende">Einen Einwand</a> laut beantworten, ohne die Musterlösung zu lesen.</div>`;
     const row = (name, k, ok, p) => `<div class="kalib-row"><span class="lbl">${name} <span class="muted">(${k})</span></span><div class="bar"><div class="bar-fill" style="width:${p || 0}%"></div></div><strong>${p === null ? '–' : p + ' %'}</strong></div>`;
     return `<div class="card kalib"><div class="eyebrow">Selbsteinschätzung</div>
-      <p class="muted">Bei jeder Quizfrage kannst du „Ich bin mir sicher“ ankreuzen. Hier siehst du, ob dein Gefühl die Wahrheit sagt.</p>
+      <p class="muted">Wie oft du richtig lagst, wenn du dir sicher warst.</p>
       ${row('Sicher', c.sicher, c.sicherOk, ps)}${row('Unsicher', c.unsicher, c.unsicherOk, pu)}
       <p class="small">${deutung}</p>${schritt}
       ${blind.length ? `<details><summary>${blind.length} blinde Flecken: sicher und trotzdem falsch</summary><ul class="wv-list">${blind.slice(0, 12).map(b => `<li><a href="#/lektion/${b.kid}/${b.lid}">${esc(b.titel)}</a><br><span class="muted small">${esc(b.frage)}</span></li>`).join('')}</ul><p class="muted small">Ein blinder Fleck verschwindet, sobald du die Karte in der Wiederholung richtig beantwortest.</p></details>` : '<p class="muted small">Kein blinder Fleck: Noch nie sicher und falsch zugleich.</p>'}</div>`;
@@ -379,14 +381,13 @@
     const c = S.kalib; if (c.sicher + c.unsicher < 10) return '';
     const ps = c.sicher ? Math.round(c.sicherOk / c.sicher * 100) : null, pu = c.unsicher ? Math.round(c.unsicherOk / c.unsicher * 100) : null;
     const blind = Object.keys(S.blind).length;
-    return `<p class="muted small"><strong><a href="#/wiederholen">Selbsteinschätzung</a>:</strong> ${ps !== null ? `Wo du dir sicher warst, lagst du zu ${ps} % richtig` : 'Du hast dich noch nie sicher erklärt'}${pu !== null ? `, wo du unsicher warst, zu ${pu} %` : ''}. ${blind ? `${blind} blinde Flecken (sicher und falsch) liegen in der Wiederholung.` : 'Noch kein blinder Fleck.'} ${ps !== null && ps < 70 ? 'Deine Sicherheit ist größer als dein Wissen, also kreuze seltener „sicher“ an und lies die Erklärungen genauer.' : ''}</p>`;
+    return `<p class="muted small"><strong><a href="#/wiederholen">Selbsteinschätzung</a>:</strong> ${ps !== null ? `Wo du dir sicher warst, lagst du zu ${ps} % richtig` : 'Du hast dich noch nie sicher erklärt'}${pu !== null ? `, wo du unsicher warst, zu ${pu} %` : ''}. ${blind ? `${blind} blinde Flecken (sicher und falsch) liegen in der Wiederholung.` : 'Noch kein blinder Fleck.'}</p>`;
   }
   function backupHinweis() {
     const aktiv = Object.keys(S.activity).length; const seit = Date.now() - Math.max(S.lastExport || 0, S.started || 0);
     if (aktiv < 3 || seit < 14 * 864e5) return '';
     return `<div class="callout warn"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. Seit ${Math.floor(seit / 864e5)} Tagen keine Sicherung. <a href="#/einstellungen">Jetzt exportieren</a> (eine Datei, 10 Sekunden).</div>`;
   }
-  // Wiedervorlagen für Übungen: +1, +7, +30 Tage (sukzessives Wiederlernen)
   const WV_TAGE = [1, 7, 30];
   function wiedervorlagen() {
     const now = Date.now(); const out = [];
@@ -414,7 +415,7 @@
   function wvCard(limit) {
     const w = wiedervorlagen(); if (!w.length) return '';
     return `<div class="card wv"><div class="eyebrow">Wiedervorlage · ${w.length} fällig</div>
-      <p class="muted small">Eine Übung sitzt erst nach dem dritten Durchgang mit Abstand: nach einem Tag, nach einer Woche, nach einem Monat (sukzessives Wiederlernen, Rawson & Dunlosky 2011). Fällig heißt: nicht nachlesen, sondern noch einmal selbst antworten.</p>
+      <p class="muted small">Übungen kommen nach einem Tag, einer Woche und einem Monat wieder.</p>
       <ul class="wv-list">${w.slice(0, limit || 8).map(x => `<li><a href="${x.route}">${esc(x.titel)}</a> <span class="muted small">· ${x.n}. Durchgang war vor ${x.ueberfaellig + WV_TAGE[Math.min(x.n - 1, 2)]} Tagen</span></li>`).join('')}</ul>
       ${w.length > (limit || 8) ? `<p class="muted small">und ${w.length - (limit || 8)} weitere auf der <a href="#/training">Trainingsseite</a>.</p>` : ''}</div>`;
   }
@@ -432,7 +433,6 @@
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
   }
-  // Tagesplan: was heute offen ist, in Minuten. Karten etwa eine halbe Minute, Wiedervorlagen etwa drei, Lektion laut Angabe, Prüfung etwa zehn.
   function tagesplan() {
     const t0 = new Date(); t0.setHours(0, 0, 0, 0); const t0ms = t0.getTime();
     const f = srsFaellig(); const wdh = Math.min(f.due.length, f.rest); const w = wiedervorlagen(); const ns = nextStep();
@@ -444,7 +444,7 @@
     else if (!lernenHeute && ns.kurs) teile.push({ min: 10, text: `Modulprüfung ${ns.kurs.nr}`, route: ns.route });
     if (!teile.length) return `<p class="tagesplan muted small">Für heute ist nichts offen. Ein Nein oder ein Drill hält die Serie.</p>`;
     const sum = teile.reduce((a, t) => a + t.min, 0);
-    return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a>${teile.length > 1 ? ` (${t.min} Min)` : ''}`).join(' · ')}. ${sum > 30 ? 'Fang mit den Karten an, die sind am schnellsten vergessen.' : 'Das passt in eine Kaffeepause.'}</p>`;
+    return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a>${teile.length > 1 ? ` (${t.min} Min)` : ''}`).join(' · ')}.</p>`;
   }
   function meilensteine() {
     const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => rpStatus(r).s === 2));
@@ -519,14 +519,14 @@
         ${done && l.kernpunkte ? `<div class="callout study mitnehmen"><div class="label">Abgeschlossen am ${new Date(S.lessonsDone[lid]).toLocaleDateString('de-DE')}</div><strong>Mitnehmen:</strong> ${esc(l.kernpunkte[0])} ${next ? `<a href="#/lektion/${k.id}/${next.id}">Weiter mit ${k.nr}.${i + 2} ${esc(next.titel)}</a>` : `<a href="#/pruefung/${k.id}">Zur Modulprüfung</a>`}</div>` : ''}
         ${l.lernziele ? `<div class="callout ziele"><div class="label">Nach dieser Lektion kannst du</div><ul>${l.lernziele.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}
         ${l.vorfrage ? `<section class="card vorfrage ${vf ? 'done' : ''}"><div class="eyebrow">Bevor du liest</div><p class="q">${esc(l.vorfrage)}</p>
-          ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<p class="muted small-note">Rate aus dem Bauch, ein Satz reicht. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009).</p><form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" aria-label="Deine Antwort auf die Vorab-Frage" placeholder="Ich vermute, dass …"></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
+          ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<p class="muted small-note">Ein Satz aus dem Bauch. Falsch liegen ist erlaubt.</p><form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" aria-label="Deine Antwort auf die Vorab-Frage" placeholder="Ich vermute, dass …"></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
         ${brauchtVorfrage ? `<div class="muted locked-note">${lock('')} Der Text erscheint, sobald du deine Vorab-Antwort festgehalten hast.</div>` : `${l.inhalt}
         ${(() => { if (!window.KONTRASTE || !window.BEISPIELE) { ensureKontraste(); ensureBeispiele(); return ''; } const kt = window.KONTRASTE.filter(x => x.lektion === lid); const wb = window.BEISPIELE.filter(x => x.lektion === lid); if (!kt.length && !wb.length) return ''; return `<div class="callout practice vertiefen"><div class="label">Vertiefen</div>${kt.map(x => `<div><strong>Nicht verwechseln:</strong> <a href="#/kontraste/${x.id}">${esc(x.titel)}</a> · Vergleichstabelle und Fälle ohne Nennung der Methode</div>`).join('')}${wb.map(x => `<div><strong>Schritt für Schritt:</strong> <a href="#/beispiele/${x.id}">${esc(x.titel)}</a> · Beispiel mit Begründung, dann Lücke, dann allein, dann neuer Kontext</div>`).join('')}</div>`; })()}
         <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
       </article>
       ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
-        ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${l.selbsterklaerung ? `<div class="callout ziele selbst"><div class="label">Erklär es dir selbst</div><p class="muted small-note">Beantworte die Fragen laut oder im Kopf, bevor du zum Quiz gehst. Wer das Warum selbst erklärt, behält den Stoff länger als wer eine fertige Erklärung liest (Chi et al. 1994).</p><ul>${l.selbsterklaerung.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}${vf ? `<div class="callout practice vorfrage-check"><div class="label">Deine Vorab-Antwort im Vergleich</div><p class="muted small">Du hattest geantwortet: „${esc(vf.text)}“</p>${l.vorfrageAntwort ? `<p><strong>Antwort der Lektion:</strong> ${esc(l.vorfrageAntwort)}</p>` : ''}<p class="muted small-note">Was stimmte, was nicht? Die Korrektur der eigenen Vermutung ist der Teil des Pretesting-Effekts, der hängen bleibt.</p></div>` : ''}${ab.coach ? `<div class="callout study"><div class="label">Coach zum Abruf</div>${md(ab.coach)}</div>` : S.apiKey ? `<div class="btn-row"><button class="btn small ghost" data-act="abruf-coach" data-lid="${lid}">Coach: Was fehlt in meiner Zusammenfassung?</button></div>` : ''}`
-        : `<p class="muted">Schließ die Augen und schreib aus dem Kopf auf, was du behalten hast: drei bis fünf Sätze, ohne nach oben zu scrollen. Das Abrufen selbst festigt stärker als nochmal lesen (Karpicke & Blunt 2011; Dunlosky et al. 2013). Danach siehst du die Kernpunkte zum Vergleich.</p>
+        ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${l.selbsterklaerung ? `<div class="callout ziele selbst"><div class="label">Erklär es dir selbst</div><p class="muted small-note">Laut oder im Kopf beantworten, bevor du zum Quiz gehst.</p><ul>${l.selbsterklaerung.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}${vf ? `<div class="callout practice vorfrage-check"><div class="label">Deine Vorab-Antwort im Vergleich</div><p class="muted small">Du hattest geantwortet: „${esc(vf.text)}“</p>${l.vorfrageAntwort ? `<p><strong>Antwort der Lektion:</strong> ${esc(l.vorfrageAntwort)}</p>` : ''}<p class="muted small-note">Was stimmte, was nicht?</p></div>` : ''}${ab.coach ? `<div class="callout study"><div class="label">Coach zum Abruf</div>${md(ab.coach)}</div>` : S.apiKey ? `<div class="btn-row"><button class="btn small ghost" data-act="abruf-coach" data-lid="${lid}">Coach: Was fehlt in meiner Zusammenfassung?</button></div>` : ''}`
+        : `<p class="muted">Drei bis fünf Sätze aus dem Kopf, ohne nach oben zu scrollen.</p>
           <form class="abruf-form" data-lid="${lid}"><textarea class="journal" rows="5" aria-label="Abruf: Was ist aus der Lektion hängen geblieben?" placeholder="Was war der Kern? Welche Zahl, welcher Name, welche Regel?"></textarea><div class="count muted"><span class="n">0</span> / 120 Zeichen</div><div class="btn-row"><button class="btn primary small" type="submit">Mit Kernpunkten vergleichen</button></div></form>`}
       </section>` : ''}
       <section class="card ${brauchtAbruf || brauchtVorfrage ? 'locked' : ''}" id="quiz-box">
@@ -540,12 +540,11 @@
         ${qp ? renderReportForm(lid, reps) : `<p class="muted">${lock('')} Erst das Quiz bestehen.</p>`}
       </section>
       <div class="btn-row">
-        ${lessonDone(lid) ? (next ? `<a class="btn primary" href="#/lektion/${k.id}/${next.id}">Nächste Lektion</a>` : `<a class="btn primary" href="#/pruefung/${k.id}">Zur Modulprüfung</a>`) : `<span class="muted">Quiz bestehen und Bericht abgeben, um fortzufahren.</span>`}
+        ${lessonDone(lid) ? (next ? `<a class="btn primary" href="#/lektion/${k.id}/${next.id}">Nächste Lektion</a>` : `<a class="btn primary" href="#/pruefung/${k.id}">Zur Modulprüfung</a>`) : ''}
         <a class="btn ghost" href="#/kurs/${k.id}">Modulübersicht</a>
       </div>`;
   });
 
-  // Rückblick: zwei Fragen aus früher abgeschlossenen Lektionen wandern in jedes Lektionsquiz (verschachteltes Üben, Rohrer & Taylor 2007).
   const RUECKBLICK_N = 2; const quizSets = {};
   function hashStr(t) { let h = 7; for (const ch of t) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return h; }
   function rueckblickFragen(lid) {
@@ -561,13 +560,13 @@
   function renderQuiz(quiz, lid) {
     quiz = quizSet(lid);
     return `<form class="quiz" data-lid="${lid}">
-      <p class="muted small-note">Formuliere zu jeder Frage erst eine Antwort im Kopf und zeige dann die Optionen. Wer erst abruft und dann wiedererkennt, behält mehr als wer nur ankreuzt.${quiz.some(q => q.rueckblick) ? ' Die Rückblick-Fragen fühlen sich schwerer an als reines Wiederholen; das ist gewollt und der Grund, warum sie wirken.' : ''}</p>
+      <p class="muted small-note">Erst im Kopf antworten, dann die Optionen aufdecken.</p>
       ${quiz.map((q, qi) => `<div class="quiz-q" data-qi="${qi}">${q.rueckblick ? `<div class="eyebrow">Rückblick · ${esc(q.rueckblick)}</div>` : ''}<div class="q">${q.typ === 'anwendung' ? '<span class="tag gold">Anwendung</span> ' : ''}${qi + 1}. ${esc(q.frage)}</div>
         <button class="btn small ghost show-opts" type="button" data-act="show-opts">Ich habe eine Antwort im Kopf. Optionen zeigen</button>
         <div class="opts" hidden>${shuffle(q.optionen.map((o, oi) => oi)).map(oi => `<label class="opt" data-oi="${oi}"><input type="radio" name="q${qi}" value="${oi}"> <span>${esc(q.optionen[oi])}</span></label>`).join('')}
         <label class="sure"><input type="checkbox" name="s${qi}"> <span>Ich bin mir sicher</span></label></div>
         <div class="explain" hidden>${esc(q.erklaerung)}</div></div>`).join('')}
-      <p class="muted small-note">Kreuze „Ich bin mir sicher“ nur an, wenn du wetten würdest. Sicher und falsch ist der teuerste Fehler, deshalb landen solche Fragen morgen in der Wiederholung.</p>
+      <p class="muted small-note">„Sicher“ nur, wenn du darauf wetten würdest.</p>
       <div class="btn-row"><button class="btn primary" type="submit">Auswerten</button><div class="score" id="score-${lid}"></div></div></form>`;
   }
   function gradeQuiz(form) {
@@ -601,7 +600,7 @@
     const last = reps[reps.length - 1];
     return `${reps.map(r => `<div class="log-entry ${r.bestanden ? 'ok' : 'fail'}"><div class="meta"><span>${fmtTime(r.ts)}</span>${r.bestanden ? '<span class="tag green">bestanden</span>' : '<span class="tag red">nicht bestanden</span>'}${r.note ? `<span>Note ${r.note}/10</span>` : ''}<span>${esc(r.von)}</span></div><div class="body">${esc(r.text).slice(0, 400)}${r.text.length > 400 ? '…' : ''}</div>${r.feedback ? `<div class="feedback">${md(r.feedback)}</div>` : ''}</div>`).join('')}
       ${reportDone(lid) ? '' : `<form class="report" data-lid="${lid}">
-        <p class="muted">Schreibe, was du konkret getan hast, was passiert ist und was du daraus lernst. Hypothetische Aussagen („ich würde…“) zählen nicht. Mindestens ${REPORT_MIN} Zeichen.</p>
+        <p class="muted">Was du getan hast, was passiert ist, was du lernst. Mindestens ${REPORT_MIN} Zeichen.</p>
         <textarea class="journal" rows="8" aria-label="Bericht über ein echtes Gespräch" placeholder="Was habe ich getan? Was ist passiert? Was ändere ich beim nächsten Mal?">${last && !last.bestanden ? esc(last.text) : ''}</textarea>
         <div class="count muted"><span class="n">0</span> / ${REPORT_MIN} Zeichen</div>
         <div class="btn-row">
@@ -638,7 +637,6 @@
   }
   function findLesson(lid) { for (const k of KURSE) { const l = k.lektionen.find(x => x.id === lid); if (l) return { kurs: k, lektion: l }; } }
 
-  // Modulprüfung
   let examState = null;
   route('pruefung', ([kid]) => {
     const k = kursById(kid); if (!k) return routes.start();
@@ -656,7 +654,7 @@
     return `
       <div class="breadcrumb"><a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Prüfung</div>
       <section class="hero small"><div class="eyebrow">Modulprüfung</div><h1>${esc(k.titel)}</h1>
-        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen${k.nr > 1 ? ' plus 3 Rückblick-Fragen aus früheren Modulen' : ''}, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang; nach einem Fehlversuch sind ${EXAM_COOLDOWN / 60000} Minuten Pause.</p>
+        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen${k.nr > 1 ? ' plus 3 Rückblick-Fragen aus früheren Modulen' : ''}, zufällig gemischt. Mindestens ${PASS} %. Nach einem Fehlversuch ${EXAM_COOLDOWN / 60000} Minuten Pause.</p>
         ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length}${ex.attempts.some(a => a.abgebrochen) ? ' (davon ' + ex.attempts.filter(a => a.abgebrochen).length + ' abgebrochen)' : ''} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
         ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Du hast dieses Modul mit ${ex.best} % bestanden. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
         ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nicht bestanden. Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten. Nutze die Zeit: Lies die Lektionen, in denen du Fehler hattest.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="${kid}">Prüfung starten</button></div>`}
@@ -670,7 +668,6 @@
     examState = { kid, fragen: shuffle(examAuswahl(pool, 12).concat(shuffle(frueher).slice(0, 3))), i: 0, antworten: [], start: Date.now() };
     navigate();
   }
-  // Prüfungsauswahl: ein Drittel Anwendungsfragen, wenn vorhanden, Rest Wissensfragen.
   function examAuswahl(pool, n) {
     n = Math.min(n, pool.length);
     const anw = shuffle(pool.filter(q => q.typ === 'anwendung')), wis = shuffle(pool.filter(q => q.typ !== 'anwendung'));
@@ -700,14 +697,13 @@
     examState = null;
     $('#main').innerHTML = `<section class="hero small ${passed ? 'passed' : ''}"><div class="eyebrow">Ergebnis</div>
       <h1>${score} von ${e.fragen.length} · ${pct} %</h1>
-      <p class="lead">${abschluss ? (passed ? `Bestanden. Du hast das gesamte Curriculum nachgewiesen. Rang: ${rang()}. Dein Zertifikat wartet.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Die Fehler unten zeigen, welche Module du wiederholst.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
+      <p class="lead">${abschluss ? (passed ? `Bestanden. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig, nächster Versuch in 20 Minuten.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig, nächster Versuch in 20 Minuten.`}</p>
       ${passed && Date.now() - Math.max(S.lastExport || 0, 0) > 864e5 ? `<div class="callout warn export-hinweis"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. ${S.lastExport ? `Letzte Sicherung vor ${Math.floor((Date.now() - S.lastExport) / 864e5)} Tagen.` : 'Noch nie gesichert.'} Eine Datei, zehn Sekunden: <button class="btn small" data-act="export">Jetzt exportieren</button></div>` : ''}
-      ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Alle Prüfungsfehler sammeln sich in der <a href="#/rueckschau">Prüfungs-Rückschau</a>, bis du sie in der Wiederholung richtig beantwortet hast.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
+      ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Fehler landen in der <a href="#/rueckschau">Prüfungs-Rückschau</a>.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
       <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul</a>` : '<a class="btn primary" href="#/training">Zum Training</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
   }
 
-  // Abschlussprüfung und Zertifikat
   route('abschluss', () => {
     const n = KURSE.filter(k => examPassed(k.id)).length;
     if (!allExamsPassed()) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
@@ -718,7 +714,7 @@
     const locked = lastFail && Date.now() - lastFail.ts < EXAM_COOLDOWN && !ex.passed;
     if (examState && examState.kid === 'abschluss') return renderExam(null);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
-      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang. Das ist der Nachweis, dass das Wissen auch Monate später noch sitzt.</p>
+      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, zufällig gemischt. Mindestens ${PASS} %.</p>
       ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
       ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Mit ${ex.best} %. <a href="#/zertifikat">Zum Zertifikat</a>. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
       ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="abschluss">Abschlussprüfung starten</button></div>`}
@@ -750,7 +746,6 @@
       </section>`;
   });
 
-  // Milliardärs-Bibliothek
   let libFilter = { kat: 'alle', thema: 'alle', q: '' };
   route('milliardaere', ([pid]) => {
     const M = window.MILLIARDAERE;
@@ -768,7 +763,7 @@
     const persons = M.filter(p => (f.kat === 'alle' || p.kategorie === f.kat)).sort((a, b) => (a.prio || 9) - (b.prio || 9));
     const quotes = M.flatMap(p => p.zitate.map(z => ({ ...z, person: p }))).filter(z => (f.thema === 'alle' || z.thema === f.thema) && (f.kat === 'alle' || z.person.kategorie === f.kat) && (!f.q || (z.en + z.de + z.person.name + (z.lektion || '')).toLowerCase().includes(f.q.toLowerCase())));
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Milliardärs-Bibliothek</h1>
-      <p class="lead">${M.length} Personen, ${M.reduce((a, p) => a + p.zitate.length, 0)} Zitate über Verkaufen, Kunden, Pitch, Preis und Mindset. Jedes Zitat ist nach Quellenlage markiert. Erst lesen, dann im <a href="#/mythen">Mythen-Check</a> prüfen, ob du echt von erfunden unterscheiden kannst.</p><div class="callout warn"><div class="label">Lies das richtig</div>Milliardärs-Aussagen sind Erfahrungswissen von Gewinnern, kein Beweis. Wer nur Erfolgreiche studiert, lernt aus einer verzerrten Stichprobe (Denrell 2003, Rosenzweig 2007). Darum steht in jeder Lektion zuerst die Studie und dann das Zitat.</div></section>
+      <p class="lead">${M.length} Personen, ${M.reduce((a, p) => a + p.zitate.length, 0)} Zitate, jedes nach Quellenlage markiert. Danach: <a href="#/mythen">Mythen-Check</a>.</p><div class="callout warn"><div class="label">Lies das richtig</div>Erfahrungswissen von Gewinnern, kein Beweis (Survivorship Bias, Lektion 1.3).</div></section>
       <input class="search" id="lib-q" aria-label="Suche in Zitaten und Namen" placeholder="Suche in Zitaten und Namen…" value="${esc(f.q)}">
       <div class="filters" id="lib-kat">${[['alle', 'Alle'], ['tech', 'Tech'], ['investor', 'Investoren'], ['unternehmer', 'Unternehmer']].map(([v, t]) => `<button class="${f.kat === v ? 'active' : ''}" data-kat="${v}">${t}</button>`).join('')}</div>
       <div class="filters" id="lib-thema"><button class="${f.thema === 'alle' ? 'active' : ''}" data-thema="alle">Alle Themen</button>${Object.entries(themen).map(([k, v]) => `<button class="${f.thema === k ? 'active' : ''}" data-thema="${k}">${esc(v)}</button>`).join('')}</div>
@@ -783,7 +778,6 @@
       ${z.lektion ? `<div class="lesson-note"><strong>Lektion:</strong> ${esc(z.lektion)}</div>` : ''}</div>`;
   }
 
-  // Mythen-Check
   let mythState = null;
   route('mythen', () => {
     const M = window.MILLIARDAERE;
@@ -794,7 +788,7 @@
       mythState = { items: shuffle(echt.concat(falsch)), i: 0, score: 0, done: false, last: null };
     }
     const s = mythState;
-    if (s.done) { const r = s; mythState = null; return `<section class="hero small"><div class="eyebrow">Mythen-Check</div><h1>${r.score} von ${r.items.length}</h1><p class="lead">${r.score >= 8 ? 'Du erkennst Quellenlage. Das schützt dich vor Motivationsposter-Weisheiten.' : 'Zurück in die Bibliothek: Achte auf die Markierungen primär / buch / zugeschrieben.'}</p><div class="btn-row"><a class="btn primary" href="#/mythen">Nochmal</a><a class="btn ghost" href="#/milliardaere">Bibliothek</a></div></section>`; }
+    if (s.done) { const r = s; mythState = null; return `<section class="hero small"><div class="eyebrow">Mythen-Check</div><h1>${r.score} von ${r.items.length}</h1><p class="lead">${r.score >= 8 ? 'Du erkennst, was belegt ist.' : 'Zurück in die Bibliothek und auf die Quellenmarkierung achten.'}</p><div class="btn-row"><a class="btn primary" href="#/mythen">Nochmal</a><a class="btn ghost" href="#/milliardaere">Bibliothek</a></div></section>`; }
     const it = s.items[s.i];
     return `<section class="hero small"><div class="eyebrow">Mythen-Check · ${s.i + 1} von ${s.items.length} · Richtig: ${s.score}</div>
       <h1>Echt oder erfunden?</h1>
@@ -804,9 +798,7 @@
     </section>`;
   });
 
-  // Rollenspiele
   let rpState = null;
-  // Die Entscheidungsbäume der fünf großen Szenarien (61 KB) kommen erst, wenn jemand die Rollenspiele öffnet.
   let szOfflineLoading = false, szOfflineReady = false; const szOfflineWarteliste = [];
   function ensureSzenarienOffline(cb) {
     if (szOfflineReady) { if (cb) cb(); return true; }
@@ -818,7 +810,6 @@
     }
     return false;
   }
-  // Ein Maßstab für alle Rollenspiel-Durchläufe: offline nach dem Fazit des Entscheidungsbaums, live nach Punkten und Ethik des Coach-Rasters.
   function rpStatus(r) {
     if (!r) return null;
     let s;
@@ -831,7 +822,7 @@
     if (!ensureSzenarien() || !ensureSzenarienOffline()) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1><p class="lead">Lade Szenarien…</p></section>`;
     const SZ = window.SZENARIEN;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
-      <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. ${(() => { const n = SZ.filter(x => x.offline).length; return n === SZ.length ? 'Alle spielst du offline als Entscheidungsbaum mit Feedback zu jeder Entscheidung.' : n + ' Szenarien spielst du offline als Entscheidungsbaum.'; })()} Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
+      <p class="lead">Acht Gespräche mit verdeckten Informationen. Offline als Entscheidungsbaum, mit Coach live.</p></section>
       <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = rpBest(runs);
         return `<div class="card clickable" data-route="#/rollenspiel/${s.id}"><div class="meta"><span class="tag">${esc(s.level)}</span> ${s.offline ? '' : '<span class="tag gold">nur mit Coach</span>'} ${best ? `<span class="tag ${best.cls}">${best.label} · ${runs.length}×</span>` : ''}</div><h3>${esc(s.titel)}</h3><p class="muted">${esc(s.lage)}</p></div>`; }).join('')}</div>`;
     const s = SZ.find(x => x.id === sid); if (!s) return routes.rollenspiel([]);
@@ -848,14 +839,13 @@
       <div id="rp-box">${rpState && rpState.sid === sid ? renderRp(s) : ''}</div>
       ${runs.length ? `<h2 class="section-title">Deine Durchläufe</h2>${runs.slice().reverse().map(r => { const st = rpStatus(r); return `<div class="log-entry ${st.s === 2 ? 'ok' : st.s === 0 ? 'fail' : ''}"><div class="meta">${fmtTime(r.ts)} · ${r.art} · <span class="tag ${st.cls}">${st.label}</span>${r.art === 'Offline' && r.n ? ` · ${r.score} von ${r.n} Entscheidungen stark` : ''}${r.pflicht ? ` · Pflichtkriterien ${r.pflicht.length} von ${s.pflicht.length}` : ''}</div><div class="body">${esc(r.fazit)}</div></div>`; }).join('')}` : ''}`;
   });
-  // Vorbereitung vor dem Rollenspiel: drei Zeilen, die ein Profi vor jedem Gespräch aufschreibt (Ziel, Eröffnung, Grenze).
   function rpPlanBox(s) {
     const p = S.rpPlan[s.id];
     if (p && !(rpPlanEdit === s.id)) return `<div class="card rp-plan"><div class="eyebrow">Deine Vorbereitung · ${fmtDate(p.ts)}</div>
       <div class="sb-row"><div class="lbl">Ziel</div><div>${esc(p.ziel)}</div></div><div class="sb-row"><div class="lbl">Erster Satz</div><div>${esc(p.erste)}</div></div><div class="sb-row"><div class="lbl">Grenze</div><div>${esc(p.grenze)}</div></div>
       <div class="btn-row"><button class="btn small ghost" data-act="rp-plan-edit" data-sid="${s.id}">Ändern</button></div></div>`;
     return `<form class="card rp-plan rp-plan-form" data-sid="${s.id}"><div class="eyebrow">Vorbereitung · 2 Minuten</div>
-      <p class="muted small">Profis gehen mit drei Zeilen ins Gespräch. Schreib sie, bevor du spielst, dann kannst du danach prüfen, ob du deinem Plan gefolgt bist oder dem Kunden hinterhergelaufen bist.</p>
+      <p class="muted small">Drei Zeilen vor dem Gespräch.</p>
       <label>Was will ich am Ende dieses Gesprächs erreicht haben? <input name="ziel" required minlength="10" value="${esc(p ? p.ziel : '')}" placeholder="Nächster Schritt mit Datum"></label>
       <label>Mein erster Satz nach dem Einwand <input name="erste" required minlength="10" value="${esc(p ? p.erste : '')}" placeholder="Ein Label oder eine Frage"></label>
       <label>Was tue ich nicht, egal was passiert? <input name="grenze" required minlength="5" value="${esc(p ? p.grenze : '')}" placeholder="z. B. kein Rabatt ohne Gegenleistung"></label>
@@ -878,10 +868,7 @@
       <div class="options">${shuffle(node.optionen.map((o, i) => ({ o, i }))).map(({ o, i }) => `<button class="opt btn-opt" data-act="rp-choose" data-oi="${i}">${esc(o.text)}</button>`).join('')}</div></div>`;
   }
 
-  // Training: Drills, Ablehnung, Erfolgsleiter
-  // Fälle: offene Checkpoint-Fälle mit Rubrik
   let faLoading = false, faState = null;
-  // Generischer Nachlader für Datendateien, die nicht beim Start gebraucht werden: true, wenn da; sonst wird geladen und danach neu gerendert.
   const lazyLoading = {};
   function ensureData(global, file, label) {
     if (window[global]) return true;
@@ -902,9 +889,9 @@
     const F = window.FAELLE, R = window.FAELLE_RUBRIK;
     if (!fid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Fälle</h1>
-        <p class="lead">Zehn Situationen, wie sie im Beruf ankommen, ohne den Hinweis, welche Lektion gemeint ist. Du schreibst eine begründete Einschätzung, dann bewertest du sie an einer Rubrik mit sechs Dimensionen, erst danach siehst du, was eine starke Antwort enthält. Bewertet wird die Qualität des Denkwegs, nicht die Übereinstimmung mit einer Musterlösung. Mit API-Schlüssel bewertet der Coach zusätzlich, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen.</p></section>
+        <p class="lead">Zehn offene Fälle aus dem Berufsalltag. Erst schreiben, dann an der Rubrik bewerten.</p></section>
         <div class="grid">${F.map(f => { const k = KURSE.find(x => x.id === f.modul); const r = fallRuns(f.id); const last = r[r.length - 1]; const locked = k && !examPassed(k.id) && !lessonDone(k.lektionen[0].id); return `<div class="card ${locked ? 'locked' : 'clickable'}" ${locked ? '' : `data-route="#/faelle/${f.id}"`}><div class="meta"><span class="tag">Modul ${k ? k.nr : '?'}</span>${wvTag('fall_', f.id)}${last ? `<span class="tag ${last.selbst >= 14 ? 'green' : 'gold'}">${last.coach != null ? 'Coach ' + last.coach : 'selbst ' + last.selbst}/18 · ${r.length}×</span>` : ''}${locked ? lock('Modul noch nicht begonnen') : ''}</div><h3>${esc(f.titel)}</h3></div>`; }).join('')}</div>
-        <div class="callout study"><div class="label">Warum Fälle</div>Im Verkauf kommt kein Problem mit dem Kapitelnamen. Wer nur Fragen beantwortet, bei denen die Methode schon im Titel steht, lernt Wiedererkennen, nicht Entscheiden. Offene Fälle mit Rubrik trainieren das, was später zählt: Problem erfassen, Informationen nutzen, Alternativen abwägen, entscheiden, prüfen, erklären.</div>`;
+        `;
     }
     const f = F.find(x => x.id === fid); if (!f) return routes.faelle([]);
     const k = KURSE.find(x => x.id === f.modul);
@@ -914,13 +901,13 @@
       <section class="hero small"><div class="eyebrow">Fall · Modul ${k ? k.nr + ' ' + esc(k.titel) : ''}</div><h1>${esc(f.titel)}</h1></section>
       <section class="card"><div class="eyebrow">Die Lage</div><p class="kontext">${esc(f.lage)}</p><div class="eyebrow">Dein Auftrag</div><p>${esc(f.auftrag)}</p></section>`;
     if (faState.stufe === 0) {
-      return `${head}<section class="card"><h2>Deine Einschätzung</h2><p class="muted">Schreib so, wie du es der Person in der Lage schicken würdest: Befund, Begründung, Empfehlung, Prüfung, Risiko. Mindestens ${f.min} Zeichen. Keine Methode muss beim Namen genannt werden; es zählt, ob du sie anwendest.</p>
+      return `${head}<section class="card"><h2>Deine Einschätzung</h2><p class="muted">Befund, Begründung, Empfehlung, Risiko. Mindestens ${f.min} Zeichen.</p>
         <form class="fall-form" data-min="${f.min}"><textarea class="journal" rows="12" aria-label="Deine Einschätzung zum Fall" placeholder="Was ist hier los, was empfiehlst du, woran prüft ihr es…">${esc(faState.text)}</textarea><div class="count muted"><span class="n">${faState.text.length}</span> / ${f.min} Zeichen</div><div class="btn-row"><button class="btn primary" type="submit">Einschätzung festhalten und an der Rubrik prüfen</button></div></form>
         ${runs.length ? `<p class="muted small">Bisher ${runs.length} Durchgänge, zuletzt ${fmtTime(runs[runs.length - 1].ts)} mit ${runs[runs.length - 1].selbst}/18 (Selbstbewertung)${runs[runs.length - 1].coach != null ? `, Coach ${runs[runs.length - 1].coach}/18` : ''}.</p>` : ''}</section>`;
     }
     if (faState.stufe === 1) {
       return `${head}<section class="card"><div class="log-entry"><div class="meta">Deine Einschätzung</div><div class="body">${esc(faState.text)}</div></div>
-        <h2>Rubrik: Wo steht deine Antwort?</h2><p class="muted">Lies je Dimension die drei Stufen und wähle ehrlich, welche deine Antwort erreicht. Stufe 3 heißt nicht „perfekt“, sondern „alles da, was die Dimension verlangt“. Die Musterelemente siehst du erst danach.</p>
+        <h2>Rubrik: Wo steht deine Antwort?</h2><p class="muted">Je Dimension die Stufe wählen, die deine Antwort erreicht.</p>
         <form class="fall-rubrik">${R.map(d => `<div class="rubrik-dim"><div class="eyebrow">${esc(d.name)}</div><p class="muted small">${esc(d.frage)}</p>${f.stufen[d.id].map((txt, i) => `<label class="opt"><input type="radio" name="r-${d.id}" value="${i + 1}" required> <span><strong>${i + 1}</strong> · ${esc(txt)}</span></label>`).join('')}</div>`).join('')}
         <div class="btn-row"><button class="btn primary" type="submit">Bewertung speichern und Musterelemente sehen</button><button class="btn ghost" type="button" data-act="fall-back">Einschätzung überarbeiten</button></div></form></section>`;
     }
@@ -932,18 +919,15 @@
       <div class="callout warn"><div class="label">Die häufigste Falle</div>${esc(f.falle)}</div>
       ${f.nachlesen && f.nachlesen.length ? `<div class="callout study nachlesen"><div class="label">Worauf die starke Antwort baut</div><ul class="wv-list">${f.nachlesen.map(n => { const fl = findLesson(n.lid); return fl ? `<li><a href="#/lektion/${fl.kurs.id}/${n.lid}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, n.lid) + 1}: ${esc(fl.lektion.titel)}</a> <span class="muted small">· ${esc(n.was)}</span></li>` : ''; }).join('')}</ul><p class="muted small">Fehlt dir ein Punkt oben, dann lies dort nach, bevor du den Fall in einer Woche noch einmal bearbeitest.</p></div>` : ''}
       <div class="log-entry"><div class="meta">Deine Einschätzung</div><div class="body">${esc(faState.text)}</div></div>
-      <p class="muted">Vergleiche jetzt Element für Element: Welche der fünf Punkte stehen bei dir, wenn auch in anderen Worten? Welche fehlen? Das Fehlende ist dein Lernpunkt, nicht die Punktzahl.</p>
+      <p class="muted">Welche Punkte fehlen bei dir?</p>
       <div class="btn-row">${S.apiKey ? `<a class="btn primary" href="#/coach?fall=${f.id}">Vom Coach bewerten lassen</a>` : ''}<button class="btn ghost" data-act="fall-restart">Noch einmal, mit dem Gelernten</button><a class="btn ghost" href="#/faelle">Alle Fälle</a></div></section>`;
   });
 
-  // Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird
   let ktState = null;
-  // Abgrenzung bei einer Verwechslung: die Bedingung des gewählten Begriffs neben der des richtigen. Beide stehen schon in den Karten („Wann“); hier treffen sie am konkreten Fall aufeinander.
   function ktAbgrenzung(x, wahl, richtig) {
     if (wahl === richtig) return '';
     return `<p class="kt-abgrenzung"><strong>${esc(x.begriffe[wahl].name)}</strong> hätte gepasst: ${esc(x.begriffe[wahl].wann)}<br><strong>${esc(x.begriffe[richtig].name)}</strong> passt hier: ${esc(x.begriffe[richtig].wann)}</p>`;
   }
-  // Häufigste Verwechslung über eine Liste von Fehlern [[wahl, richtig], …]
   function ktTopFehler(x, fehler) {
     const m = {}; for (const [w, r] of fehler) { const k = w + '>' + r; m[k] = (m[k] || 0) + 1; }
     const top = Object.entries(m).sort((a, b) => b[1] - a[1])[0]; if (!top) return null;
@@ -954,7 +938,7 @@
     const K = window.KONTRASTE;
     if (!kid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
-        <p class="lead">Viele Fehler im Gespräch sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
+        <p class="lead">Begriffe, die leicht verwechselt werden, nebeneinander. Danach Fälle zum Zuordnen.</p></section>
         <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); const top = ktTopFehler(x, r.flatMap(z => z.fehler || [])); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${wvTag('kt_', x.id)}${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}${top && top.n >= 2 ? `${fl ? ' · ' : ''}<span class="kt-top">Verwechselst du oft: ${esc(top.wahlName)} statt ${esc(top.richtigName)} (${top.n}×)</span>` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = K.find(k => k.id === kid); if (!x) return routes.kontraste([]);
@@ -966,7 +950,7 @@
       <div class="kontrast-grid cols-${x.begriffe.length}">${x.begriffe.map(b => `<div class="card kontrast"><h3>${esc(b.name)}</h3><div class="row"><div class="eyebrow">Kern</div><p>${esc(b.kern)}</p></div><div class="row"><div class="eyebrow">Wirkung</div><p>${esc(b.wirkung)}</p></div><div class="row"><div class="eyebrow">Wann</div><p>${esc(b.wann)}</p></div></div>`).join('')}</div>
       <div class="callout study"><div class="label">Faustregel</div>${esc(x.faustregel)}</div>
       <section class="card exam-q kt-drill"><div class="eyebrow">Fall ${Math.min(ktState.i + 1, x.faelle.length)} von ${x.faelle.length} · die Methode wird nicht genannt</div>
-        ${fertig ? `<h2>${score} von ${x.faelle.length} richtig zugeordnet</h2><p class="muted">${score === x.faelle.length ? 'Alle Fälle getroffen. In einer Woche noch einmal, dann sitzt die Unterscheidung.' : 'Lies bei den falschen Fällen die Begründung noch einmal und formuliere den Unterschied in einem eigenen Satz. Dann den Drill wiederholen.'}</p>
+        ${fertig ? `<h2>${score} von ${x.faelle.length} richtig zugeordnet</h2><p class="muted">${score === x.faelle.length ? 'Alle Fälle getroffen.' : 'Bei den Fehlern den Unterschied in einem eigenen Satz formulieren, dann wiederholen.'}</p>
           ${(() => { const top = ktTopFehler(x, ktState.antworten.map((a, i) => a.ok ? null : [a.wahl, x.faelle[i].richtig]).filter(Boolean)); return top && top.n >= 2 ? `<div class="callout warn kt-verwechslung"><div class="label">Dein Muster in diesem Durchgang</div>${top.n}× <strong>${esc(top.wahlName)}</strong> gewählt, wo <strong>${esc(top.richtigName)}</strong> vorlag. Der Unterschied, den du dir merken musst:${ktAbgrenzung(x, top.wahl, top.richtig)}</div>` : ''; })()}
           <ol class="kt-review">${x.faelle.map((ff, i) => { const a = ktState.antworten[i]; return `<li class="${a.ok ? 'ok' : 'bad'}"><div class="muted small">${esc(ff.situation)}</div><div><strong>${a.ok ? 'Richtig' : 'Du: ' + esc(x.begriffe[a.wahl].name) + ' · Richtig: ' + esc(x.begriffe[ff.richtig].name)}</strong> · ${esc(ff.warum)}${a.ok ? '' : ktAbgrenzung(x, a.wahl, ff.richtig)}</div></li>`; }).join('')}</ol>
           <div class="btn-row"><button class="btn primary" data-act="kt-restart">Noch einmal</button><a class="btn ghost" href="#/kontraste">Alle Kontraste</a></div>`
@@ -976,7 +960,6 @@
       </section>`;
   });
 
-  // Schritt für Schritt: Worked Examples mit abnehmender Hilfe
   let wbState = null;
   const WB_STUFEN = ['Beispiel mit Begründung', 'Lückenaufgabe', 'Allein', 'Neuer Kontext'];
   route('beispiele', ([bid]) => {
@@ -984,7 +967,7 @@
     const B = window.BEISPIELE;
     if (!bid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Schritt für Schritt</h1>
-        <p class="lead">Sechs Prozeduren, die du im Schlaf können musst. Jede in vier Stufen mit abnehmender Hilfe: erst ein vollständiges Beispiel, bei dem jeder Schritt begründet ist. Dann dasselbe mit einer Lücke, die du füllst. Dann allein, mit Kriterien statt Lösung. Zuletzt ein Fall aus einem ganz anderen Lebensbereich, denn erst dort zeigt sich, ob du die Struktur verstanden hast oder nur das Beispiel (Sweller 2006; Renkl 2014).</p></section>
+        <p class="lead">Kernabläufe in vier Stufen, vom vollständigen Beispiel bis zum eigenen Fall.</p></section>
         <div class="grid">${B.map(x => { const st = S.drills['wb_' + x.id]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/beispiele/${x.id}"><div class="meta"><span class="tag">${x.dauer} Min</span>${wvTag('wb_', x.id)}${st ? `<span class="tag ${st.stufe >= 4 ? 'green' : 'gold'}">${st.stufe >= 4 ? 'alle vier Stufen' : 'Stufe ' + st.stufe + ' von 4'}</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${x.prozedur.length} Schritte${fl ? ` · Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = B.find(b => b.id === bid); if (!x) return routes.beispiele([]);
@@ -997,36 +980,34 @@
     if (st === 0) {
       body = `${proz}<section class="card"><div class="eyebrow">Stufe 1 · Vollständiges Beispiel</div><p class="kontext">${esc(x.beispiel.kontext)}</p>
         <ol class="steps wb">${x.beispiel.schritte.map((sch, i) => `<li><div class="eyebrow">${esc(x.prozedur[i].split(':')[0])}</div><p>${esc(sch.text)}</p><div class="warum"><strong>Warum so:</strong> ${esc(sch.warum)}</div></li>`).join('')}</ol>
-        <p class="muted">Lies das Beispiel einmal mit Blick auf das Warum, nicht auf den Wortlaut. Dann decke es ab und sag dir die vier Schritte selbst auf.</p>
+        <p class="muted">Auf das Warum achten, dann die Schritte aus dem Kopf aufsagen.</p>
         <div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter zur Lückenaufgabe</button></div></section>`;
     } else if (st === 1) {
       const L = x.luecke; const gap = L.schritte.findIndex(z => z === null);
       body = `<section class="card"><div class="eyebrow">Stufe 2 · Lückenaufgabe</div><p class="kontext">${esc(L.kontext)}</p>
         <ol class="steps wb">${L.schritte.map((sch, i) => `<li class="${sch === null ? 'gap' : ''}"><div class="eyebrow">${esc(x.prozedur[i].split(':')[0])}</div>${sch === null ? (wbState.offen ? `<div class="log-entry"><div class="meta">Deine Lösung</div><div class="body">${esc(wbState.text)}</div></div><div class="callout practice"><div class="label">Eine mögliche Lösung</div>${esc(L.loesung)}</div>` : `<p class="muted">${esc(L.frage)}</p>`) : `<p>${esc(sch)}</p>`}</li>`).join('')}</ol>
-        ${wbState.offen ? `<p class="muted"><strong>Vergleich:</strong> ${esc(L.hinweis)} Erfüllt deine Lösung das? Dann weiter. Wenn nicht, formuliere sie noch einmal, bevor du weitergehst.</p><div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter: allein</button><button class="btn ghost" data-act="wb-retry">Noch einmal versuchen</button></div>`
+        ${wbState.offen ? `<p class="muted"><strong>Vergleich:</strong> ${esc(L.hinweis)}</p><div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter: allein</button><button class="btn ghost" data-act="wb-retry">Noch einmal versuchen</button></div>`
         : `<form class="wb-form" data-min="40"><div class="callout warn"><div class="label">Hinweis</div>${esc(L.hinweis)}</div><textarea class="journal" rows="3" aria-label="Schritt ${gap + 1} in direkter Rede" placeholder="Schritt ${gap + 1} in direkter Rede…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und vergleichen</button></div></form>`}</section>`;
     } else {
       const E = st === 2 ? x.eigen : x.fern;
       body = `${st === 2 ? proz : ''}<section class="card"><div class="eyebrow">Stufe ${st + 1} · ${WB_STUFEN[st]}</div><p class="kontext">${esc(E.kontext)}</p>
         ${wbState.offen ? `<div class="log-entry"><div class="meta">Deine Lösung</div><div class="body">${esc(wbState.text)}</div></div>
           <h3>Prüfe deine Lösung an den Kriterien</h3><ul class="krit">${E.kriterien.map((k, i) => `<li><label><input type="checkbox" class="krit-box"> <span>${esc(k)}</span></label></li>`).join('')}</ul>
-          <details class="muster"><summary>Erst danach: eine Musterlösung ansehen</summary><div class="callout practice">${esc(E.muster)}</div><p class="muted small">Die Musterlösung ist eine von vielen. Deine kann anders klingen und trotzdem alle Kriterien erfüllen. Vergleiche die Struktur, nicht die Worte.</p></details>
+          <details class="muster"><summary>Erst danach: eine Musterlösung ansehen</summary><div class="callout practice">${esc(E.muster)}</div><p class="muted small">Struktur vergleichen, nicht Wortlaut.</p></details>
           <div class="btn-row"><button class="btn primary" data-act="wb-next">${st === 2 ? 'Weiter: neuer Kontext' : 'Abschließen'}</button><button class="btn ghost" data-act="wb-retry">Noch einmal</button>${S.apiKey ? `<a class="btn ghost" href="#/coach">Lösung vom Coach prüfen lassen</a>` : ''}</div>`
-        : `<p class="muted">${st === 2 ? 'Jetzt ohne Vorlage. Die Prozedur steht oben, die Kriterien siehst du erst danach.' : 'Anderer Lebensbereich, gleiche Struktur. Wenn du hier hängst, hast du das Beispiel gelernt, nicht die Methode. Das ist normal und genau der Zweck dieser Stufe.'} Mindestens 120 Zeichen.</p>
+        : `<p class="muted">${st === 2 ? 'Jetzt ohne Vorlage.' : 'Anderer Lebensbereich, gleiche Struktur.'} Mindestens 120 Zeichen.</p>
           <form class="wb-form" data-min="120"><textarea class="journal" rows="7" aria-label="Alle Schritte in eigenen Worten" placeholder="Alle Schritte, so wie du sie sagen oder aufschreiben würdest…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und an Kriterien prüfen</button></div></form>`}</section>`;
     }
     const done = saved.stufe >= 4;
     return `<div class="breadcrumb"><a href="#/beispiele">Schritt für Schritt</a> › ${esc(x.titel)}</div>
       <section class="hero small"><div class="eyebrow">Worked Example · ${x.dauer} Minuten</div><h1>${esc(x.titel)}</h1>${fl ? `<p class="muted small">Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a></p>` : ''}</section>
-      ${done && st === 3 && !wbState.offen ? `<div class="callout study"><div class="label">Alle vier Stufen abgeschlossen am ${new Date(saved.ts).toLocaleDateString('de-DE')}</div>Wiederhole die Stufen 3 und 4 in einer Woche mit einem eigenen Fall aus deinem Alltag. Die Prozedur sitzt, wenn du sie ohne die Liste oben hinschreiben kannst.</div>` : ''}
+      ${done && st === 3 && !wbState.offen ? `<div class="callout study"><div class="label">Alle vier Stufen abgeschlossen am ${new Date(saved.ts).toLocaleDateString('de-DE')}</div>Stufe 3 und 4 in einer Woche mit einem eigenen Fall wiederholen.</div>` : ''}
       ${stepper}${body}
       ${st >= 2 && x.einwaende && x.einwaende.length ? `<div class="callout practice wb-anwenden"><div class="label">Jetzt anwenden</div>Dieselbe Prozedur, jetzt unter Zeitdruck und ohne Liste. Nimm dir einen davon: ${x.einwaende.map(id => `<a href="#/einwaende/${id}">${esc(ewTitel(id))}</a>`).join(' ')} Antworte laut, bevor du die Musterantwort aufklappst.</div>` : ''}
       ${st > 0 ? `<div class="btn-row"><button class="btn small ghost" data-act="wb-back">Eine Stufe zurück</button></div>` : ''}`;
   });
-  // Einwandtext zu einer Id, auch wenn einwaende.js noch nicht geladen ist (dann wird nachgeladen und neu gerendert)
   function ewTitel(id) { const E = window.EINWAENDE; if (!E) { ensureEinwaende(); return 'Einwand „' + id + '“'; } const e = E.find(x => x.id === id); return e ? e.einwand : id; }
 
-  // Einwand-Drill: erst selbst antworten, dann Muster, dann Selbstbewertung
   let ewState = null;
   function ewWertung(id) { return (S.drills['ew_' + id] || []); }
   let ewLoading = false;
@@ -1035,7 +1016,6 @@
     if (!ewLoading) { ewLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/einwaende.js'; sc.onload = () => navigate(); sc.onerror = () => { ewLoading = false; toast('Einwände konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
     return false;
   }
-  // Dieselben Kriterien wie im Coach-Prompt (sysEinwand): vier Dimensionen plus Falle. „Getroffen“ = alle vier und Falle vermieden, „teilweise“ = mindestens zwei.
   const EW_KRITERIEN = [
     { id: 'zuhoeren', name: 'Zugehört und anerkannt', frage: 'Label oder Spiegel, bevor ein Argument kommt.' },
     { id: 'erkunden', name: 'Erkundet statt verteidigt', frage: 'Eine Frage, die isoliert oder den Maßstab holt.' },
@@ -1043,7 +1023,6 @@
     { id: 'schritt', name: 'Nächster Schritt vereinbart', frage: 'Ein konkreter Vorschlag, was als Nächstes passiert.' },
   ];
   function ewWertAus(kriterien, falle) { return kriterien.length === 4 && falle ? 2 : kriterien.length >= 2 ? 1 : 0; }
-  // Rein sprachliche Prüfung der Antwort: findet Muster, die im Text sichtbar sind. Kein Urteil über Ton und Timing.
   function ewHinweise(text, e) {
     const t = ' ' + text.replace(/\s+/g, ' ').trim() + ' '; const erster = t.split(/(?<=[.!?])\s/)[0] || t;
     const out = [];
@@ -1053,7 +1032,7 @@
     if (/\b(verstehe|klingt|höre|hört sich|scheint|nachvollziehen|es wirkt)\b/i.test(erster)) out.push({ art: 'ok', text: 'Du beginnst mit Anerkennen oder einem Label. Das ist der erste Schritt nach LAER.' });
     if (/\b(sie sagten|sie meinten|vorhin|ihre zahl|bei ihnen|in ihrem)\b/i.test(t)) out.push({ art: 'ok', text: 'Du greifst etwas auf, das der Kunde gesagt hat. Seine Zahlen tragen weiter als deine.' });
     if (!out.length) return '';
-    return `<div class="callout study ew-check"><div class="label">Was im Text steht</div><ul>${out.map(h => `<li class="${h.art}">${esc(h.text)}</li>`).join('')}</ul><p class="muted small">Eine Textprüfung auf Fragezeichen, Reihenfolge und Zugeständnisse. Ton, Tempo und Pausen kann nur ein Gegenüber beurteilen: der Coach mit Schlüssel oder ein Mensch im echten Gespräch.</p></div>`;
+    return `<div class="callout study ew-check"><div class="label">Was im Text steht</div><ul>${out.map(h => `<li class="${h.art}">${esc(h.text)}</li>`).join('')}</ul><p class="muted small">Automatische Textprüfung. Ton und Tempo prüft nur ein Gegenüber.</p></div>`;
   }
   route('einwaende', ([eid]) => {
     if (!ensureEinwaende()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Drill</h1><p class="muted">Lade Einwände…</p></section>';
@@ -1061,7 +1040,7 @@
     if (!eid) {
       const gesamt = E.reduce((a, e) => a + ewWertung(e.id).length, 0);
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Drill</h1>
-        <p class="lead">${E.length} Einwände, die in echten Gesprächen fallen. Bei jedem antwortest du zuerst selbst, laut oder getippt, und siehst erst danach das Muster nach LAER (zuhören, anerkennen, erkunden, antworten). Dann bewertest du dich ehrlich. Mit API-Schlüssel spielt der Coach den Kunden und bleibt hartnäckig.</p>
+        <p class="lead">${E.length} Einwände aus echten Gesprächen. Erst selbst antworten, dann vergleichen.</p>
         ${gesamt ? `<p class="muted">${gesamt} Durchgänge bisher.</p>` : ''}</section>
         <div class="grid">${E.map(e => { const w = ewWertung(e.id); const last = w[w.length - 1]; return `<div class="card clickable" data-route="#/einwaende/${e.id}"><div class="meta"><span class="tag">${esc(e.kontext.split(',')[0])}</span>${wvTag('ew_', e.id)}${last ? `<span class="tag ${last.wert === 2 ? 'green' : last.wert === 1 ? 'gold' : 'red'}">${last.wert === 2 ? 'getroffen' : last.wert === 1 ? 'teilweise' : 'daneben'} · ${w.length}×</span>` : ''}</div><h3>„${esc(e.einwand)}“</h3></div>`; }).join('')}</div>`;
     }
@@ -1077,13 +1056,13 @@
           <div class="callout practice"><div class="label">Ein mögliches Muster</div>${esc(e.muster)}</div>
           <div class="callout warn"><div class="label">Die häufigste Falle</div>${esc(e.falle)}</div>
           <p class="muted small"><strong>Beleg, der die Antwort trägt:</strong> ${esc(e.beweis)}${fl ? ` · Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a>` : ''}</p>
-          <h3>Selbstbewertung nach Kriterien</h3><p class="muted">Dieselben vier Kriterien, nach denen auch der Coach bewertet. Hake nur ab, was in deiner Antwort tatsächlich steht, nicht, was du gemeint hast. Das Urteil ergibt sich aus den Haken.</p>
+          <h3>Selbstbewertung nach Kriterien</h3><p class="muted">Nur abhaken, was wirklich in deiner Antwort steht.</p>
           <form class="ew-rubrik" data-id="${e.id}">
             ${EW_KRITERIEN.map(k => `<label class="check"><input type="checkbox" name="k" value="${k.id}"><span><strong>${k.name}</strong> <span class="muted">${k.frage}</span></span></label>`).join('')}
             <label class="check falle"><input type="checkbox" name="falle" value="1"><span><strong>Falle vermieden</strong> <span class="muted">Die Falle hier: ${esc(e.falle.split('.')[0].replace(/^./, c => c.toLowerCase()))}.</span></span></label>
             <div class="btn-row"><button class="btn primary" type="submit">Bewertung speichern</button></div>
           </form>`
-        : `<p class="muted">Antworte so, wie du es dem Kunden sagen würdest, in ganzen Sätzen. Mindestens 60 Zeichen. Noch besser: erst laut sprechen, dann tippen.</p>
+        : `<p class="muted">So, wie du es dem Kunden sagen würdest. Mindestens 60 Zeichen.</p>
           <form class="ew-form" data-id="${e.id}"><textarea class="journal" rows="4" aria-label="Deine Antwort an den Kunden" placeholder="Deine Antwort an den Kunden…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Antwort festhalten und Muster sehen</button>${S.apiKey ? `<a class="btn ghost" href="#/coach?einwand=${e.id}">Mit dem Coach live üben</a>` : ''}</div></form>`}
       </section>
       ${w.length ? `<p class="muted small">Bisher ${w.length} Durchgänge, zuletzt ${fmtTime(w[w.length - 1].ts)}.</p>` : ''}
@@ -1102,9 +1081,8 @@
     if (rows.every(r => !r.all.length)) return `<div class="card empty"><div class="eyebrow">Trainingsbilanz</div><p>Noch keine Übung gemacht. Der schnellste Einstieg: ein <a href="#/einwaende">Einwand-Drill</a>, fünf Minuten, ohne Vorwissen. Danach steht hier deine erste Zeile.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Drill starten</a><a class="btn small ghost" href="#/kontraste">Oder Konzept-Kontraste</a></div></div>`;
     return `<div class="card"><div class="eyebrow">Trainingsbilanz</div>
       <table class="week-table"><thead><tr><th>Übung</th><th>Gesamt</th><th>7 Tage</th><th>Getroffen</th></tr></thead><tbody>${rows.map(r => { const n7 = r.all.filter(x => x.ts > t7).length; const gut = r.all.filter(r.gut).length; return `<tr><td><a href="${r.href}">${r.name}</a></td><td class="wk">${r.all.length}</td><td class="wk ${n7 ? '' : 'muted'}">${n7}</td><td class="wk">${r.all.length ? Math.round(gut / r.all.length * 100) + ' %' : '–'}</td></tr>`; }).join('')}</tbody></table>
-      <p class="muted small">„Getroffen“ heißt: Einwand als getroffen bewertet, alle Kontrast-Fälle richtig, Rollenspiel bestanden, Fall mit mindestens 14 von 18, alle vier Stufen geschafft. Eine Übung, die seit sieben Tagen bei Null steht, ist die nächste.</p></div>`;
+      </div>`;
   }
-  // Einstufung: Diagnose für Quereinsteiger, schaltet nichts frei
   let esState = null;
   function einstufungFragen() {
     return KURSE.flatMap(k => { const pool = k.lektionen.flatMap(l => l.quiz.filter(q => q.typ !== 'anwendung').map(q => ({ ...q, kurs: k.id, lektion: l.titel }))); const idx = hashStr('einstufung:' + k.id) % pool.length; return [pool[idx], pool[(idx + Math.floor(pool.length / 2)) % pool.length]]; });
@@ -1120,39 +1098,38 @@
           <button class="opt btn-opt muted" data-act="es-answer" data-oi="-1">Weiß ich nicht</button></section>`;
     }
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Einstufung</h1>
-      <p class="lead">Zwanzig Fragen, zwei je Modul, zehn Minuten. Das Ergebnis zeigt dir, wo du Vorwissen mitbringst und wo du besonders gründlich sein solltest. Es schaltet nichts frei, weil jedes Modul auf dem vorherigen aufbaut. Du weißt danach, wo das Quiz schnell geht und wo du langsamer lesen solltest. Der Coach kennt dein Ergebnis.</p>
+      <p class="lead">Zwanzig Fragen, zehn Minuten. Zeigt, wo du Vorwissen hast. Schaltet nichts frei.</p>
       ${E ? `<p class="muted">Zuletzt am ${new Date(E.ts).toLocaleDateString('de-DE')}: ${E.gesamt} von ${E.n} richtig.</p>` : ''}
       <div class="btn-row"><button class="btn primary" data-act="es-start">${E ? 'Noch einmal einstufen' : 'Einstufung starten'}</button></div></section>
       ${E ? `<div class="card"><div class="eyebrow">Dein Profil</div><table class="week-table"><tbody>${KURSE.map(k => { const r = E.module[k.id] || { ok: 0, n: 2 }; return `<tr><td><a href="#/kurs/${k.id}">${k.nr} ${esc(k.titel)}</a></td><td class="wk">${r.ok}/${r.n}</td><td>${r.ok === r.n ? '<span class="tag green">Vorwissen</span>' : r.ok === 0 ? '<span class="tag red">gründlich lesen</span>' : '<span class="tag gold">teilweise</span>'}</td></tr>`; }).join('')}</tbody></table>
-        <p class="muted small">Zwei Fragen je Modul sind eine grobe Schätzung, keine Prüfung. „Vorwissen“ heißt: Lies trotzdem, aber achte auf die Gegenproben und Studien, die du vermutlich nicht kennst. „Gründlich lesen“ heißt: Vorab-Frage und Abruf ernst nehmen, das Quiz nicht vor dem zweiten Lesen.</p></div>
-        <div class="callout study"><div class="label">Warum kein Überspringen</div>Wer ein Modul überspringt, weil er die Begriffe kennt, verpasst meistens die Stellen, an denen das Alltagswissen falsch ist (Mehrabian, Power-Posing, „93 Prozent nonverbal“). Die Modulprüfung mit 80 Prozent ist der Test, nicht das Gefühl, es schon zu wissen.</div>` : ''}`;
+        <p class="muted small">Zwei Fragen je Modul sind nur eine grobe Schätzung.</p></div>
+        ` : ''}`;
   });
   let trainingAlleTage = false;
   route('training', () => {
     const day = Object.keys(S.ablehnung).length;
     const stufen = ['Rückblick', 'Stufe 1 · Mikro-Bitten', 'Stufe 2 · Fremde', 'Stufe 3 · Pitch & Rat', 'Stufe 4 · Kaltakquise', 'Stufe 5 · Echtgespräch'];
     return `<section class="hero small"><div class="eyebrow">Training</div><h1>Drills & Programm</h1>
-      <p class="lead">Wissen ist billig. Hier zählt, was du draußen tust. Drei Instrumente: tägliche Drills, das 30-Tage-Ablehnungstraining (nach Jia Jiang und der Expositionsforschung) und die Erfolgsleiter (nach Bandura: Selbstwirksamkeit entsteht aus gestuften Erfolgen).</p></section>
+      <p class="lead">Was du draußen tust: tägliche Drills, 30 Tage Ablehnungstraining, Erfolgsleiter.</p></section>
       ${wvCard(20)}
       ${trainingsbilanz()}
       <h2 class="section-title">Tägliche Drills</h2>
       <div class="card drill-liste">${window.TAGESDRILLS.map(d => { const n = (S.drills['tag_' + d.id] || []).length; const todayDone = (S.drills['tag_' + d.id] || []).some(x => x.ts > Date.now() - 864e5);
         return `<div class="drill-row ${todayDone ? 'done' : ''}"><div><div class="drill-kopf"><strong>${esc(d.name)}</strong><span class="muted small">${d.dauer} Min.${n ? ` · ${n}×` : ''}</span></div><p class="muted small">${esc(d.text)}</p></div><button class="btn small ${todayDone ? 'ghost' : ''}" data-act="drill-done" data-id="${d.id}">${todayDone ? '✓ heute' : 'Erledigt'}</button></div>`; }).join('')}</div>
       <h2 class="section-title">30-Tage-Ablehnungstraining · Tag ${Math.min(day + 1, 30)}</h2>
-      <p class="muted">Ein Tag pro Tag. Ziel ist nicht das Ja, sondern die Erfahrung, dass das Nein dich nicht umbringt. Jede Aufgabe braucht eine kurze Notiz, was passiert ist.</p>
+      <p class="muted">Eine Aufgabe pro Tag, mit kurzer Notiz.</p>
       <div class="days">${window.ABLEHNUNGSTRAINING.filter(a => trainingAlleTage || a.tag <= day + 3).map(a => { const d = S.ablehnung[a.tag]; const active = a.tag === day + 1; const locked = a.tag > day + 1;
         return `<div class="card day ${d ? 'done' : active ? 'active' : 'locked'}"><div class="meta">Tag ${a.tag} · ${stufen[a.stufe]}${d ? ' · ✓ ' + fmtDate(d.ts) : ''}</div><p>${esc(a.aufgabe)}</p>
           ${d ? `<div class="body muted">${esc(d.note)}</div>` : active ? `<form class="ablehnung" data-tag="${a.tag}"><textarea class="journal" rows="3" aria-label="Ergebnis der heutigen Ablehnungsaufgabe" placeholder="Was hast du gefragt, was war die Antwort, wie hat es sich angefühlt?"></textarea><div class="btn-row"><button class="btn small primary">Tag abschließen</button></div></form>` : ''}</div>`; }).join('')}</div>
       ${!trainingAlleTage && day + 3 < 30 ? `<p class="muted small tage-mehr"><button class="btn small ghost" data-act="tage-alle">Alle 30 Tage anzeigen</button> Die nächsten Tage werden frei, sobald der aktuelle abgeschlossen ist.</p>` : ''}
       <h2 class="section-title">Erfolgsleiter</h2>
-      <p class="muted">Von leicht nach schwer. Jede Stufe erst abhaken, wenn du sie wirklich gemacht hast. Du kannst die Stufen auf dein Ziel anpassen.</p>
+      <p class="muted">Von leicht nach schwer. Stufen lassen sich anpassen.</p>
       <div class="card"><ol class="leiter">${S.leiter.map((l, i) => `<li class="check ${l.done ? 'done' : ''}" data-act="leiter-toggle" data-i="${i}"><span class="box"></span><span class="txt">${esc(l.text)}</span><button class="x" data-act="leiter-del" data-i="${i}" title="Entfernen">×</button></li>`).join('')}</ol>
         <form class="leiter-add inline"><input aria-label="Eigene Stufe hinzufügen" placeholder="Eigene Stufe hinzufügen…"><button class="btn small">Hinzufügen</button></form></div>`;
   });
 
-  // Körpersprache-Trainer
   route('koerper', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Körpersprache-Trainer</h1>
-      <p class="lead">Zeitgesteuerte Drills vor Spiegel oder Kamera. Nach jedem Drill bewertest du dich an festen Kriterien. Die Belege stehen bei jedem Drill, inklusive dem, was NICHT belegt ist (Power Posing, 7-38-55).</p></section>
+      <p class="lead">Kurze Drills vor Spiegel oder Kamera, mit Selbstbewertung.</p></section>
       <div class="grid">${window.KOERPER_DRILLS.map(d => { const runs = S.drills['kd_' + d.id] || []; const avg = runs.length ? Math.round(runs.reduce((a, r) => a + r.score, 0) / runs.length * 10) / 10 : null;
         return `<div class="card"><div class="meta"><span>${d.sekunden} Sek.</span><span>${runs.length}×</span>${avg !== null ? '<span>Ø ' + avg + '/' + d.kriterien.length + '</span>' : ''}</div><h3>${esc(d.name)}</h3><p class="muted">${esc(d.anleitung)}</p><button class="btn small" data-act="kd-start" data-id="${d.id}">Drill starten</button></div>`; }).join('')}</div>`);
   function startKd(id) {
@@ -1166,20 +1143,18 @@
     $('#kd-form').onsubmit = (e) => { e.preventDefault(); const score = [...e.target.querySelectorAll('input:checked')].length; (S.drills['kd_' + d.id] = S.drills['kd_' + d.id] || []).push({ ts: Date.now(), score }); touch(); save(); closeModal(); toast(`${score}/${d.kriterien.length} Kriterien. ${score === d.kriterien.length ? 'Sauber.' : 'Morgen nochmal.'}`, score === d.kriterien.length ? 'good' : ''); navigate(); };
   }
 
-  // Checklisten
-  route('checklisten', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Checklisten</h1><p class="lead">Drei Listen für die Zeit vor, während und nach dem Gespräch. Die Haken bleiben pro Liste gespeichert, bis du sie zurücksetzt. Gedruckt passen sie auf eine Seite neben das Telefon.</p>
+  route('checklisten', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Checklisten</h1><p class="lead">Vor, während und nach dem Gespräch. Druckbar.</p>
     <div class="btn-row no-print"><button class="btn ghost" data-act="print">Drucken oder als PDF sichern</button></div></section>
     <div class="checklisten">
     ${window.CHECKLISTEN.map(c => { const st = S.checks[c.id] || {}; const n = c.punkte.filter((_, i) => st[i]).length;
       return `<div class="card"><div class="meta">${n}/${c.punkte.length} <button class="btn small ghost no-print" data-act="check-reset" data-id="${c.id}">Zurücksetzen</button></div><h3>${esc(c.titel)}</h3><p class="muted">${esc(c.beschreibung)}</p>
         ${c.punkte.map((p, i) => `<label class="check ${st[i] ? 'done' : ''}"><input type="checkbox" data-act="check-toggle" data-id="${c.id}" data-i="${i}" ${st[i] ? 'checked' : ''}> ${esc(p)}</label>`).join('')}</div>`; }).join('')}</div>`);
 
-  // Kundenanalyse
   route('kundenanalyse', () => {
     const F = window.KA_FRAGEN;
-    return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Kundenanalyse</h1><p class="lead">Beantworte neun Fragen über einen echten Kunden. Du bekommst Kaufmotiv, Verhaltenstendenz (DISG, Hinweis: niedrige wissenschaftliche Validität, als Gesprächshilfe gedacht), Big-Five-Hinweise, Qualifizierung (BANT) und konkrete Gesprächsempfehlungen.</p></section>
+    return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Kundenanalyse</h1><p class="lead">Neun Fragen zu einem echten Kunden ergeben ein Profil mit Gesprächsempfehlungen.</p></section>
       <form id="ka-form" class="card"><label>Name oder Kürzel des Kunden <input name="name" required placeholder="z. B. Café Krüger"></label>
-        <div class="callout practice"><div class="label">Erst seine Worte, dann deine Einordnung</div>Ein Profil taugt nur so viel wie die Zitate dahinter. Schreib auf, was der Kunde wörtlich gesagt hat, bevor du ihn in Typen sortierst. Ein Gespräch ergibt eine Hypothese, kein Urteil; nach dem zweiten Gespräch prüfst du sie.</div>
+        <div class="callout practice"><div class="label">Erst seine Worte, dann deine Einordnung</div>Erst notieren, was der Kunde wörtlich gesagt hat. Das Profil ist eine Hypothese.</div>
         <label>Auslöser: Was ist passiert, dass er jetzt sucht? <input name="ausloeser" placeholder="z. B. „Seit die Steuerprüfung zwei Tage gedauert hat …“"></label>
         <label>Wörtliche Zitate (Schmerz, Wunsch, Einwand) <textarea name="zitate" rows="3" placeholder="Ein Zitat pro Zeile, in seinen Worten, nicht in deinen"></textarea></label>
         <label>Alternativen, die er erwägt <input name="alternativen" placeholder="z. B. Wettbewerber X, selbst machen, nichts tun"></label>
@@ -1203,12 +1178,11 @@
     S.ka.push({ id: uid(), name: fd.get('name'), ts: Date.now(), html, ausloeser: cut('ausloeser', 300), zitate: cut('zitate', 1200), alternativen: cut('alternativen', 300), motiv: Mo.name, disg: D ? D.name : '' }); touch(); save(); toast('Profil erstellt.', 'good'); navigate();
   }
 
-  // Wiederholen
   let srsState = null;
   route('wiederholen', () => {
     const karten = srsKarten(); const f = srsFaellig();
     const stats = Object.values(S.srs); const gesamt = stats.reduce((a, x) => a + (x.n || 0), 0); const sicher = karten.filter(c => (S.srs[c.id] || {}).box >= 3).length;
-    if (!karten.length) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1><p class="lead">Hier landen alle Quizfragen abgeschlossener Lektionen als Karten. Sie kommen in wachsenden Abständen wieder (1, 3, 7, 14, 30, 60 Tage), gemischt über alle Module. Das ist die am besten belegte Lerntechnik überhaupt (Cepeda et al. 2006; Dunlosky et al. 2013). Schließ die erste Lektion ab, dann geht es los.</p></section>`;
+    if (!karten.length) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1><p class="lead">Noch keine Karten. Sie kommen mit der ersten abgeschlossenen Lektion.</p></section>`;
     if (srsState && srsState.karte) {
       const c = srsState.karte; const q = c.q;
       if (!srsState.order) srsState.order = shuffle(q.optionen.map((_, i) => i));
@@ -1220,27 +1194,24 @@
     }
     const n = Math.min(f.due.length, f.rest);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
-      <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
+      <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'}</p>
       <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher gelernt</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + (x.richtig || 0), 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
       ${kalibKarte()}
       ${n || S.apiKey ? `<div class="btn-row">${n ? `<button class="btn primary" data-act="srs-start">Jetzt wiederholen</button>` : ''}${S.apiKey ? `<a class="btn ghost" href="#/coach?lern=1">Lernsitzung mit dem Coach</a>` : ''}</div>` : ''}
-      <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
+      `;
   });
 
-  // Quellenverzeichnis
   let qFilter = { b: 'alle', st: 'alle', q: '' };
   const stKlasse = (st) => { const t = (st || '').trim(); if (/^(A|✅|G)/.test(t)) return 'A'; if (/^(B|📘)/.test(t)) return 'B'; if (/^C/.test(t)) return 'C'; if (/^(D|MYTHOS|\[!\]|❌|K|Illustration|keine)/i.test(t)) return 'D'; return '?'; };
   const ST_LABEL = { A: 'A · robust / Primärquelle', B: 'B · solide / seriöse Sekundärquelle', C: 'C · Praxis / Buch / Meinung', D: 'D · Mythos, widerlegt, dramatisiert', '?': 'ohne Einstufung' };
   let quellenLoading = false;
   let glossarLoading = false; const gFilter = { q: '' }; const glossarWarteliste = [];
-  // Lädt das Glossar einmal nach. cb läuft, sobald es da ist; ohne cb wird die Seite neu gerendert (Glossar-Route).
   function ensureGlossar(cb) {
     if (window.GLOSSAR) { if (cb) cb(); return true; }
     if (cb) glossarWarteliste.push(cb);
     if (!glossarLoading) { glossarLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/glossar.js'; sc.onload = () => { const w = glossarWarteliste.splice(0); if (w.length) w.forEach(f => f()); else navigate(); }; sc.onerror = () => { glossarLoading = false; glossarWarteliste.length = 0; toast('Glossar konnte nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
     return false;
   }
-  // Fachbegriffe im Lektionstext mit dem Glossar verknüpfen: erste Nennung je Begriff, nur im Fließtext, nie in Überschriften, Links, Formularen oder Quiz.
   let glRegex = null;
   function glossarVerlinken() {
     const art = document.querySelector('article.lesson'); if (!art || art.dataset.gl) return;
@@ -1273,7 +1244,7 @@
     const list = window.GLOSSAR.filter(g => !needle || (g.b + ' ' + (g.syn || []).join(' ') + ' ' + g.d).toLowerCase().includes(needle));
     const buchstaben = [...new Set(list.map(g => g.b[0].toUpperCase()))];
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Glossar</h1>
-      <p class="lead">${window.GLOSSAR.length} Fachbegriffe aus allen zehn Modulen, jeder mit der Lektion, in der er eingeführt wird. Ein Begriff, der hier steht, darf in Quiz, Prüfung und Rollenspiel vorausgesetzt werden.</p></section>
+      <p class="lead">${window.GLOSSAR.length} Fachbegriffe mit ihrer Lektion.</p></section>
       <input id="g-q" class="search" type="search" aria-label="Begriff im Glossar suchen" placeholder="Begriff suchen, zum Beispiel BATNA oder Reziprozität" value="${esc(gFilter.q)}" aria-label="Glossar durchsuchen">
       ${list.length ? buchstaben.map(B => `<h2 class="section-title">${B}</h2><div class="glossar">${list.filter(g => g.b[0].toUpperCase() === B).map(g => { const k = kursById(g.k); const i = k ? lessonIndex(k, g.l) : -1; const l = i >= 0 ? k.lektionen[i] : null; const frei = l && lessonUnlocked(k, i); return `<div class="card glos"><h3>${esc(g.b)}${g.syn && g.syn.length ? ` <span class="muted syn">${esc(g.syn.join(', '))}</span>` : ''}</h3><p>${esc(g.d)}</p>${l ? `<div class="meta">${frei ? `<a href="#/lektion/${k.id}/${l.id}">Lektion ${k.nr}.${i + 1} · ${esc(l.titel)}</a>` : `<span class="muted">${lock('')} Lektion ${k.nr}.${i + 1} · ${esc(l.titel)}</span>`}</div>` : ''}</div>`; }).join('')}</div>`).join('') : '<p class="muted">Kein Begriff passt zu dieser Suche.</p>'}`;
   });
@@ -1286,7 +1257,7 @@
     const list = Q.filter(x => (f.b === 'alle' || x.b === f.b) && (f.st === 'alle' || stKlasse(x.st) === f.st) && (!needle || (x.q + ' ' + x.k + ' ' + x.typ + ' ' + x.s).toLowerCase().includes(needle)));
     const counts = {}; Q.forEach(x => counts[stKlasse(x.st)] = (counts[stKlasse(x.st)] || 0) + 1);
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Quellenverzeichnis</h1>
-      <p class="lead">${Q.length} geprüfte Quellen aus der Recherche: Meta-Analysen, Studien, Felddaten, Bücher, Reden, Briefe, Filme. Jede mit Kernaussage und Beweisstärke. Das ist die Grundlage jeder Lektion, und es ist die Antwort auf die Frage „Woher weißt du das?“.</p>
+      <p class="lead">${Q.length} geprüfte Quellen mit Kernaussage und Beweisstärke.</p>
       <div class="legend">${Object.entries(ST_LABEL).filter(([k]) => counts[k]).map(([k, v]) => `<span class="tag st-${k}">${v} (${counts[k]})</span>`).join(' ')}</div></section>
       <input class="search" id="q-q" aria-label="Quellen durchsuchen" placeholder="Suche: Autor, Thema, Begriff (z. B. Anker, Cialdini, Lächeln)…" value="${esc(f.q)}">
       <div class="filters" id="q-b"><button class="${f.b === 'alle' ? 'active' : ''}" data-b="alle">Alle Bereiche</button>${Object.entries(B).filter(([k]) => Q.some(x => x.b === k)).map(([k, v]) => `<button class="${f.b === k ? 'active' : ''}" data-b="${k}">${esc(v)}</button>`).join('')}</div>
@@ -1295,8 +1266,7 @@
       <div class="q-list">${list.slice(0, 120).map(x => `<div class="q-item"><div class="meta"><span class="tag st-${stKlasse(x.st)}">${esc(x.st || '–')}</span> <span>${esc(x.typ)}</span> <span>${esc(B[x.b] || x.b)} · ${esc(x.s)} · Nr. ${x.nr}</span></div><div class="q-src">${x.l ? `<a href="${esc(x.l)}" target="_blank" rel="noopener">${esc(x.q)}</a>` : esc(x.q)}</div><div class="q-kern">${esc(x.k)}</div></div>`).join('')}${list.length > 120 ? '<p class="muted">Mehr als 120 Treffer. Bitte eingrenzen.</p>' : ''}</div>`;
   });
 
-  // Journal & Beweisbuch
-  route('journal', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Journal & Beweisbuch</h1><p class="lead">Drei Bücher. Das <strong>Erfolgsprotokoll</strong> (jeden Abend drei Dinge, die du geschafft hast). Das <strong>Beweisbuch</strong> (Belege, dass du kannst, was du behauptest: Zahlen, Feedback, Abschlüsse). Das <strong>Ablehnungstagebuch</strong> mit ABCDE-Analyse nach Seligman.</p></section>
+  route('journal', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Journal & Beweisbuch</h1><p class="lead">Erfolgsprotokoll, Beweisbuch und Ablehnungstagebuch.</p></section>
     <div class="two-col">
       <div class="card"><h3>Erfolgsprotokoll</h3><form class="j-add" data-book="erfolg"><textarea class="journal" rows="2" aria-label="Neuer Eintrag im Erfolgsprotokoll" placeholder="Was habe ich heute geschafft? (drei Einträge pro Abend)"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('erfolg')}</div>
       <div class="card"><h3>Beweisbuch</h3><form class="j-add" data-book="beweis"><textarea class="journal" rows="2" aria-label="Neuer Eintrag im Beweisbuch" placeholder="Beleg: Zahl, Zitat eines Kunden, Abschluss, Feedback…"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('beweis')}</div>
@@ -1311,7 +1281,6 @@
       ${S.nein.slice().reverse().slice(0, 20).map(n => `<div class="log-entry"><div class="meta">${fmtTime(n.ts)}</div><div class="body"><strong>A</strong> ${esc(n.a)}<br><strong>B</strong> ${esc(n.b)}<br><strong>C</strong> ${esc(n.c)}<br><strong>D</strong> ${esc(n.d)}<br><strong>E</strong> ${esc(n.e)}</div></div>`).join('')}</div>`);
   function jList(book) { return S[book].slice().reverse().slice(0, 30).map(e => `<div class="log-entry"><div class="meta">${fmtTime(e.ts)} <button class="x" data-act="j-del" data-book="${book}" data-id="${e.id}">×</button></div><div class="body">${esc(e.text)}</div></div>`).join(''); }
 
-  // Einstellungen
   route('einstellungen', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Einstellungen</h1></section>
     <form id="settings" class="card settings">
       <div class="eyebrow">Profil</div>
@@ -1321,17 +1290,16 @@
       <div class="eyebrow gap">KI-Coach <span class="muted">(optional)</span></div>
       <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
       <label class="check-inline"><input type="checkbox" name="keySession" ${S.keySession ? 'checked' : ''}> Schlüssel nur für diese Sitzung merken. Er liegt dann im Sitzungsspeicher des Tabs statt dauerhaft im Browser und ist nach dem Schließen weg.</label>
-      <p class="muted">Der Schlüssel wird nur in diesem Browser gespeichert (localStorage) und direkt an api.anthropic.com gesendet. Kein Server dazwischen. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Berichte werden dann per Selbst-Check geprüft. Schlüssel gibt es unter console.anthropic.com.</p>
+      <p class="muted">Bleibt in diesem Browser und geht nur an api.anthropic.com. Schlüssel gibt es unter console.anthropic.com.</p>
       <label>Modell <select name="model">${['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'].map(m => `<option ${S.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <div class="btn-row"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-act="test-key">Verbindung testen</button></div>
     </form>
-    <div class="card"><div class="eyebrow">Daten</div><p class="muted">Alles liegt lokal in diesem Browser. Eine Sicherung ist eine JSON-Datei, die du hier auch wieder einspielen kannst.</p>
+    <div class="card"><div class="eyebrow">Daten</div><p class="muted">Alles liegt lokal in diesem Browser.</p>
       <div class="btn-row"><button class="btn" data-act="export">Fortschritt exportieren (JSON)</button><label class="btn ghost">Importieren <input type="file" id="import-file" accept="application/json" hidden></label></div></div>
     <div class="card gefahr"><div class="eyebrow">Gefahrenzone</div><p class="muted">Löscht Fortschritt, Berichte, Journal und Schlüssel in diesem Browser. Vorher exportieren.</p>
       <div class="btn-row"><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
 
 
-  // Prüfungs-Rückschau: alle falsch beantworteten Prüfungsfragen, bis sie in der Wiederholung sitzen
   function rueckschauListe() {
     const seen = new Map();
     for (const [kid, ex] of Object.entries(S.exams)) for (const at of (ex.attempts || [])) for (const f of (at.falsch || [])) {
@@ -1339,14 +1307,13 @@
       const prev = seen.get(key); if (prev) { prev.n++; prev.ts = Math.max(prev.ts, at.ts); prev.a = f.a; continue; }
       seen.set(key, { key, kid: fl.kurs.id, kurs: fl.kurs, lid: f.lid, qi: f.qi, lektion: fl.lektion, q, a: f.a, n: 1, ts: at.ts, pruefung: kid });
     }
-    // erledigt, wenn die Karte seit dem letzten Fehler in der Wiederholung richtig war
     return [...seen.values()].map(x => { const sr = S.srs[x.key]; x.erledigt = !!(sr && sr.lastOk && sr.lastOk > x.ts); return x; }).sort((a, b) => b.ts - a.ts);
   }
   route('rueckschau', () => {
     const alle = rueckschauListe(); const offen = alle.filter(x => !x.erledigt), fertig = alle.filter(x => x.erledigt);
     const gruppen = KURSE.map(k => ({ k, items: offen.filter(x => x.kid === k.id) })).filter(g => g.items.length);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Prüfungs-Rückschau</h1>
-      <p class="lead">Jede Frage, die du in einer Modul- oder Abschlussprüfung falsch hattest, bleibt hier stehen, bis du sie in der Wiederholung richtig beantwortet hast. Prüfungsfehler zeigen, was du unter Druck nicht abrufen konntest, und genau das lohnt die Wiederholung am meisten.</p></section>
+      <p class="lead">Falsch beantwortete Prüfungsfragen, bis sie in der Wiederholung sitzen.</p></section>
       ${!alle.length ? `<div class="card empty"><p>Noch keine Prüfungsfehler gespeichert. Die Liste füllt sich ab deiner nächsten <a href="#/kurs/${currentKurs().id}">Modulprüfung</a>.</p></div>` : ''}
       ${offen.length ? `<div class="btn-row"><button class="btn primary" data-act="rs-vorziehen">Alle ${offen.length} offenen in die heutige Wiederholung</button></div>` : alle.length ? '<div class="callout practice"><div class="label">Alles erledigt</div>Jeden Prüfungsfehler hast du seitdem in der Wiederholung richtig beantwortet.</div>' : ''}
       ${gruppen.map(g => `<h2 class="section-title">Modul ${g.k.nr} · ${esc(g.k.titel)}</h2>${g.items.map(x => `<div class="card quiz-q rs"><div class="meta"><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · ${x.n > 1 ? x.n + '× falsch' : 'einmal falsch'} · ${fmtDate(x.ts)}</div>
@@ -1355,7 +1322,6 @@
       ${fertig.length ? `<details class="card"><summary>${fertig.length} erledigt</summary><ul class="wv-list">${fertig.map(x => `<li><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · <span class="muted">${esc(x.q.frage)}</span></li>`).join('')}</ul></details>` : ''}`;
   });
 
-  // Einwand-Spielbuch: die eigenen besten Antworten je Einwand, zum Mitnehmen
   route('spielbuch', () => {
     if (!ensureEinwaende()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1><p class="muted">Lade Einwände…</p></section>';
     const E = window.EINWAENDE;
@@ -1363,7 +1329,7 @@
     const mit = E.filter(e => eintrag(e)); const ohne = E.filter(e => !eintrag(e));
     const WERT = ['noch unsicher', 'brauchbar', 'sitzt'];
     return `<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1>
-      <p class="lead">Dein eigenes Nachschlagewerk für das nächste Gespräch: je Einwand, was dahintersteckt, deine beste eigene Antwort aus dem Drill, die häufigste Falle und der Beleg, der die Antwort trägt. Eigene Worte bleiben besser hängen als fremde Muster (Slamecka & Graf 1978), deshalb steht deine Antwort oben und das Muster darunter.</p>
+      <p class="lead">Deine besten Antworten je Einwand, zum Nachschlagen vor dem Gespräch.</p>
       <div class="btn-row no-print"><button class="btn" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/einwaende">Zum Einwand-Drill</a></div></section>
       ${!mit.length ? `<div class="card empty"><p>Noch leer. Das Spielbuch füllt sich mit jeder Antwort aus dem <a href="#/einwaende">Einwand-Drill</a>: Du schreibst deine Antwort, vergleichst sie mit dem Muster und bewertest sie. Die beste Antwort je Einwand landet hier.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Einwand üben</a></div></div>` : `<p class="muted small">${S.name ? esc(S.name) + ' · ' : ''}Stand ${new Date().toLocaleDateString('de-DE')} · ${mit.length} von ${E.length} Einwänden mit eigener Antwort${mit.filter(e => eintrag(e).wert === 2).length ? `, ${mit.filter(e => eintrag(e).wert === 2).length} davon sitzen` : ''}.</p>`}
       <div class="spielbuch">${mit.map(e => { const r = eintrag(e); return `<article class="card sb"><div class="meta"><span class="tag ${r.wert === 2 ? 'green' : r.wert === 1 ? 'gold' : ''}">${WERT[r.wert]}</span><span class="muted">${esc(e.kontext)}</span></div>
@@ -1377,7 +1343,6 @@
       ${ohne.length && mit.length ? `<h2 class="section-title">Noch ohne eigene Antwort</h2><div class="wv-list-wrap card"><ul class="wv-list">${ohne.map(e => `<li><a href="#/einwaende/${e.id}">„${esc(e.einwand)}“</a> <span class="muted small">· ${esc(e.kontext)}</span></li>`).join('')}</ul></div>` : ''}`;
   });
 
-  // Business-Planer und Coach-Seite werden von coach.js geliefert
   route('coach', (p) => {
     if (/[?&]einwand=/.test(location.hash) && !ensureEinwaende()) return '<p class="muted">Lade Einwand…</p>';
     if (/[?&]fall=/.test(location.hash) && !ensureFaelle()) return '<p class="muted">Lade Fall…</p>';
@@ -1386,22 +1351,21 @@
   });
   route('business', (p) => window.Coach ? window.Coach.businessPage(p) : '<p>Coach-Modul fehlt.</p>');
 
-  // Ereignisse
   document.addEventListener('submit', async (e) => {
     const f = e.target;
     if (f.classList.contains('quiz')) { e.preventDefault(); gradeQuiz(f); }
     else if (f.classList.contains('report')) { e.preventDefault(); submitReport(f); }
     else if (f.classList.contains('vorfrage-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 15) return toast('Ein ganzer Satz, bitte. Raten ist erlaubt.', 'bad'); S.vorfragen[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.querySelector('.lesson h1'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
-    else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
+    else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
     else if (f.classList.contains('rp-pflicht')) { e.preventDefault(); const runs = S.drills['rp_' + f.dataset.sid] || []; const last = runs[runs.length - 1]; if (!last) return; last.pflicht = [...f.querySelectorAll('input[name="p"]:checked')].map(i => Number(i.value)); save(); const s = window.SZENARIEN.find(x => x.id === f.dataset.sid); toast(`Pflichtkriterien: ${last.pflicht.length} von ${s.pflicht.length}.`, last.pflicht.length === s.pflicht.length ? 'good' : ''); const box = $('#rp-box'); if (box && rpState && rpState.sid === s.id) box.innerHTML = renderRp(s); }
     else if (f.classList.contains('rp-plan-form')) { e.preventDefault(); const fd = new FormData(f); S.rpPlan[f.dataset.sid] = { ziel: (fd.get('ziel') || '').trim().slice(0, 300), erste: (fd.get('erste') || '').trim().slice(0, 300), grenze: (fd.get('grenze') || '').trim().slice(0, 300), ts: Date.now() }; rpPlanEdit = null; touch(); save(); navigate(); toast('Plan festgehalten. Jetzt spielen.', 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
-    else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Befund, Empfehlung, Prüfung, Risiko: alles vier gehört hinein.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
+    else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('fall-rubrik')) { e.preventDefault(); const w = {}; window.FAELLE_RUBRIK.forEach(d => { const r = f.querySelector(`input[name="r-${d.id}"]:checked`); w[d.id] = r ? Number(r.value) : 1; }); faState.wertung = w; faState.stufe = 2; const sum = Object.values(w).reduce((a, b) => a + b, 0); (S.drills['fall_' + faState.id] = S.drills['fall_' + faState.id] || []).push({ ts: Date.now(), selbst: sum, wertung: w, text: faState.text.slice(0, 4000) }); touch(); save(); navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('wb-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Schreib alle Schritte aus.`, 'bad'); wbState.text = t; wbState.offen = true; navigate(); }
     else if (f.classList.contains('ew-rubrik')) { e.preventDefault(); const id = f.dataset.id; if (!ewState || ewState.id !== id) return; const kriterien = [...f.querySelectorAll('input[name="k"]:checked')].map(i => i.value); const falle = !!f.querySelector('input[name="falle"]:checked'); const wert = ewWertAus(kriterien, falle); (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert, antwort: ewState.antwort.slice(0, 400), kriterien, falle }); touch(); save(); ewState = null; toast(wert === 2 ? 'Getroffen: alle vier Kriterien und Falle vermieden. Morgen noch einmal, dann sitzt es.' : wert === 1 ? `Teilweise: ${kriterien.length} von 4${falle ? '' : ', Falle nicht vermieden'}. Nimm dir beim nächsten Mal zuerst das fehlende Kriterium vor.` : 'Daneben. Lies das Vorgehen noch einmal und probier den ersten Schritt heute in einem echten Gespräch.', wert === 2 ? 'good' : ''); navigate(); }
-    else if (f.classList.contains('ew-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 60) return toast(`Zu kurz. ${60 - t.length} Zeichen fehlen. Sag es so, wie du es sagen würdest.`, 'bad'); ewState = { id: f.dataset.id, antwort: t, offen: true }; navigate(); }
+    else if (f.classList.contains('ew-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 60) return toast(`Zu kurz. ${60 - t.length} Zeichen fehlen.`, 'bad'); ewState = { id: f.dataset.id, antwort: t, offen: true }; navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
     else if (f.classList.contains('j-add')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (!t) return; S[f.dataset.book].push({ id: uid(), text: t, ts: Date.now() }); touch(); save(); navigate(); }
@@ -1469,7 +1433,6 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
-  // Öffentliche Schnittstelle für coach.js
   window.VA = { get S() { return S; }, wiedervorlagen, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
 
   function applyTextsize() { document.documentElement.dataset.textsize = S.textsize || 'normal'; }

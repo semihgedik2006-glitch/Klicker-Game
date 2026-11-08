@@ -1,4 +1,3 @@
-// Worked Examples mit abnehmender Hilfe: vollständiges Beispiel mit Begründung → Lückenaufgabe → eigenständig → neuer Kontext.
 window.BEISPIELE = [
   { id: 'laer', einwaende: ['teuer', 'partner', 'nachdenken'], titel: 'Einwand behandeln nach LAER', lektion: 'v3', dauer: 15,
     prozedur: ['Zuhören (Listen): ausreden lassen, nicht unterbrechen', 'Anerkennen (Acknowledge): Label oder Paraphrase, kein „aber“', 'Erkunden (Explore): isolieren oder nach dem Maßstab fragen', 'Antworten (Respond): Beleg oder Zahl, dann nächster Schritt'],

@@ -1,5 +1,3 @@
-// Textprüfung der Lektionen: node tools/check-text.js [Modulnummern]
-// Meldet lange Sätze (> 42 Wörter), Füllwörter, Behauptungsfloskeln ohne Quelle, KI-Tells und Sätze ohne Jahreszahl bei Studienverweisen. Nur Bericht, kein Fehlerstatus.
 global.window = global; global.KURSE = [];
 const fs = require('fs'), path = require('path');
 const dir = path.join(__dirname, '..', 'js', 'data', 'kurse');
