@@ -672,6 +672,7 @@
     $('#main').innerHTML = `<section class="hero small ${passed ? 'passed' : ''}"><div class="eyebrow">Ergebnis</div>
       <h1>${score} von ${e.fragen.length} · ${pct} %</h1>
       <p class="lead">${abschluss ? (passed ? `Bestanden. Du hast das gesamte Curriculum nachgewiesen. Rang: ${rang()}. Dein Zertifikat wartet.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Die Fehler unten zeigen, welche Module du wiederholst.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
+      ${passed && Date.now() - Math.max(S.lastExport || 0, 0) > 864e5 ? `<div class="callout warn export-hinweis"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. ${S.lastExport ? `Letzte Sicherung vor ${Math.floor((Date.now() - S.lastExport) / 864e5)} Tagen.` : 'Noch nie gesichert.'} Eine Datei, zehn Sekunden: <button class="btn small" data-act="export">Jetzt exportieren</button></div>` : ''}
       ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Alle Prüfungsfehler sammeln sich in der <a href="#/rueckschau">Prüfungs-Rückschau</a>, bis du sie in der Wiederholung richtig beantwortet hast.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
       <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen →</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul →</a>` : '<a class="btn primary" href="#/training">Zum Training →</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
@@ -776,8 +777,21 @@
 
   // ---------- Rollenspiele ----------
   let rpState = null;
+  // Die Entscheidungsbäume der fünf großen Szenarien (61 KB) kommen erst, wenn jemand die Rollenspiele öffnet.
+  let szOfflineLoading = false, szOfflineReady = false; const szOfflineWarteliste = [];
+  function ensureSzenarienOffline(cb) {
+    if (szOfflineReady) { if (cb) cb(); return true; }
+    if (cb) szOfflineWarteliste.push(cb);
+    if (!szOfflineLoading) {
+      szOfflineLoading = true; let offen = 2;
+      const fertig = () => { if (--offen) return; szOfflineReady = true; (window.SZENARIEN || []).forEach(sz => { if (!sz.offline && window.SZENARIEN_OFFLINE && window.SZENARIEN_OFFLINE[sz.id]) sz.offline = window.SZENARIEN_OFFLINE[sz.id]; }); const w = szOfflineWarteliste.splice(0); if (w.length) w.forEach(f => f()); else navigate(); };
+      for (const src of ['js/data/szenarien-offline-1.js', 'js/data/szenarien-offline-2.js']) { const sc = document.createElement('script'); sc.src = src; sc.onload = fertig; sc.onerror = () => { szOfflineLoading = false; szOfflineWarteliste.length = 0; toast('Rollenspiel-Szenarien konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
+    }
+    return false;
+  }
   route('rollenspiel', ([sid]) => {
     const SZ = window.SZENARIEN;
+    if (!ensureSzenarienOffline()) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1><p class="lead">Lade Szenarien…</p></section>`;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
       <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. ${(() => { const n = SZ.filter(x => x.offline).length; return n === SZ.length ? 'Alle spielst du offline als Entscheidungsbaum mit Feedback zu jeder Entscheidung.' : n + ' Szenarien spielst du offline als Entscheidungsbaum.'; })()} Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
       <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = runs.length ? Math.max(...runs.map(r => r.score || 0)) : null;
