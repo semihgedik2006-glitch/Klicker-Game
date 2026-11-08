@@ -21,7 +21,7 @@
     quiz: {}, lessonsDone: {}, exams: {}, reports: {},
     erfolg: [], beweis: [], nein: [], ablehnung: {}, leiter: null,
     checks: {}, drills: {}, ka: [], chats: {}, activity: {}, streakBest: 0,
-    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
+    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, tourWeg: false, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
   };
   let S;
   function load() {
@@ -195,6 +195,7 @@
         <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter →</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
       </section>
       ${!S.einstufung && Object.keys(S.lessonsDone).length < 3 ? `<div class="callout practice"><div class="label">Quereinsteiger?</div>Wenn du schon verkauft hast: Die <a href="#/einstufung">Einstufung</a> (20 Fragen, 10 Minuten) zeigt dir, wo du Vorwissen hast und wo nicht. Sie schaltet nichts frei, aber du liest danach gezielter.</div>` : ''}
+      ${ersteSchritte()}
       ${wvCard(5)}
       <div class="grid stats">
         <div class="stat"><div class="big">${totalProgress()} %</div><div class="lbl">Curriculum</div></div>
@@ -269,6 +270,26 @@
           <div class="btn-row"><button class="btn primary" type="submit">Los geht's</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
         </form>
       </div>`;
+  }
+  // Erste Schritte: Checkliste für die erste Woche. Der erste Punkt ist schon erledigt (Einrichtung), weil begonnene Listen eher beendet werden (Nunes & Drèze 2006).
+  function ersteSchritte() {
+    const drillsAny = Object.keys(S.drills).some(k => /^(tag_|ew_|kt_|fall_|wb_|rp_|kd_)/.test(k));
+    const steps = [
+      { name: 'Einrichtung', text: 'Name und Wenn-Dann-Plan festgelegt.', done: true, route: '#/einstellungen' },
+      { name: 'Erste Lektion lesen und aus dem Kopf zusammenfassen', text: 'Lektion 1.1, etwa 15 Minuten. Der Abruf nach dem Lesen ist der Teil, der hängen bleibt.', done: Object.keys(S.abruf).length > 0, route: '#/lektion/grundlagen/g1' },
+      { name: 'Erstes Quiz bestehen', text: `Mindestens ${PASS} %. Die Optionen siehst du erst, wenn du selbst eine Antwort im Kopf hast.`, done: Object.keys(S.quiz).some(quizPassed), route: '#/lektion/grundlagen/g1' },
+      { name: 'Ersten Bericht schreiben', text: 'Über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.', done: Object.values(S.reports).flat().some(r => r.bestanden), route: '#/lektion/grundlagen/g1' },
+      { name: 'Einen Drill machen', text: 'Fünf Minuten Einwand-Drill: schreiben, Muster vergleichen, selbst bewerten.', done: drillsAny, route: '#/einwaende' },
+      { name: 'Erstes Nein sammeln', text: 'Tag 1 des Ablehnungstrainings. Es geht nicht um das Ja.', done: S.nein.length >= 1 || Object.keys(S.ablehnung).length >= 1, route: '#/training' },
+    ];
+    const n = steps.filter(x => x.done).length;
+    if (S.tourWeg || n === steps.length) return '';
+    const next = steps.find(x => !x.done);
+    return `<div class="card tour"><div class="eyebrow">Erste Schritte · ${n} von ${steps.length}</div>
+      <div class="bar"><div class="bar-fill" style="width:${Math.round(n / steps.length * 100)}%"></div></div>
+      <ol class="tour-list">${steps.map(x => `<li class="${x.done ? 'done' : x === next ? 'next' : ''}"><span class="ms-icon">${x.done ? '✓' : '○'}</span><span><a href="${x.route}">${esc(x.name)}</a>${x === next ? `<br><span class="muted small">${esc(x.text)}</span>` : ''}</span></li>`).join('')}</ol>
+      <div class="btn-row"><a class="btn small primary" href="${next.route}">${esc(next.name)} →</a><button class="btn small ghost" data-act="tour-weg">Liste ausblenden</button></div>
+      ${!S.apiKey ? '<p class="muted small">Optional: Mit eigenem API-Schlüssel (Einstellungen) bewertet der Coach Berichte, Fälle und Rollenspiele. Ohne Schlüssel läuft alles andere.</p>' : ''}</div>`;
   }
   function wochenrueckblick() {
     const tage = (n) => { const out = []; const d = new Date(); d.setDate(d.getDate() - n); for (let i = 0; i < 7; i++) { out.push(d.toISOString().slice(0, 10)); d.setDate(d.getDate() - 1); } return out; };
@@ -898,7 +919,7 @@
       { name: 'Fälle', href: '#/faelle', all: arr('fall_'), gut: x => (x.coach != null ? x.coach : x.selbst) >= 14 },
       { name: 'Schritt für Schritt', href: '#/beispiele', all: Object.entries(S.drills).filter(([k, v]) => k.startsWith('wb_') && v).map(([, v]) => v), gut: x => x.stufe >= 4 },
     ];
-    if (rows.every(r => !r.all.length)) return '';
+    if (rows.every(r => !r.all.length)) return `<div class="card empty"><div class="eyebrow">Trainingsbilanz</div><p>Noch keine Übung gemacht. Der schnellste Einstieg: ein <a href="#/einwaende">Einwand-Drill</a>, fünf Minuten, ohne Vorwissen. Danach steht hier deine erste Zeile.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Drill starten →</a><a class="btn small ghost" href="#/kontraste">Oder Konzept-Kontraste</a></div></div>`;
     return `<div class="card"><div class="eyebrow">Trainingsbilanz</div>
       <table class="week-table"><thead><tr><th>Übung</th><th>Gesamt</th><th>7 Tage</th><th>Getroffen</th></tr></thead><tbody>${rows.map(r => { const n7 = r.all.filter(x => x.ts > t7).length; const gut = r.all.filter(r.gut).length; return `<tr><td><a href="${r.href}">${r.name}</a></td><td class="wk">${r.all.length}</td><td class="wk ${n7 ? '' : 'muted'}">${n7}</td><td class="wk">${r.all.length ? Math.round(gut / r.all.length * 100) + ' %' : '–'}</td></tr>`; }).join('')}</tbody></table>
       <p class="muted small">„Getroffen“ heißt: Einwand als getroffen bewertet, alle Kontrast-Fälle richtig, Rollenspiel bestanden, Fall mit mindestens 14 von 18, alle vier Stufen geschafft. Eine Übung, die seit sieben Tagen bei Null steht, ist die nächste.</p></div>`;
@@ -1134,6 +1155,7 @@
     else if (a === 'show-opts') { const box = el.closest('.quiz-q'); box.querySelector('.opts').hidden = false; el.remove(); }
     else if (a === 'ew-wert') { const id = ewState.id; (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert: Number(el.dataset.wert), antwort: ewState.antwort.slice(0, 400) }); touch(); save(); ewState = null; toast(el.dataset.wert === '2' ? 'Gemerkt. Morgen noch einmal, dann sitzt es.' : 'Gemerkt. Lies das Vorgehen noch einmal und probier es heute in einem echten Gespräch.', el.dataset.wert === '2' ? 'good' : ''); navigate(); }
     else if (a === 'report-vorlage') { const ta = el.closest('form').querySelector('textarea'); const tpl = 'Situation (wann, wo, mit wem):\n\nWas ich konkret gesagt oder getan habe:\n\nWas daraufhin passiert ist (Reaktion, Wortlaut, Ergebnis):\n\nWas ich beim nächsten Mal anders mache und woran ich merke, dass es wirkt:\n'; ta.value = ta.value.trim() ? ta.value + '\n\n' + tpl : tpl; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); }
+    else if (a === 'tour-weg') { S.tourWeg = true; save(); navigate(); toast('Die Liste ist ausgeblendet. Die Schritte zählen weiter.', 'good'); }
     else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
     else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }
     else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); srsAntwort(c.id, srsState.antwort === c.q.richtig); navigate(); }

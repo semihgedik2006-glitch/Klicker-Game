@@ -357,3 +357,12 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
 .week .small strong { color: var(--text); font-weight: 500; }
 .ico { display: inline-block; vertical-align: -2px; opacity: .75; }
 .lock .ico, .nav-lock .ico { color: var(--muted); }
+
+/* Erste Schritte */
+.card.tour { border-color: var(--gold); }
+.card.tour .bar { margin: 10px 0 12px; }
+.tour-list { list-style: none; padding: 0; margin: 0 0 12px; }
+.tour-list li { display: flex; gap: 10px; align-items: flex-start; padding: 7px 0; border-top: 1px solid var(--line); }
+.tour-list li.done { opacity: .6; } .tour-list li.done a { text-decoration: line-through; color: var(--muted); }
+.tour-list li.next a { color: var(--gold); font-weight: 600; }
+.card.empty { border-style: dashed; }
