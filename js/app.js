@@ -855,9 +855,9 @@
       <div class="btn-row"><button class="btn small ghost" data-act="rp-plan-edit" data-sid="${s.id}">Ändern</button></div></div>`;
     return `<form class="card rp-plan rp-plan-form" data-sid="${s.id}"><div class="eyebrow">Vorbereitung · 2 Minuten</div>
       <p class="muted small">Profis gehen mit drei Zeilen ins Gespräch. Schreib sie, bevor du spielst, dann kannst du danach prüfen, ob du deinem Plan gefolgt bist oder dem Kunden hinterhergelaufen bist.</p>
-      <label>Was will ich am Ende dieses Gesprächs erreicht haben? <input name="ziel" required minlength="10" value="${esc(p ? p.ziel : '')}" placeholder="Ein konkreter nächster Schritt mit Datum, kein Abschluss um jeden Preis"></label>
-      <label>Mein erster Satz nach dem Einwand <input name="erste" required minlength="10" value="${esc(p ? p.erste : '')}" placeholder="Ein Label oder eine Frage, kein Gegenargument"></label>
-      <label>Was tue ich nicht, egal was passiert? <input name="grenze" required minlength="5" value="${esc(p ? p.grenze : '')}" placeholder="Zum Beispiel: kein Rabatt ohne Gegenleistung"></label>
+      <label>Was will ich am Ende dieses Gesprächs erreicht haben? <input name="ziel" required minlength="10" value="${esc(p ? p.ziel : '')}" placeholder="Nächster Schritt mit Datum"></label>
+      <label>Mein erster Satz nach dem Einwand <input name="erste" required minlength="10" value="${esc(p ? p.erste : '')}" placeholder="Ein Label oder eine Frage"></label>
+      <label>Was tue ich nicht, egal was passiert? <input name="grenze" required minlength="5" value="${esc(p ? p.grenze : '')}" placeholder="z. B. kein Rabatt ohne Gegenleistung"></label>
       <div class="btn-row"><button class="btn small primary" type="submit">Plan festhalten</button>${p ? `<button class="btn small ghost" type="button" data-act="rp-plan-cancel">Abbrechen</button>` : ''}</div></form>`;
   }
   let rpPlanEdit = null;
@@ -868,7 +868,7 @@
       const runs = S.drills['rp_' + s.id] || []; const last = runs[runs.length - 1]; const st = rpStatus(last) || { s: 0, label: 'nicht bestanden', cls: 'red' };
       const good = rpState.hist.filter(h => h.bewertung === 'good').length, ok = rpState.hist.filter(h => h.bewertung === 'ok').length, bad = rpState.hist.length - good - ok;
       return `${hist}<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(node.npc)}</div></div>
-        <div class="callout ${st.s === 2 ? 'study' : st.s === 1 ? 'practice' : 'warn'} rp-fazit"><div class="label">Fazit · <span class="tag ${st.cls}">${st.label}</span></div>${esc(node.fazit)}<p class="muted small rp-bilanz">${rpState.hist.length} Entscheidungen: ${good} stark, ${ok} brauchbar, ${bad} schwach. Dieselben Maßstäbe wie beim Coach: Ein Rollenspiel gilt erst als bestanden, wenn der Weg stimmt, nicht nur das Ende.</p></div>
+        <div class="callout ${st.s === 2 ? 'study' : st.s === 1 ? 'practice' : 'warn'} rp-fazit"><div class="label">Fazit · <span class="tag ${st.cls}">${st.label}</span></div>${esc(node.fazit)}<p class="muted small rp-bilanz">${rpState.hist.length} ${rpState.hist.length === 1 ? 'Entscheidung' : 'Entscheidungen'}: ${good} stark, ${ok} brauchbar, ${bad} schwach. Dieselben Maßstäbe wie beim Coach: Ein Rollenspiel gilt erst als bestanden, wenn der Weg stimmt, nicht nur das Ende.</p></div>
         ${last && !last.pflicht ? `<form class="card rp-pflicht" data-sid="${s.id}"><div class="eyebrow">Pflichtkriterien im Verlauf</div><p class="muted small">Lies den Verlauf oben und hake nur ab, was tatsächlich vorkam. Der Coach prüft dieselbe Liste.</p>${s.pflicht.map((p, i) => `<label class="check"><input type="checkbox" name="p" value="${i}"><span>${esc(p)}</span></label>`).join('')}<div class="btn-row"><button class="btn small primary" type="submit">Festhalten</button></div></form>` : last && last.pflicht ? `<p class="muted small">Pflichtkriterien laut deiner Prüfung: ${last.pflicht.length} von ${s.pflicht.length}${last.pflicht.length < s.pflicht.length ? '. Fehlend: ' + s.pflicht.filter((p, i) => !last.pflicht.includes(i)).map(esc).join(' · ') : ''}.</p>` : ''}
         ${S.rpPlan[s.id] ? `<div class="callout practice"><div class="label">Plan gegen Verlauf</div>Dein Ziel war: „${esc(S.rpPlan[s.id].ziel)}“. Deine Grenze: „${esc(S.rpPlan[s.id].grenze)}“. Lies den Verlauf oben noch einmal und entscheide ehrlich, ob du beides gehalten hast. Wer seinen Plan im Gespräch verliert, verliert meist das Gespräch.</div>` : ''}
         <div class="btn-row"><button class="btn primary" data-act="rp-start" data-sid="${s.id}">Nochmal</button><a class="btn ghost" href="#/rollenspiel">Alle Szenarien</a></div>`;
@@ -1126,6 +1126,7 @@
         <p class="muted small">Zwei Fragen je Modul sind eine grobe Schätzung, keine Prüfung. „Vorwissen“ heißt: Lies trotzdem, aber achte auf die Gegenproben und Studien, die du vermutlich nicht kennst. „Gründlich lesen“ heißt: Vorab-Frage und Abruf ernst nehmen, das Quiz nicht vor dem zweiten Lesen.</p></div>
         <div class="callout study"><div class="label">Warum kein Überspringen</div>Wer ein Modul überspringt, weil er die Begriffe kennt, verpasst meistens die Stellen, an denen das Alltagswissen falsch ist (Mehrabian, Power-Posing, „93 Prozent nonverbal“). Die Modulprüfung mit 80 Prozent ist der Test, nicht das Gefühl, es schon zu wissen.</div>` : ''}`;
   });
+  let trainingAlleTage = false;
   route('training', () => {
     const day = Object.keys(S.ablehnung).length;
     const stufen = ['Rückblick', 'Stufe 1 · Mikro-Bitten', 'Stufe 2 · Fremde', 'Stufe 3 · Pitch & Rat', 'Stufe 4 · Kaltakquise', 'Stufe 5 · Echtgespräch'];
@@ -1134,13 +1135,14 @@
       ${wvCard(20)}
       ${trainingsbilanz()}
       <h2 class="section-title">Tägliche Drills</h2>
-      <div class="grid">${window.TAGESDRILLS.map(d => { const n = (S.drills['tag_' + d.id] || []).length; const todayDone = (S.drills['tag_' + d.id] || []).some(x => x.ts > Date.now() - 864e5);
-        return `<div class="card"><div class="meta">${d.dauer} Min. · ${n}× gemacht</div><h3>${esc(d.name)}</h3><p class="muted">${esc(d.text)}</p><button class="btn small ${todayDone ? 'ghost' : ''}" data-act="drill-done" data-id="${d.id}">${todayDone ? '✓ heute' : 'Erledigt'}</button></div>`; }).join('')}</div>
+      <div class="card drill-liste">${window.TAGESDRILLS.map(d => { const n = (S.drills['tag_' + d.id] || []).length; const todayDone = (S.drills['tag_' + d.id] || []).some(x => x.ts > Date.now() - 864e5);
+        return `<div class="drill-row ${todayDone ? 'done' : ''}"><div><div class="drill-kopf"><strong>${esc(d.name)}</strong><span class="muted small">${d.dauer} Min.${n ? ` · ${n}×` : ''}</span></div><p class="muted small">${esc(d.text)}</p></div><button class="btn small ${todayDone ? 'ghost' : ''}" data-act="drill-done" data-id="${d.id}">${todayDone ? '✓ heute' : 'Erledigt'}</button></div>`; }).join('')}</div>
       <h2 class="section-title">30-Tage-Ablehnungstraining · Tag ${Math.min(day + 1, 30)}</h2>
       <p class="muted">Ein Tag pro Tag. Ziel ist nicht das Ja, sondern die Erfahrung, dass das Nein dich nicht umbringt. Jede Aufgabe braucht eine kurze Notiz, was passiert ist.</p>
-      <div class="days">${window.ABLEHNUNGSTRAINING.map(a => { const d = S.ablehnung[a.tag]; const active = a.tag === day + 1; const locked = a.tag > day + 1;
+      <div class="days">${window.ABLEHNUNGSTRAINING.filter(a => trainingAlleTage || a.tag <= day + 3).map(a => { const d = S.ablehnung[a.tag]; const active = a.tag === day + 1; const locked = a.tag > day + 1;
         return `<div class="card day ${d ? 'done' : active ? 'active' : 'locked'}"><div class="meta">Tag ${a.tag} · ${stufen[a.stufe]}${d ? ' · ✓ ' + fmtDate(d.ts) : ''}</div><p>${esc(a.aufgabe)}</p>
           ${d ? `<div class="body muted">${esc(d.note)}</div>` : active ? `<form class="ablehnung" data-tag="${a.tag}"><textarea class="journal" rows="3" aria-label="Ergebnis der heutigen Ablehnungsaufgabe" placeholder="Was hast du gefragt, was war die Antwort, wie hat es sich angefühlt?"></textarea><div class="btn-row"><button class="btn small primary">Tag abschließen</button></div></form>` : ''}</div>`; }).join('')}</div>
+      ${!trainingAlleTage && day + 3 < 30 ? `<p class="muted small tage-mehr"><button class="btn small ghost" data-act="tage-alle">Alle 30 Tage anzeigen</button> Die nächsten Tage werden frei, sobald der aktuelle abgeschlossen ist.</p>` : ''}
       <h2 class="section-title">Erfolgsleiter</h2>
       <p class="muted">Von leicht nach schwer. Jede Stufe erst abhaken, wenn du sie wirklich gemacht hast. Du kannst die Stufen auf dein Ziel anpassen.</p>
       <div class="card"><ol class="leiter">${S.leiter.map((l, i) => `<li class="check ${l.done ? 'done' : ''}" data-act="leiter-toggle" data-i="${i}"><span class="box"></span><span class="txt">${esc(l.text)}</span><button class="x" data-act="leiter-del" data-i="${i}" title="Entfernen">×</button></li>`).join('')}</ol>
@@ -1435,6 +1437,7 @@
     else if (a === 'rp-plan-edit') { rpPlanEdit = el.dataset.sid; navigate(); }
     else if (a === 'rp-plan-cancel') { rpPlanEdit = null; navigate(); }
     else if (a === 'rs-vorziehen') { const t = today(); let n = 0; for (const x of rueckschauListe()) { if (x.erledigt) continue; S.srs[x.key] = Object.assign(S.srs[x.key] || { n: 0, richtig: 0 }, { box: 0, due: t }); n++; } save(); toast(`${n} Fragen stehen heute in der Wiederholung.`, 'good'); location.hash = '#/wiederholen'; }
+    else if (a === 'tage-alle') { trainingAlleTage = true; navigate(); }
     else if (a === 'tour-weg') { S.tourWeg = true; save(); navigate(); toast('Die Liste ist ausgeblendet. Die Schritte zählen weiter.', 'good'); }
     else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
     else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }

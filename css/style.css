@@ -460,3 +460,13 @@ label.check:has(input:focus-visible), label.opt:has(input:focus-visible) { borde
 
 /* Statistik-Kacheln auf dem Handy: bei ungerader Anzahl keine verwaiste Kachel, die letzte nimmt die ganze Zeile. */
 @media (max-width: 600px) { .stats .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
+
+/* Tägliche Drills als kompakte Liste statt zehn Karten: auf dem Handy ein Drittel der Höhe. */
+.drill-liste { padding: 6px 18px; }
+.drill-row { display: flex; gap: 14px; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--line); }
+.drill-row:last-child { border-bottom: 0; }
+.drill-row p { margin: 2px 0 0; }
+.drill-row .btn { flex-shrink: 0; }
+.drill-kopf { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
+.drill-row.done strong { color: var(--muted); }
+.tage-mehr { margin: 12px 0 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
