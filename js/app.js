@@ -262,22 +262,22 @@
 
   function onboarding() {
     return `<section class="hero"><div class="eyebrow">Verkaufsakademie</div><h1>Bevor du anfängst</h1>
-      <p class="lead">Ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Durchklicken bringt hier nichts, weil jede Lektion mit einem Quiz und einem Bericht über etwas Getanes endet. Zwei Minuten Einrichtung, dann geht es los.</p></section>
+      <p class="lead">Ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Jede Lektion endet mit einem Quiz und einem Bericht über ein echtes Gespräch; Durchklicken bringt deshalb nichts. Zwei Minuten Einrichtung, dann geht es los.</p></section>
       <div class="two-col">
         <div class="card"><div class="eyebrow">So lernst du hier</div>
           <ol class="steps">
-            <li><strong>Raten, lesen, abrufen.</strong> Vor jedem Text eine Frage, nach jedem Text eine Zusammenfassung aus dem Kopf. Das kommt aus der Lernforschung und bringt mehr als zweimal lesen.</li>
+            <li><strong>Raten, lesen, abrufen.</strong> Vor jedem Text eine Frage, nach jedem Text eine Zusammenfassung aus dem Kopf. Abrufen hält eine Woche später etwa ein Drittel mehr im Gedächtnis als noch einmal lesen (Roediger & Karpicke 2006).</li>
             <li><strong>Quiz und Bericht.</strong> Mindestens ${PASS} % im Quiz, dann ein Bericht über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.</li>
             <li><strong>Prüfung je Modul.</strong> ${PASS} % oder zurück in die Lektionen. Kein Überspringen.</li>
             <li><strong>Wiederholen.</strong> Alte Fragen kommen in wachsenden Abständen wieder, höchstens ${SRS_MAX_TAG} am Tag.</li>
             <li><strong>Draußen üben.</strong> Drills, Rollenspiele, 30 Tage Ablehnungstraining. Alles freiwillig, alles zählt.</li>
           </ol>
-          <p class="muted small">Die App verzichtet auf Herzen, Werbung, Bezahlschranken, Ranglisten und Schuld-Benachrichtigungen. Die Strenge steckt im Stoff und in den ${PASS} %.</p></div>
+          <p class="muted small">Die Strenge steckt im Stoff und in den ${PASS} %, nicht in Ranglisten oder Erinnerungen mit schlechtem Gewissen.</p></div>
         <form id="onboarding" class="card">
           <div class="eyebrow">Einrichtung</div>
           <label>Dein Vorname <input name="name" required placeholder="So spricht dich der Coach an"></label>
           <label>Dein Wenn-Dann-Plan <input name="plan" placeholder="Wenn ich morgens den Kaffee aufsetze, dann mache ich 15 Minuten Akademie."></label>
-          <p class="muted small">Ein konkreter Auslöser plus eine konkrete Handlung. Das verdoppelt grob die Chance, dass aus dem Vorsatz Routine wird (Gollwitzer & Sheeran 2006). Du kannst ihn später ändern.</p>
+          <p class="muted small">Ein konkreter Auslöser plus eine konkrete Handlung. Menschen mit so einem Plan setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006, 94 Studien). Du kannst ihn später ändern.</p>
           <label>Textgröße <select name="textsize"><option value="normal">Normal</option><option value="gross">Groß</option><option value="sehr-gross">Sehr groß</option></select></label>
           <p class="muted small">Der KI-Coach braucht später einen eigenen Anthropic-API-Schlüssel (Einstellungen). Ohne Schlüssel funktioniert alles andere.</p>
           <div class="btn-row"><button class="btn primary" type="submit">Los geht's</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
@@ -326,7 +326,26 @@
     return `<div class="card week"><div class="eyebrow">Wochenrückblick · letzte 7 Tage</div>
       <table class="week-table"><thead><tr><th></th><th>Diese Woche</th><th>Vorwoche</th></tr></thead><tbody>${rows.map(r => `<tr><td>${r.name}</td><td class="wk">${r.a}</td><td class="wk muted">${r.b}${r.a > r.b ? ' <span class="up">↑</span>' : r.a < r.b ? ' <span class="down">↓</span>' : ''}</td></tr>`).join('')}</tbody></table>
       ${kalibZeile()}
-      <p class="muted small">Wenn eine Zeile zwei Wochen lang Null zeigt, ist das deine nächste Aufgabe.</p></div>`;
+      ${wochenEmpfehlung(rows)}</div>`;
+  }
+  // Eine Empfehlung für die kommende Woche, aus den Zahlen abgeleitet. Immer nur eine, mit Link und Zeitangabe.
+  function wochenEmpfehlung(rows) {
+    const g = (name) => rows.find(r => r.name === name) || { a: 0, b: 0 };
+    const box = (t) => `<div class="callout practice wochen-tipp"><div class="label">Nächste Woche</div>${t}</div>`;
+    const aktiv = g('Aktive Tage');
+    if (aktiv.a <= 2 && aktiv.b <= 2 && Object.keys(S.activity).length >= 3) return box(`Zwei kurze Einheiten schlagen eine lange: ${aktiv.a === 1 ? "ein aktiver Tag" : aktiv.a + " aktive Tage"} diese Woche. Leg zwei feste Tage mit je 15 Minuten fest, ${S.plan ? 'dein Wenn-Dann-Plan steht schon' : `<a href="#/einstellungen">ein Wenn-Dann-Plan</a> hilft dabei`} (verteiltes Lernen, Cepeda et al. 2006).`);
+    const f = srsFaellig(); if (f.due.length >= 10 && g('Karten wiederholt').a === 0) return box(`${f.due.length} Karten warten, und diese Woche hast du keine wiederholt. <a href="#/wiederholen">Zehn Minuten Wiederholung</a> an zwei Tagen holen das auf, bevor die Lücken in die nächste Prüfung wandern.`);
+    const leer = [
+      ['Neins gesammelt', `Zwei Wochen ohne ein Nein. <a href="#/journal">Ein Nein diese Woche</a>: eine Frage stellen, deren Antwort wahrscheinlich Nein ist, und das Ergebnis eintragen (10 Minuten).`],
+      ['Einwände geübt', `Zwei Wochen ohne Einwand-Drill. <a href="#/einwaende">Ein Einwand</a>, laut beantwortet und selbst bewertet, dauert fünf Minuten.`],
+      ['Rollenspiele', `Zwei Wochen ohne Rollenspiel. <a href="#/rollenspiel">Eines offline</a> mit Vorbereitungsplan, 15 Minuten, und das Fazit mit dem Plan vergleichen.`],
+      ['Berichte bestanden', `Zwei Wochen ohne Bericht. Der nächste Bericht über ein echtes Gespräch zählt mehr als jede weitere Lektion: <a href="${nextStep().route}">weiter im Curriculum</a>.`],
+      ['Fälle bearbeitet', `Zwei Wochen ohne Fall. <a href="#/faelle">Ein Checkpoint-Fall</a> prüft, ob du das Gelernte ohne Methodennamen anwendest (20 Minuten).`],
+    ];
+    for (const [name, text] of leer) { const r = g(name); if (r.a === 0 && r.b === 0) return box(text); }
+    const runter = rows.filter(r => r.b > 0 && r.a < r.b).sort((x, y) => (y.b - y.a) - (x.b - x.a))[0];
+    if (runter) return box(`„${runter.name}“ ist von ${runter.b} auf ${runter.a} gefallen. Halte diese Zahl nächste Woche, der Rest läuft.`);
+    return box('Alle Zeilen laufen. Nächste Stufe: ein Rollenspiel mit Vorbereitungsplan oder ein Fall, den du noch nicht bearbeitet hast.');
   }
   // Selbsteinschätzung: Trefferquote bei „sicher“ gegen „unsicher“, dazu die blinden Flecken (sicher und falsch) mit Fundstelle.
   function kalibKarte() {
