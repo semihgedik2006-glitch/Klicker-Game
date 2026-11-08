@@ -1210,7 +1210,7 @@
       const c = srsState.karte; const q = c.q;
       if (!srsState.order) srsState.order = shuffle(q.optionen.map((_, i) => i));
       return `<div class="breadcrumb">Wiederholen · noch ${srsState.rest} heute</div>
-        <section class="card exam-q"><div class="eyebrow">${esc(c.kurs.titel)} · ${esc(c.lektion.titel)}</div><h2>${esc(q.frage)}</h2>
+        <section class="card exam-q"><div class="eyebrow">Lektion ${c.kurs.nr}.${lessonIndex(c.kurs, c.lektion.id) + 1} · ${esc(c.lektion.titel)}</div><h2>${esc(q.frage)}</h2>
         ${srsState.antwort === undefined ? srsState.order.map(oi => `<button class="opt btn-opt" data-act="srs-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')
           : `${srsState.order.map(oi => `<div class="opt ${oi === q.richtig ? 'correct' : oi === srsState.antwort ? 'wrong' : ''}">${esc(q.optionen[oi])}</div>`).join('')}<div class="explain">${srsState.antwort !== q.richtig && q.warumFalsch && q.warumFalsch[srsState.antwort] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(q.warumFalsch[srsState.antwort])}</span> ` : ''}${esc(q.erklaerung)}</div><div class="btn-row"><button class="btn primary" data-act="srs-next">${srsState.rest > 0 ? 'Nächste Karte →' : 'Fertig für heute'}</button><a class="btn ghost" href="#/lektion/${c.kurs.id}/${c.lektion.id}">Lektion nachlesen</a></div>`}
         </section>`;
@@ -1218,7 +1218,7 @@
     const n = Math.min(f.due.length, f.rest);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
       <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
-      <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + (x.richtig || 0), 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
+      <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher gelernt</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + (x.richtig || 0), 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
       ${kalibKarte()}
       ${n || S.apiKey ? `<div class="btn-row">${n ? `<button class="btn primary" data-act="srs-start">Jetzt wiederholen</button>` : ''}${S.apiKey ? `<a class="btn ghost" href="#/coach?lern=1">Lernsitzung mit dem Coach</a>` : ''}</div>` : ''}
       <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;

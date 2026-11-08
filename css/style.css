@@ -166,6 +166,8 @@ th { color: var(--gold); font-weight: 500; font-size: .78rem; letter-spacing: .1
 .pill:hover { border-color: var(--gold); text-decoration: none; color: var(--gold-2); }
 .btn-opt { font-size: 1rem; padding: 14px 18px; }
 .exam-q h2 { margin: 6px 0 18px; }
+/* Lange deutsche Komposita (z. B. „Umsetzungswahrscheinlichkeit“) dürfen auf dem Handy nicht aus der Karte laufen. */
+.exam-q h2, .quiz-q .q, .lesson h1, .hero h1, .opt { overflow-wrap: anywhere; }
 .quiz label.opt { display: flex; gap: 10px; align-items: flex-start; }
 .quiz label.opt input { accent-color: var(--gold); margin-top: 4px; }
 .count { font-size: .8rem; margin: 6px 0 0; }
