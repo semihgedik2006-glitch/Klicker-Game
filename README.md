@@ -32,7 +32,9 @@ Durchgang 4 von Runde 5: **Fälle** (`#/faelle`, `js/data/faelle.js`) sind zehn 
 
 Sicherheit: `index.html` setzt eine Content-Security-Policy (Skripte nur aus der App, Verbindungen nur zu api.anthropic.com), es gibt kein Inline-Skript mehr, und Coach-Antworten werden vor dem Rendern escaped.
 
-Tests: `node tests/test.js`, `node tests/flow.js`, `node tests/runde5.js`, `node tests/runde6.js`, `node tests/runde7.js`, `node tests/runde8.js`, `node tests/coachmock.js`, `node tests/rp.js` (Playwright mit dem vorinstallierten Chromium, kein Server nötig).
+Durchgang 5 von Runde 5: **Wiedervorlagen** (`#/training`, Startseite) legen jede Übung nach dem Prinzip der verteilten Wiederholung nach 1, 7 und 30 Tagen wieder vor (Einwände, Kontraste, Fälle, Schritt-für-Schritt-Stufen); die Startseite und die Heute-Liste nennen die fälligen Stücke beim Namen, der Coach kennt sie im Kontext. Der **Einstufungstest** (`#/einstufung`) stellt zwei feste Wissensfragen je Modul mit der Option „Weiß ich nicht“ und zeigt ein Profil je Modul (sicher, teilweise, Lücke); er schaltet nichts frei, sondern zeigt nur, wo die Aufmerksamkeit hingehört. Performance (Playwright, Chromium, lokaler Server): Desktop FCP ≈ 0,37 s, LCP ≈ 0,53 s, CLS 0; Mobil 390 px mit vierfacher CPU-Drosselung FCP ≈ 0,2 s, LCP ≈ 0,37 s; alle Skripte laden mit `defer`, insgesamt ≈ 880 KB JavaScript ohne Kompression.
+
+Tests: `node tests/test.js`, `node tests/flow.js`, `node tests/runde5.js`, `node tests/runde6.js`, `node tests/runde7.js`, `node tests/runde8.js`, `node tests/runde9.js`, `node tests/coachmock.js`, `node tests/rp.js` (Playwright mit dem vorinstallierten Chromium, kein Server nötig).
 
 ## Struktur
 

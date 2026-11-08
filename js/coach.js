@@ -57,6 +57,8 @@ Bestandene Module: ${passed.length ? passed.join('; ') : 'noch keins'}
 Aktuelles Modul: ${cur.nr} ${cur.titel} · Nächster Schritt: ${ns.text}
 Wenn-Dann-Plan: ${S.plan || 'keiner'}
 Wiederholung: ${Object.values(S.srs || {}).reduce((a, x) => a + x.n, 0)} Karten beantwortet
+Einstufung: ${S.einstufung ? S.einstufung.gesamt + '/' + S.einstufung.n + ' richtig; schwach in: ' + (VA.KURSE.filter(k => (S.einstufung.module[k.id] || {}).ok === 0).map(k => k.titel).join(', ') || 'keinem Modul') + '; Vorwissen in: ' + (VA.KURSE.filter(k => { const m = S.einstufung.module[k.id]; return m && m.ok === m.n; }).map(k => k.titel).join(', ') || 'keinem Modul') : 'nicht gemacht'}
+Fällige Wiedervorlagen (Übungen): ${(() => { const w = VA.wiedervorlagen ? VA.wiedervorlagen() : []; return w.length ? w.slice(0, 5).map(x => x.titel).join('; ') : 'keine'; })()}
 Gesammelte Neins: ${S.nein.length} · Ablehnungstraining Tag ${Object.keys(S.ablehnung).length}/30 · Erfolgsprotokoll-Einträge: ${S.erfolg.length} · Beweisbuch: ${S.beweis.length}
 Letzte Berichte:\n${lastReports || '- keine'}
 Letzte Nein-Analysen:\n${lastNein || '- keine'}`;
