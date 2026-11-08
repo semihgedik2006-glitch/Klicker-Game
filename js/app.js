@@ -315,11 +315,31 @@
       ${kalibZeile()}
       <p class="muted small">Wenn eine Zeile zwei Wochen lang Null zeigt, ist das deine nächste Aufgabe.</p></div>`;
   }
+  // Selbsteinschätzung: Trefferquote bei „sicher“ gegen „unsicher“, dazu die blinden Flecken (sicher und falsch) mit Fundstelle.
+  function kalibKarte() {
+    const c = S.kalib; const n = c.sicher + c.unsicher; const blindIds = Object.keys(S.blind);
+    if (!n && !blindIds.length) return '';
+    const ps = c.sicher ? Math.round(c.sicherOk / c.sicher * 100) : null, pu = c.unsicher ? Math.round(c.unsicherOk / c.unsicher * 100) : null;
+    let deutung = `Noch zu wenig Daten (${n} von 10 Antworten). Kreuz im Quiz „Ich bin mir sicher“ an, wenn es stimmt.`;
+    if (n >= 10) {
+      if (ps !== null && ps < 70) deutung = `Überkonfidenz: Wo du dir sicher warst, lagst du nur zu ${ps} % richtig. Das ist der Normalfall, nicht die Ausnahme (Lichtenstein, Fischhoff & Phillips 1982). Lies bei „sicher“ die Erklärung trotzdem.`;
+      else if (ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) deutung = `Du unterschätzt dich: Auch wo du unsicher warst, lagst du zu ${pu} % richtig. Dein Gefühl unterscheidet kaum zwischen Wissen und Raten. Entscheide dich öfter und prüf dann.`;
+      else if (ps !== null && ps >= 85) deutung = `Gut kalibriert: Dein „sicher“ ist verlässlich (${ps} % richtig)${pu !== null ? `, dein „unsicher“ liegt bei ${pu} %` : ''}. Diese Unterscheidung ist das Ziel: Sie sagt dir, was du wiederholen musst und was nicht.`;
+      else deutung = `Mittelfeld: ${ps !== null ? `${ps} % richtig bei „sicher“` : 'noch nie „sicher“ angekreuzt'}${pu !== null ? `, ${pu} % bei „unsicher“` : ''}. Je größer der Abstand zwischen beiden, desto besser kennst du dein eigenes Wissen.`;
+    }
+    const blind = blindIds.map(id => { const [lid, qi] = id.split(':'); const fl = findLesson(lid); const q = fl && fl.lektion.quiz[Number(qi)]; return fl && q ? { lid, kid: fl.kurs.id, titel: fl.lektion.titel, frage: q.frage, ts: S.blind[id] } : null; }).filter(Boolean).sort((a, b) => b.ts - a.ts);
+    const row = (name, k, ok, p) => `<div class="kalib-row"><span class="lbl">${name} <span class="muted">(${k})</span></span><div class="bar"><div class="bar-fill" style="width:${p || 0}%"></div></div><strong>${p === null ? '–' : p + ' %'}</strong></div>`;
+    return `<div class="card kalib"><div class="eyebrow">Selbsteinschätzung</div>
+      <p class="muted">Bei jeder Quizfrage kannst du „Ich bin mir sicher“ ankreuzen. Hier siehst du, ob dein Gefühl die Wahrheit sagt.</p>
+      ${row('Sicher', c.sicher, c.sicherOk, ps)}${row('Unsicher', c.unsicher, c.unsicherOk, pu)}
+      <p class="small">${deutung}</p>
+      ${blind.length ? `<details><summary>${blind.length} blinde Flecken: sicher und trotzdem falsch</summary><ul class="wv-list">${blind.slice(0, 12).map(b => `<li><a href="#/lektion/${b.kid}/${b.lid}">${esc(b.titel)}</a><br><span class="muted small">${esc(b.frage)}</span></li>`).join('')}</ul><p class="muted small">Ein blinder Fleck verschwindet, sobald du die Karte in der Wiederholung richtig beantwortest.</p></details>` : '<p class="muted small">Kein blinder Fleck: Noch nie sicher und falsch zugleich.</p>'}</div>`;
+  }
   function kalibZeile() {
     const c = S.kalib; if (c.sicher + c.unsicher < 10) return '';
     const ps = c.sicher ? Math.round(c.sicherOk / c.sicher * 100) : null, pu = c.unsicher ? Math.round(c.unsicherOk / c.unsicher * 100) : null;
     const blind = Object.keys(S.blind).length;
-    return `<p class="muted small"><strong>Selbsteinschätzung:</strong> ${ps !== null ? `Wo du dir sicher warst, lagst du zu ${ps} % richtig` : 'Du hast dich noch nie sicher erklärt'}${pu !== null ? `, wo du unsicher warst, zu ${pu} %` : ''}. ${blind ? `${blind} blinde Flecken (sicher und falsch) liegen in der Wiederholung.` : 'Noch kein blinder Fleck.'} ${ps !== null && ps < 70 ? 'Deine Sicherheit ist größer als dein Wissen, also kreuze seltener „sicher“ an und lies die Erklärungen genauer.' : ''}</p>`;
+    return `<p class="muted small"><strong><a href="#/wiederholen">Selbsteinschätzung</a>:</strong> ${ps !== null ? `Wo du dir sicher warst, lagst du zu ${ps} % richtig` : 'Du hast dich noch nie sicher erklärt'}${pu !== null ? `, wo du unsicher warst, zu ${pu} %` : ''}. ${blind ? `${blind} blinde Flecken (sicher und falsch) liegen in der Wiederholung.` : 'Noch kein blinder Fleck.'} ${ps !== null && ps < 70 ? 'Deine Sicherheit ist größer als dein Wissen, also kreuze seltener „sicher“ an und lies die Erklärungen genauer.' : ''}</p>`;
   }
   function backupHinweis() {
     const aktiv = Object.keys(S.activity).length; const seit = Date.now() - Math.max(S.lastExport || 0, S.started || 0);
@@ -1031,6 +1051,7 @@
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
       <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
       <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + x.richtig, 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
+      ${kalibKarte()}
       ${n || S.apiKey ? `<div class="btn-row">${n ? `<button class="btn primary" data-act="srs-start">Jetzt wiederholen</button>` : ''}${S.apiKey ? `<a class="btn ghost" href="#/coach?lern=1">Lernsitzung mit dem Coach</a>` : ''}</div>` : ''}
       <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
   });
@@ -1090,17 +1111,21 @@
 
   // ---------- Einstellungen ----------
   route('einstellungen', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Einstellungen</h1></section>
-    <form id="settings" class="card">
+    <form id="settings" class="card settings">
+      <div class="eyebrow">Profil</div>
       <label>Dein Name <input name="name" value="${esc(S.name)}" placeholder="Wie soll der Coach dich ansprechen?"></label>
-      <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
-      <p class="muted">Der Schlüssel wird nur in diesem Browser gespeichert (localStorage) und direkt an api.anthropic.com gesendet. Kein Server dazwischen. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Berichte werden dann per Selbst-Check geprüft. Schlüssel gibt es unter console.anthropic.com.</p>
       <label>Mein Wenn-Dann-Plan <input name="plan" value="${esc(S.plan || '')}" placeholder="Wenn ich morgens den Kaffee aufsetze, dann mache ich 15 Minuten Akademie."></label>
       <label>Textgröße <select name="textsize">${[['normal', 'Normal'], ['gross', 'Groß'], ['sehr-gross', 'Sehr groß']].map(([v, t]) => `<option value="${v}" ${(S.textsize || 'normal') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <div class="eyebrow gap">KI-Coach <span class="muted">(optional)</span></div>
+      <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
+      <p class="muted">Der Schlüssel wird nur in diesem Browser gespeichert (localStorage) und direkt an api.anthropic.com gesendet. Kein Server dazwischen. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Berichte werden dann per Selbst-Check geprüft. Schlüssel gibt es unter console.anthropic.com.</p>
       <label>Modell <select name="model">${['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'].map(m => `<option ${S.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <div class="btn-row"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-act="test-key">Verbindung testen</button></div>
     </form>
-    <div class="card"><h3>Daten</h3><p class="muted">Alles liegt lokal in diesem Browser. Sichere regelmäßig eine Kopie.</p>
-      <div class="btn-row"><button class="btn ghost" data-act="export">Fortschritt exportieren (JSON)</button><label class="btn ghost">Importieren <input type="file" id="import-file" accept="application/json" hidden></label><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
+    <div class="card"><div class="eyebrow">Daten</div><p class="muted">Alles liegt lokal in diesem Browser. Eine Sicherung ist eine JSON-Datei, die du hier auch wieder einspielen kannst.</p>
+      <div class="btn-row"><button class="btn" data-act="export">Fortschritt exportieren (JSON)</button><label class="btn ghost">Importieren <input type="file" id="import-file" accept="application/json" hidden></label></div></div>
+    <div class="card gefahr"><div class="eyebrow">Gefahrenzone</div><p class="muted">Löscht Fortschritt, Berichte, Journal und Schlüssel in diesem Browser. Vorher exportieren.</p>
+      <div class="btn-row"><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
 
   // ---------- Business-Planer und Coach-Seite werden von coach.js geliefert ----------
   route('coach', (p) => {
@@ -1158,7 +1183,7 @@
     else if (a === 'tour-weg') { S.tourWeg = true; save(); navigate(); toast('Die Liste ist ausgeblendet. Die Schritte zählen weiter.', 'good'); }
     else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
     else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }
-    else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); srsAntwort(c.id, srsState.antwort === c.q.richtig); navigate(); }
+    else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); const ok = srsState.antwort === c.q.richtig; if (ok && S.blind[c.id]) { delete S.blind[c.id]; save(); } srsAntwort(c.id, ok); navigate(); }
     else if (a === 'srs-next') { if (!srsState.queue.length) { srsState = null; toast('Wiederholung für heute abgeschlossen.', 'good'); } else { srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; srsState.antwort = undefined; srsState.order = null; } navigate(); }
     else if (a === 'kd-start') startKd(el.dataset.id);
     else if (a === 'check-toggle') { const st = S.checks[el.dataset.id] = S.checks[el.dataset.id] || {}; st[el.dataset.i] = el.checked; el.closest('label').classList.toggle('done', el.checked); save(); }

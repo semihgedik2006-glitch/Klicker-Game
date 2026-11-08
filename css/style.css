@@ -366,3 +366,12 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
 .tour-list li.done { opacity: .6; } .tour-list li.done a { text-decoration: line-through; color: var(--muted); }
 .tour-list li.next a { color: var(--gold); font-weight: 600; }
 .card.empty { border-style: dashed; }
+
+/* Selbsteinschätzung */
+.kalib-row { display: grid; grid-template-columns: 130px 1fr 60px; gap: 12px; align-items: center; margin: 8px 0; }
+.kalib-row .bar { margin: 0; }
+.kalib-row strong { text-align: right; }
+@media (max-width: 480px) { .kalib-row { grid-template-columns: 90px 1fr 52px; font-size: .9rem; } }
+/* Einstellungen */
+.settings .eyebrow.gap { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
+.card.gefahr { border-color: #4a2a2a; background: #160f0f; }
