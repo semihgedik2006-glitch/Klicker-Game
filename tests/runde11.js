@@ -41,7 +41,8 @@ const { chromium } = require('playwright'); const path = require('path');
   await page.click('[data-act="reset"]'); await page.waitForTimeout(200);
   ok('Reset fragt nach', await page.evaluate(() => !!document.querySelector('#reset-yes')));
   await page.click('[data-act="close-modal"]').catch(() => {});
-  // Lektorat
+  // Lektorat (Beispiele werden nachgeladen)
+  await page.evaluate(() => { location.hash = '#/beispiele'; }); await page.waitForTimeout(800);
   ok('Aufzählungs-Tells in Beispiel-Hinweisen entfernt', await page.evaluate(() => !JSON.stringify(window.BEISPIELE).includes('Keine runde Zahl, keine Spanne') && !JSON.stringify(window.BEISPIELE).includes('Keine Entschuldigung, keine Frage')));
   // Mobil
   await page.setViewportSize({ width: 390, height: 844 }); await go('#/wiederholen');

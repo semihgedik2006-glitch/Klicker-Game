@@ -22,7 +22,7 @@ const { chromium } = require('playwright'); const path = require('path'); const 
   const src = fs.readFileSync(path.resolve(__dirname, '..', 'js/data/kurse/03-wirkung.js'), 'utf8') + fs.readFileSync(path.resolve(__dirname, '..', 'js/data/kurse/04-koerpersprache.js'), 'utf8');
   ok('Halo und Power Posing in kurzen Sätzen', /Der Halo-Effekt beschreibt seine Ausbreitung/.test(src) && /Das Versprechen: Die Haltung verändert/.test(src));
   // Jede Beispiel-Prozedur verweist auf existierende Einwände
-  await go('#/einwaende');
+  await go('#/beispiele'); await go('#/einwaende');
   const map = await page.evaluate(() => window.BEISPIELE.map(x => ({ id: x.id, n: (x.einwaende || []).length, bad: (x.einwaende || []).filter(id => !window.EINWAENDE.find(e => e.id === id)) })));
   ok('Alle 7 Prozeduren haben 1–3 gültige Einwand-Verweise', map.length === 7 && map.every(m => m.n >= 1 && m.n <= 3 && m.bad.length === 0), JSON.stringify(map));
   // Kasten erscheint erst ab Stufe 3
