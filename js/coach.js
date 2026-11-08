@@ -351,7 +351,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
         ${busy ? '<button class="btn ghost" type="button" data-act="chat-stop">Stopp</button>' : ''}
       </form></div>`;
   }
-  function bubble(role, text, id) { return `<div class="msg ${role}" ${id ? `id="${id}"` : ''}><div class="who">${role === 'user' ? (VA.S.name || 'Du') : (mode === 'rollenspiel' ? scenario.persona.split(',')[0] : 'Coach')}</div><div class="body">${role === 'user' ? esc(text).replace(/\n/g, '<br>') : md(text)}</div></div>`; }
+  function bubble(role, text, id) { return `<div class="msg ${role}" ${id ? `id="${id}"` : ''}><div class="who">${role === 'user' ? esc(VA.S.name || 'Du') : (mode === 'rollenspiel' ? esc(scenario.persona.split(',')[0]) : 'Coach')}</div><div class="body">${role === 'user' ? esc(text).replace(/\n/g, '<br>') : md(text)}</div></div>`; }
   async function send(text, { hidden = false } = {}) {
     if (busy) return; const h = history();
     if (!hidden) { h.push({ role: 'user', content: text }); VA.save(); }

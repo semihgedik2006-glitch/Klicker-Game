@@ -21,18 +21,27 @@
     quiz: {}, lessonsDone: {}, exams: {}, reports: {},
     erfolg: [], beweis: [], nein: [], ablehnung: {}, leiter: null,
     checks: {}, drills: {}, ka: [], chats: {}, activity: {}, streakBest: 0,
-    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, tourWeg: false, rpPlan: {}, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
+    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, tourWeg: false, rpPlan: {}, keySession: false, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
   };
   let S;
+  const KEY_SESSION = KEY + '_key';
+  // Übernimmt aus fremden Daten (localStorage, Import) nur die Felder, die DEFAULT kennt. Verhindert __proto__-Tricks und Datenmüll.
+  function pickState(d) { const out = Object.assign({}, DEFAULT); if (!d || typeof d !== 'object') return out; for (const k of Object.keys(DEFAULT)) if (Object.prototype.hasOwnProperty.call(d, k)) out[k] = d[k]; return out; }
   function load() {
-    try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || '{}')); }
-    catch (e) { S = Object.assign({}, DEFAULT); }
+    try { S = pickState(JSON.parse(localStorage.getItem(KEY) || '{}')); }
+    catch (e) { S = pickState(null); }
+    try { if (S.keySession) { const k = sessionStorage.getItem(KEY_SESSION); if (k) S.apiKey = k; } } catch (e) { /* kein sessionStorage */ }
     if (!S.leiter) S.leiter = window.ERFOLGSLEITER_VORLAGE.map(t => ({ text: t, done: false }));
     if (!S.kalib) S.kalib = { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }; if (!S.blind) S.blind = {}; if (!S.rpPlan) S.rpPlan = {};
     if (!S.onboarded && (Object.keys(S.activity).length > 0 || S.name)) S.onboarded = true;
     (window.SZENARIEN || []).forEach(sz => { if (!sz.offline && window.SZENARIEN_OFFLINE && window.SZENARIEN_OFFLINE[sz.id]) sz.offline = window.SZENARIEN_OFFLINE[sz.id]; });
   }
-  function save() { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message, 'bad'); } }
+  function save() {
+    try {
+      if (S.keySession) { try { sessionStorage.setItem(KEY_SESSION, S.apiKey || ''); } catch (e) { /* ignorieren */ } localStorage.setItem(KEY, JSON.stringify({ ...S, apiKey: '' })); }
+      else { try { sessionStorage.removeItem(KEY_SESSION); } catch (e) { /* ignorieren */ } localStorage.setItem(KEY, JSON.stringify(S)); }
+    } catch (e) { toast('Speichern fehlgeschlagen: ' + e.message, 'bad'); }
+  }
   function touch() { S.activity[today()] = (S.activity[today()] || 0) + 1; }
 
   // ---------- Fortschrittslogik ----------
@@ -1138,6 +1147,7 @@
       <label>Textgröße <select name="textsize">${[['normal', 'Normal'], ['gross', 'Groß'], ['sehr-gross', 'Sehr groß']].map(([v, t]) => `<option value="${v}" ${(S.textsize || 'normal') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <div class="eyebrow gap">KI-Coach <span class="muted">(optional)</span></div>
       <label>Anthropic API-Schlüssel <input name="apiKey" type="password" value="${esc(S.apiKey)}" placeholder="sk-ant-…" autocomplete="off"></label>
+      <label class="check-inline"><input type="checkbox" name="keySession" ${S.keySession ? 'checked' : ''}> Schlüssel nur für diese Sitzung merken. Er liegt dann im Sitzungsspeicher des Tabs statt dauerhaft im Browser und ist nach dem Schließen weg.</label>
       <p class="muted">Der Schlüssel wird nur in diesem Browser gespeichert (localStorage) und direkt an api.anthropic.com gesendet. Kein Server dazwischen. Ohne Schlüssel funktioniert alles außer dem Live-Coach; Berichte werden dann per Selbst-Check geprüft. Schlüssel gibt es unter console.anthropic.com.</p>
       <label>Modell <select name="model">${['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5'].map(m => `<option ${S.model === m ? 'selected' : ''}>${m}</option>`).join('')}</select></label>
       <div class="btn-row"><button class="btn primary" type="submit">Speichern</button><button class="btn ghost" type="button" data-act="test-key">Verbindung testen</button></div>
@@ -1220,7 +1230,7 @@
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
     else if (f.classList.contains('j-add')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (!t) return; S[f.dataset.book].push({ id: uid(), text: t, ts: Date.now() }); touch(); save(); navigate(); }
     else if (f.classList.contains('j-nein')) { e.preventDefault(); const fd = new FormData(f); S.nein.push({ ts: Date.now(), a: fd.get('a'), b: fd.get('b'), c: fd.get('c'), d: fd.get('d'), e: fd.get('e') }); touch(); save(); toast('Nein eingetragen. Das war Training.', 'good'); navigate(); }
-    else if (f.id === 'settings') { e.preventDefault(); const fd = new FormData(f); S.name = fd.get('name').trim(); S.apiKey = fd.get('apiKey').trim(); S.model = fd.get('model'); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; applyTextsize(); save(); toast('Gespeichert.', 'good'); renderNav(); }
+    else if (f.id === 'settings') { e.preventDefault(); const fd = new FormData(f); S.name = fd.get('name').trim(); S.apiKey = fd.get('apiKey').trim(); S.keySession = !!fd.get('keySession'); S.model = fd.get('model'); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; applyTextsize(); save(); toast('Gespeichert.', 'good'); renderNav(); }
     else if (window.Coach && window.Coach.onSubmit) { if (window.Coach.onSubmit(e)) e.preventDefault(); }
   });
   document.addEventListener('click', (e) => {
@@ -1272,7 +1282,7 @@
     if (e.target.matches('.report textarea, .abruf-form textarea, .fall-form textarea')) { const n = e.target.value.trim().length; const c = e.target.closest('form').querySelector('.count'); const min = e.target.closest('.abruf-form') ? 120 : REPORT_MIN; c.querySelector('.n').textContent = n; c.classList.toggle('ok', n >= min); }
     if (e.target.id === 'lib-q' || e.target.id === 'q-q' || e.target.id === 'g-q') { const id = e.target.id; (id === 'lib-q' ? libFilter : id === 'g-q' ? gFilter : qFilter).q = e.target.value; clearTimeout(e.target._t); e.target._t = setTimeout(() => { const pos = e.target.selectionStart; navigate(); const n = $('#' + id); if (n) { n.focus(); n.setSelectionRange(pos, pos); } }, 250); }
   });
-  document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign({}, DEFAULT, d, { apiKey: S.apiKey }); if (Object.keys(S.activity || {}).length || S.name) S.onboarded = true; applyTextsize(); save(); renderNav(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
+  document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign(pickState(d), { apiKey: S.apiKey, keySession: S.keySession }); if (Object.keys(S.activity || {}).length || S.name) S.onboarded = true; applyTextsize(); save(); renderNav(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
   document.addEventListener('click', (e) => { const b = e.target.closest('#lib-kat button, #lib-thema button, #q-b button, #q-st button'); if (!b) return; if (b.dataset.kat) libFilter.kat = b.dataset.kat; if (b.dataset.thema) libFilter.thema = b.dataset.thema; if (b.dataset.b) qFilter.b = b.dataset.b; if (b.dataset.st) qFilter.st = b.dataset.st; navigate(); });
   function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; $('#menu-toggle').setAttribute('aria-expanded', open ? 'true' : 'false'); let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
   $('#menu-toggle').onclick = () => setMenu(!$('#sidebar').classList.contains('open'));

@@ -403,3 +403,8 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
   .checklisten .check { color: #111; } .checklisten .check input { accent-color: #111; }
   .checklisten h3, .hero h1 { color: #111; } .checklisten .meta { color: #666; }
 }
+
+/* Layout-Härtung: Inhalte dürfen die Spalte nie breiter machen als den Viewport */
+.main { min-width: 0; }
+form.inline { flex-wrap: wrap; } form.inline input { flex: 1 1 160px; min-width: 0; }
+.check-inline { display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; color: var(--muted); margin: 6px 0 10px; } .check-inline input { margin-top: 4px; }
