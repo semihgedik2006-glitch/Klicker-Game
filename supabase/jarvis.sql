@@ -50,17 +50,6 @@ alter table public.jarvis_erinnerungen enable row level security;
 revoke all on public.jarvis_einstellungen, public.jarvis_gedaechtnis, public.jarvis_verlauf,
   public.jarvis_wochenzahlen, public.jarvis_erinnerungen from anon, authenticated;
 
-insert into public.jarvis_gedaechtnis (kategorie, inhalt)
-select * from (values
-  ('person', 'Semih, 20, lebt in Köln, duales Studium Gesundheitsmanagement (DHfPG), arbeitet als EMS-Personal-Trainer.'),
-  ('finanzen', 'Verdient ca. 600 € im Monat, ca. 550 € Fixkosten inkl. Sprit, rund 50 € Puffer, fast kein Kapital.'),
-  ('ziel', 'Nach 6 Monaten Gewinn, nach 12 Monaten mindestens Vollzeit-Mindestlohn (ca. 1.800 € zusätzlich zu den 600 €).'),
-  ('plan', 'Gestaffelter Plan: Monat 1-2 eigene Personal-Training-Kunden, Monat 3-6 KI-Systeme erst am eigenen Training bauen und dann Studios/Physios in Köln anbieten, Monat 7-12 Firmenkurse (betriebliche Gesundheitsförderung).'),
-  ('rhythmus', 'Wochen-Check jeden Sonntag mit 5 Zahlen: Ansprachen, Gespräche, Angebote, neue Kunden plus Umsatz, investierte Stunden.'),
-  ('vorliebe', 'Interessen: Social Media, KI, Systeme. Skeptisch gegenüber teuren Erfolgsseminaren, will ehrliche und belegte Ratschläge.')
-) as start (kategorie, inhalt)
-where not exists (select 1 from public.jarvis_gedaechtnis);
-
 insert into public.jarvis_einstellungen (schluessel, wert) values
   ('geheim', replace(gen_random_uuid()::text, '-', '')),
   ('telegram_geheim', replace(gen_random_uuid()::text, '-', '')),
