@@ -416,3 +416,9 @@ form.inline { flex-wrap: wrap; } form.inline input { flex: 1 1 160px; min-width:
 
 .tagesplan { margin: 8px 0 4px; } .tagesplan a { font-weight: 600; }
 .nachlesen ul { margin: 6px 0 4px; }
+
+/* Glossar-Verweise im Lektionstext */
+a.gl { color: inherit; text-decoration: underline dotted var(--gold, #c9a85c); text-underline-offset: 3px; text-decoration-thickness: 1px; cursor: help; }
+a.gl:hover { color: var(--gold, #c9a85c); text-decoration-style: solid; }
+.gl-hint { margin: -4px 0 14px; }
+@media print { a.gl { text-decoration: none; } .gl-hint { display: none; } }

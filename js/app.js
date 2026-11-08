@@ -145,6 +145,7 @@
     catch (e) { main.innerHTML = `<div class="callout warn"><div class="label">Fehler</div>${esc(e.message)}</div>`; console.error(e); }
     main.scrollTop = 0; window.scrollTo(0, 0); main.setAttribute('tabindex', '-1'); if (document.activeElement && document.activeElement !== document.body) main.focus({ preventScroll: true });
     renderNav(); setMenu(false);
+    if (name === 'lektion') glossarVerlinken();
     if (typeof afterRender === 'function') afterRender(name, parts.slice(1));
     document.querySelectorAll('[data-route]').forEach(el => el.onclick = () => location.hash = el.dataset.route);
   }
@@ -1125,12 +1126,43 @@
   const stKlasse = (st) => { const t = (st || '').trim(); if (/^(A|✅|G)/.test(t)) return 'A'; if (/^(B|📘)/.test(t)) return 'B'; if (/^C/.test(t)) return 'C'; if (/^(D|MYTHOS|\[!\]|❌|K|Illustration|keine)/i.test(t)) return 'D'; return '?'; };
   const ST_LABEL = { A: 'A · robust / Primärquelle', B: 'B · solide / seriöse Sekundärquelle', C: 'C · Praxis / Buch / Meinung', D: 'D · Mythos, widerlegt, dramatisiert', '?': 'ohne Einstufung' };
   let quellenLoading = false;
-  let glossarLoading = false; const gFilter = { q: '' };
-  route('glossar', () => {
-    if (!window.GLOSSAR) {
-      if (!glossarLoading) { glossarLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/glossar.js'; sc.onload = () => navigate(); sc.onerror = () => { glossarLoading = false; toast('Glossar konnte nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
-      return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Glossar</h1><p class="lead">Lade Begriffe…</p></section>`;
+  let glossarLoading = false; const gFilter = { q: '' }; const glossarWarteliste = [];
+  // Lädt das Glossar einmal nach. cb läuft, sobald es da ist; ohne cb wird die Seite neu gerendert (Glossar-Route).
+  function ensureGlossar(cb) {
+    if (window.GLOSSAR) { if (cb) cb(); return true; }
+    if (cb) glossarWarteliste.push(cb);
+    if (!glossarLoading) { glossarLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/glossar.js'; sc.onload = () => { const w = glossarWarteliste.splice(0); if (w.length) w.forEach(f => f()); else navigate(); }; sc.onerror = () => { glossarLoading = false; glossarWarteliste.length = 0; toast('Glossar konnte nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
+    return false;
+  }
+  // Fachbegriffe im Lektionstext mit dem Glossar verknüpfen: erste Nennung je Begriff, nur im Fließtext, nie in Überschriften, Links, Formularen oder Quiz.
+  let glRegex = null;
+  function glossarVerlinken() {
+    const art = document.querySelector('article.lesson'); if (!art || art.dataset.gl) return;
+    if (!window.GLOSSAR) { ensureGlossar(() => glossarVerlinken()); return; }
+    art.dataset.gl = '1';
+    const G = window.GLOSSAR; const byName = new Map();
+    for (const g of G) { byName.set(g.b.toLowerCase(), g); for (const s of (g.syn || [])) byName.set(s.toLowerCase(), g); }
+    if (!glRegex) { const esc2 = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); const terms = [...byName.keys()].sort((a, b) => b.length - a.length).map(esc2); glRegex = new RegExp('(?<![\\p{L}\\p{N}-])(' + terms.join('|') + ')(?![\\p{L}\\p{N}-])', 'giu'); }
+    const seen = new Set(); const skip = 'a, h1, h2, h3, h4, button, label, textarea, input, form, .eyebrow, .quiz, .exam-q, summary, code, .gl';
+    const walker = document.createTreeWalker(art, NodeFilter.SHOW_TEXT, { acceptNode: n => n.nodeValue.trim().length > 3 && !n.parentElement.closest(skip) && n.parentElement.closest('p, li, td, blockquote, .callout') ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT });
+    const nodes = []; let n; while ((n = walker.nextNode())) nodes.push(n);
+    let count = 0;
+    for (const node of nodes) {
+      const text = node.nodeValue; glRegex.lastIndex = 0; let m, last = 0; const frag = document.createDocumentFragment(); let changed = false;
+      while ((m = glRegex.exec(text))) {
+        const g = byName.get(m[1].toLowerCase()); if (!g || seen.has(g.b)) continue;
+        seen.add(g.b); changed = true; count++;
+        frag.appendChild(document.createTextNode(text.slice(last, m.index)));
+        const a = document.createElement('a'); a.className = 'gl'; a.href = '#/glossar?q=' + encodeURIComponent(g.b); a.title = g.b + ': ' + g.d; a.textContent = m[1]; frag.appendChild(a);
+        last = m.index + m[0].length;
+      }
+      if (changed) { frag.appendChild(document.createTextNode(text.slice(last))); node.parentNode.replaceChild(frag, node); }
     }
+    if (count) { const hint = document.createElement('p'); hint.className = 'muted small gl-hint'; hint.textContent = `${count} Fachbegriffe in dieser Lektion sind gepunktet unterstrichen: Zeigen gibt die Kurzdefinition, Klicken öffnet das Glossar.`; const h1 = art.querySelector('h1'); if (h1 && h1.nextSibling) h1.parentNode.insertBefore(hint, h1.nextSibling); }
+  }
+  route('glossar', () => {
+    const qs = (location.hash.split('?')[1] || ''); if (qs) { const p = new URLSearchParams(qs); if (p.has('q')) { gFilter.q = p.get('q'); history.replaceState(null, '', '#/glossar'); } }
+    if (!ensureGlossar()) return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Glossar</h1><p class="lead">Lade Begriffe…</p></section>`;
     const needle = gFilter.q.trim().toLowerCase();
     const list = window.GLOSSAR.filter(g => !needle || (g.b + ' ' + (g.syn || []).join(' ') + ' ' + g.d).toLowerCase().includes(needle));
     const buchstaben = [...new Set(list.map(g => g.b[0].toUpperCase()))];
