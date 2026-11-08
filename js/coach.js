@@ -288,6 +288,8 @@ Eröffne sofort in der Rolle mit dem Einwand selbst, eingebettet in einen natür
       'Preis gegen den Kunden: die vier Van-Westendorp-Fragen an zehn echte Kunden (Framework E), wenn noch nicht geschehen. Liegt dein Preis im akzeptablen Bereich?',
       'Preisleiter: Basis, Standard, Premium mit je einem Grund, eine Stufe höher zu gehen. Der mittlere ist der, den du verkaufen willst.',
       'Startangebot: ein Vorteil zum Start mit Enddatum (Bonus, nicht Rabatt), damit du Kunden nicht beibringst, auf den nächsten Nachlass zu warten.',
+      'Was-wäre-wenn, drei Zeilen: Preis minus 10 %, Menge minus 20 %, Stückkosten plus 15 %. Welche Zeile kippt das Ergebnis zuerst? Diese eine Zahl schaust du jede Woche an.',
+      'Regel: Nie unter den variablen Kosten verkaufen, um „Kunden zu kaufen“, ohne vorher zu sagen, wie viele Monate du das aus der Kasse aushältst. Und kein „statt 99 €“, das nie verlangt wurde.',
       'Entscheidung: der Preis, der Deckungsbeitrag, der Break-even in Stück pro Monat, und das Datum, an dem du die Zahlen zum ersten Mal mit echten Verkäufen prüfst.'
     ] }
   ];

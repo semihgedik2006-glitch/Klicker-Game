@@ -408,3 +408,8 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
 .main { min-width: 0; }
 form.inline { flex-wrap: wrap; } form.inline input { flex: 1 1 160px; min-width: 0; }
 .check-inline { display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; color: var(--muted); margin: 6px 0 10px; } .check-inline input { margin-top: 4px; }
+
+/* Persona-Karte */
+.persona { margin: 6px 0 14px; } .persona .zitat { padding: 4px 0; font-style: italic; }
+.cert-training { margin-top: 10px; }
+@media print { .ka-profile { break-inside: avoid; border-color: #bbb; background: #fff; color: #111; } .ka-profile .meta, .ka-profile .muted { color: #555; } .ka-profile h3, .ka-profile h4 { color: #111; } }
