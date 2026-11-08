@@ -403,6 +403,8 @@
     }
     if (out.some(x => x.prefix === 'ew_') && !window.EINWAENDE) ensureEinwaende();
     if (out.some(x => x.prefix === 'fall_') && !window.FAELLE) ensureFaelle();
+    if (out.some(x => x.prefix === 'kt_') && !window.KONTRASTE) ensureKontraste();
+    if (out.some(x => x.prefix === 'wb_') && !window.BEISPIELE) ensureBeispiele();
     return out.sort((a, b) => a.due - b.due);
   }
   function wvTag(prefix, id) { const w = wiedervorlagen().find(x => x.prefix === prefix && x.id === id); return w ? '<span class="tag red">fällig</span>' : ''; }
@@ -517,7 +519,7 @@
         ${l.vorfrage ? `<section class="card vorfrage ${vf ? 'done' : ''}"><div class="eyebrow">Bevor du liest</div><p class="q">${esc(l.vorfrage)}</p>
           ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" aria-label="Deine Antwort auf die Vorab-Frage" placeholder="Rate aus dem Bauch. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009)."></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
         ${brauchtVorfrage ? `<div class="muted locked-note">${lock('')} Der Text erscheint, sobald du deine Vorab-Antwort festgehalten hast.</div>` : `${l.inhalt}
-        ${(() => { const kt = (window.KONTRASTE || []).filter(x => x.lektion === lid); const wb = (window.BEISPIELE || []).filter(x => x.lektion === lid); if (!kt.length && !wb.length) return ''; return `<div class="callout practice vertiefen"><div class="label">Vertiefen</div>${kt.map(x => `<div><strong>Nicht verwechseln:</strong> <a href="#/kontraste/${x.id}">${esc(x.titel)}</a> · Vergleichstabelle und Fälle ohne Nennung der Methode</div>`).join('')}${wb.map(x => `<div><strong>Schritt für Schritt:</strong> <a href="#/beispiele/${x.id}">${esc(x.titel)}</a> · Beispiel mit Begründung, dann Lücke, dann allein, dann neuer Kontext</div>`).join('')}</div>`; })()}
+        ${(() => { if (!window.KONTRASTE || !window.BEISPIELE) { ensureKontraste(); ensureBeispiele(); return ''; } const kt = window.KONTRASTE.filter(x => x.lektion === lid); const wb = window.BEISPIELE.filter(x => x.lektion === lid); if (!kt.length && !wb.length) return ''; return `<div class="callout practice vertiefen"><div class="label">Vertiefen</div>${kt.map(x => `<div><strong>Nicht verwechseln:</strong> <a href="#/kontraste/${x.id}">${esc(x.titel)}</a> · Vergleichstabelle und Fälle ohne Nennung der Methode</div>`).join('')}${wb.map(x => `<div><strong>Schritt für Schritt:</strong> <a href="#/beispiele/${x.id}">${esc(x.titel)}</a> · Beispiel mit Begründung, dann Lücke, dann allein, dann neuer Kontext</div>`).join('')}</div>`; })()}
         <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
       </article>
       ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
@@ -818,8 +820,8 @@
   }
   function rpBest(runs) { return runs.reduce((b, r) => { const st = rpStatus(r); return !b || st.s > b.s ? Object.assign({ r }, st) : b; }, null); }
   route('rollenspiel', ([sid]) => {
+    if (!ensureSzenarien() || !ensureSzenarienOffline()) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1><p class="lead">Lade Szenarien…</p></section>`;
     const SZ = window.SZENARIEN;
-    if (!ensureSzenarienOffline()) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1><p class="lead">Lade Szenarien…</p></section>`;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
       <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. ${(() => { const n = SZ.filter(x => x.offline).length; return n === SZ.length ? 'Alle spielst du offline als Entscheidungsbaum mit Feedback zu jeder Entscheidung.' : n + ' Szenarien spielst du offline als Entscheidungsbaum.'; })()} Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
       <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = rpBest(runs);
@@ -871,6 +873,16 @@
   // ---------- Training: Drills, Ablehnung, Erfolgsleiter ----------
   // ---------- Fälle: offene Checkpoint-Fälle mit Rubrik ----------
   let faLoading = false, faState = null;
+  // Generischer Nachlader für Datendateien, die nicht beim Start gebraucht werden: true, wenn da; sonst wird geladen und danach neu gerendert.
+  const lazyLoading = {};
+  function ensureData(global, file, label) {
+    if (window[global]) return true;
+    if (!lazyLoading[file]) { lazyLoading[file] = true; const sc = document.createElement('script'); sc.src = 'js/data/' + file + '.js'; sc.onload = () => navigate(); sc.onerror = () => { lazyLoading[file] = false; toast(label + ' konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
+    return false;
+  }
+  const ensureKontraste = () => ensureData('KONTRASTE', 'kontraste', 'Kontraste');
+  const ensureBeispiele = () => ensureData('BEISPIELE', 'beispiele', 'Beispiele');
+  const ensureSzenarien = () => ensureData('SZENARIEN', 'szenarien', 'Szenarien');
   function ensureFaelle() {
     if (window.FAELLE) return true;
     if (!faLoading) { faLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/faelle.js'; sc.onload = () => navigate(); sc.onerror = () => { faLoading = false; toast('Fälle konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
@@ -930,7 +942,8 @@
     const [w, r] = top[0].split('>').map(Number); return { wahl: w, richtig: r, n: top[1], wahlName: x.begriffe[w].name, richtigName: x.begriffe[r].name };
   }
   route('kontraste', ([kid]) => {
-    const K = window.KONTRASTE || [];
+    if (!ensureKontraste()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1><p class="muted">Lade Kontraste…</p></section>';
+    const K = window.KONTRASTE;
     if (!kid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
         <p class="lead">Viele Fehler im Gespräch sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
@@ -959,7 +972,8 @@
   let wbState = null;
   const WB_STUFEN = ['Beispiel mit Begründung', 'Lückenaufgabe', 'Allein', 'Neuer Kontext'];
   route('beispiele', ([bid]) => {
-    const B = window.BEISPIELE || [];
+    if (!ensureBeispiele()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Schritt für Schritt</h1><p class="muted">Lade Beispiele…</p></section>';
+    const B = window.BEISPIELE;
     if (!bid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Schritt für Schritt</h1>
         <p class="lead">Sechs Prozeduren, die du im Schlaf können musst. Jede in vier Stufen mit abnehmender Hilfe: erst ein vollständiges Beispiel, bei dem jeder Schritt begründet ist. Dann dasselbe mit einer Lücke, die du füllst. Dann allein, mit Kriterien statt Lösung. Zuletzt ein Fall aus einem ganz anderen Lebensbereich, denn erst dort zeigt sich, ob du die Struktur verstanden hast oder nur das Beispiel (Sweller 2006; Renkl 2014).</p></section>
@@ -1357,6 +1371,7 @@
   route('coach', (p) => {
     if (/[?&]einwand=/.test(location.hash) && !ensureEinwaende()) return '<p class="muted">Lade Einwand…</p>';
     if (/[?&]fall=/.test(location.hash) && !ensureFaelle()) return '<p class="muted">Lade Fall…</p>';
+    if (/[?&]rp=/.test(location.hash) && !ensureSzenarien()) return '<p class="muted">Lade Szenario…</p>';
     return window.Coach ? window.Coach.page(p) : '<p>Coach-Modul fehlt.</p>';
   });
   route('business', (p) => window.Coach ? window.Coach.businessPage(p) : '<p>Coach-Modul fehlt.</p>');

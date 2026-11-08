@@ -8,6 +8,7 @@ const { chromium } = require('playwright'); const path = require('path');
   const ok = (name, cond, extra = '') => console.log(name + ':', cond ? 'OK' : 'FEHLER', extra);
   const rx = t => t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
   await page.evaluate(() => { const S = window.VA.S; S.onboarded = true; S.name = 'Test'; window.VA.save(); });
+  await go('#/kontraste');
   const kid = await page.evaluate(() => window.KONTRASTE.find(k => k.faelle.length >= 3).id);
   await go('#/kontraste/' + kid);
   const info = await page.evaluate(() => { const x = window.KONTRASTE.find(k => location.hash.endsWith(k.id)); return { n: x.faelle.length, richtig: x.faelle.map(f => f.richtig), begriffe: x.begriffe.map(b => b.name), wann: x.begriffe.map(b => b.wann) }; });
