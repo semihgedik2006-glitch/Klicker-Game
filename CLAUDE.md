@@ -17,4 +17,6 @@ Im Ordner `.claude/skills/` liegen Projekt-Skills (Quellen siehe `.claude/skills
 
 - Tests: `node tests/alle.js` (oder `node tests/alle.js daten-` ohne Browser). Testdateien nach Inhalt benennen, nicht nach Runde.
 - Design: Tokens in `css/style.css` (`:root`). Keine Verläufe, Glows, Emoji-Icons, Pfeile in Knöpfen oder gesperrte Großbuchstaben-Labels. Übersichten als Zeilenlisten statt Kachelraster.
+- Texte knapp: eine Zeile Einleitung pro Seite, keine Begründungen oder Studien-Fußnoten in der Oberfläche, nichts doppelt erklären. Keine erklärenden Code-Kommentare.
+- Design darf und soll hochwertig wirken (Icons, Tiefe, Gold-Akzente), nur ohne die typischen Generator-Muster.
 - Änderungshistorie gehört in PR-Beschreibungen, nicht in README oder Code-Kommentare.
