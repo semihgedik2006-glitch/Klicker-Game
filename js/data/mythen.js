@@ -1,0 +1,16 @@
+window.MYTHEN = [
+  { id: 'produkt', mythos: 'Ein gutes Produkt verkauft sich von selbst.', person: 'Peter Thiel', zitat: 'Poor sales rather than bad product', merke: 'Ohne Vertrieb scheitert auch das beste Produkt. Verkaufen gehört von Tag eins dazu.' },
+  { id: 'umfrage', mythos: 'Frag die Kunden, was sie wollen, und bau genau das.', person: 'Steve Jobs', zitat: 'It\'s really hard to design products by focus groups', merke: 'Kunden beschreiben ihre Probleme gut, ihre Lösungen schlecht. Frag nach dem Problem.' },
+  { id: 'techniker', mythos: 'Verkaufen ist ein Job für Verkäufer, nicht für Gründer oder Fachleute.', person: 'Peter Thiel', zitat: 'Whatever the career, sales ability', merke: 'Wer überzeugen kann, kommt in jedem Beruf weiter.' },
+  { id: 'logik', mythos: 'Mit Fakten und Logik überzeugt man jeden.', person: 'Charlie Munger', zitat: 'If you would persuade, appeal to interest', merke: 'Zeig zuerst, was der andere davon hat. Die Fakten stützen das danach.' },
+  { id: 'preis', mythos: 'Kunden kaufen über den Preis. Wer am billigsten ist, gewinnt.', person: 'Warren Buffett', zitat: 'Price is what you pay', merke: 'Verkaufe den Wert. Der Preis ist nur die Hälfte der Rechnung.' },
+  { id: 'beschwerde', mythos: 'Beschwerden sind lästig und kosten nur Zeit.', person: 'Bill Gates', zitat: 'Your most unhappy customers', merke: 'Unzufriedene Kunden sagen dir, was du verbessern musst.' },
+  { id: 'lob', mythos: 'Lob zeigt dir, dass du auf dem richtigen Weg bist.', person: 'Elon Musk', zitat: 'Really pay attention to negative feedback', merke: 'Frag aktiv nach Kritik, gerade bei Leuten, die dich mögen.' },
+  { id: 'perfekt', mythos: 'Erst raus, wenn alles perfekt ist.', person: 'Reid Hoffman', zitat: 'If you are not embarrassed', merke: 'Früh zeigen, früh lernen. Perfektion kommt durch Rückmeldung.' },
+  { id: 'werbung', mythos: 'Ohne großes Werbebudget wird niemand auf dich aufmerksam.', person: 'Mark Zuckerberg', zitat: 'People influence people', merke: 'Empfehlungen schlagen Anzeigen. Begeistere die ersten Kunden so, dass sie weitererzählen.' },
+  { id: 'masse', mythos: 'Je mehr Leute dich ganz gut finden, desto besser.', person: 'Brian Chesky', zitat: 'It\'s better to have 100 people that love you', merke: 'Wenige echte Fans tragen ein Geschäft weiter als viele Gleichgültige.' },
+  { id: 'erfolg', mythos: 'Wenn es gut läuft, machst du alles richtig.', person: 'Bill Gates', zitat: 'Success is a lousy teacher', merke: 'Gerade nach einem Abschluss prüfen, was Glück war und was Können.' },
+  { id: 'scheitern', mythos: 'Fehler sind peinlich. Wer gut ist, macht keine.', person: 'Ingvar Kamprad', zitat: 'Only those who are asleep', merke: 'Wer verkauft, hört oft Nein. Entscheidend ist, was du daraus lernst.' },
+  { id: 'druck', mythos: 'Verkaufen heißt, Leute zu etwas zu überreden.', person: 'Phil Knight', zitat: 'I realized that I wasn\'t selling', merke: 'Überzeugung wirkt stärker als Druck. Verkaufe nur, woran du glaubst.' },
+  { id: 'features', mythos: 'Marketing heißt, alle Produktvorteile aufzuzählen.', person: 'Steve Jobs', zitat: 'To me, marketing is about values', merke: 'Sag, wofür du stehst, nicht nur, was das Produkt kann.' },
+];
