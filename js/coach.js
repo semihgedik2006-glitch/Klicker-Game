@@ -101,6 +101,38 @@ Pflichtkriterien des Schülers: ${s.pflicht.map((p, i) => (i + 1) + '. ' + p).jo
 
 Eröffne das Gespräch sofort in der Rolle mit dem ersten Satz der Situation.\n\n${userContext()}`;
   }
+  function lernMaterial() {
+    const S = VA.S; const t = new Date().toISOString().slice(0, 10); const out = []; const blind = [];
+    for (const k of VA.KURSE) for (const l of k.lektionen) if (VA.lessonDone(l.id)) l.quiz.forEach((q, i) => {
+      const id = l.id + ':' + i; const st = S.srs[id];
+      const item = { id, lektion: `${k.nr} ${l.titel}`, frage: q.frage, antwort: q.optionen[q.richtig], erkl: q.erklaerung, kern: l.kernpunkte || [] };
+      if (S.blind && S.blind[id]) blind.push(item); else if (!st || st.due <= t) out.push(item);
+    });
+    const pick = blind.slice(0, 2).concat(out.sort(() => Math.random() - 0.5).slice(0, 6 - Math.min(2, blind.length)));
+    return { items: pick, blindN: blind.length, dueN: out.length };
+  }
+  function sysLern() {
+    const m = lernMaterial(); const S = VA.S;
+    const k = S.kalib || {}; const kal = (k.sicher || 0) + (k.unsicher || 0) >= 10 ? `Kalibrierung: sicher ${k.sicherOk || 0}/${k.sicher || 0} richtig, unsicher ${k.unsicherOk || 0}/${k.unsicher || 0} richtig.` : 'Kalibrierung: noch zu wenig Daten.';
+    return `${RULES}\n\n# Modus: Lernsitzung (10 bis 20 Minuten)
+Du führst eine Lernsitzung nach den Regeln des Abrufübens. Harte Regeln:
+1. Eröffne NIE mit einer Zusammenfassung („Letztes Mal haben wir …“). Eröffne mit der ersten Abruffrage aus dem Material unten. Eine Frage, dann warten.
+2. Nach jeder Antwort fragst du zuerst: „Sicher, wahrscheinlich oder geraten?“ Erst nach seiner Einschätzung gibst du Feedback. Sicher und falsch nennst du ausdrücklich „blinder Fleck“ und kündigst an, dass die Frage morgen wiederkommt. Geraten und richtig ist ebenfalls brüchig: früher wiederholen.
+3. Feedback nach Regel 10: zitieren, was richtig war, Fehler lokalisieren, Ursache nennen, zum Prinzip (Kernpunkt) verbinden, dann eine Variation stellen (andere Namen, Zahlen, Kontext), nie dieselbe Frage.
+4. Zeig die Antwort nie vor einem Versuch, auch wenn er darum bittet. Gib stattdessen einen eingegrenzten Hinweis und verlange den Versuch. Erkläre einmal, warum: Antworten vor dem Versuch fühlen sich effizient an und bleiben nicht hängen.
+5. Wenn er „fass mal zusammen“ oder „erklär mir nochmal“ sagt, antwortest du mit der kleinsten Frage, mit der er es selbst rekonstruieren kann.
+6. Blinde Flecken zuerst, dann fällige Karten. Keine neuen Themen in der Sitzung.
+7. Schluss nach vier bis sechs Fragen oder wenn er „ENDE“ schreibt, exakt in diesem Format:
+LERNLOG
+- Frage (Lektion) | Einschätzung | Ergebnis | nächste Wiederholung (morgen / in 3 Tagen / in 7 Tagen)
+(eine Zeile pro Frage)
+Dann ein Satz, was sich seit der letzten Sitzung messbar verbessert hat (nur mit Beleg aus dieser Sitzung, kein Lob ohne Grund), und wann er wiederkommen soll und wofür.
+
+## Material für diese Sitzung
+${m.blindN} blinde Flecken offen, ${m.dueN} Karten fällig. ${kal}
+${m.items.length ? m.items.map((x, i) => `${i + 1}. [${(VA.S.blind && VA.S.blind[x.id]) ? 'BLINDER FLECK' : 'fällig'}] Lektion ${x.lektion}\n   Frage: ${x.frage}\n   Richtige Antwort: ${x.antwort}\n   Erklärung: ${x.erkl}\n   Kernpunkte der Lektion: ${x.kern.slice(0, 3).join(' · ')}`).join('\n') : 'Noch nichts fällig und keine Lektion abgeschlossen. Sag das in einem Satz und schick ihn in die nächste Lektion, keine Fragen erfinden.'}
+Stelle die Fragen frei formuliert als offene Abruffragen (ohne Antwortoptionen), nicht als Multiple Choice.\n\n${userContext()}`;
+  }
   function sysEinwand(e) {
     return `${RULES}\n\n# Modus: Einwand-Drill
 Du spielst einen Kunden, der genau diesen Einwand bringt: „${e.einwand}“ (Kontext: ${e.kontext}). Was bei dir dahintersteckt: ${e.warum} Bleib in der Rolle, 1-3 Sätze pro Antwort, in gesprochener Sprache. Gib nicht nach, nur weil der Schüler argumentiert; gib nach, wenn er zuhört, anerkennt, isoliert oder fragt und dich dadurch zum Nachdenken bringt. Wenn er drängt, droht oder Rabatt ohne Gegenleistung anbietet, zieh dich zurück und sag warum (in der Rolle). Nach höchstens sechs Wechseln oder wenn der Schüler „ENDE“ schreibt, verlässt du die Rolle und bewertest in genau diesem Format:
@@ -201,6 +233,30 @@ Eröffne sofort in der Rolle mit dem Einwand selbst, eingebettet in einen natür
       'Woche 3: eine Kundengeschichte veröffentlichen, fünf Empfehlungen aktiv erbitten.',
       'Woche 4: ein Angebot machen (bezahlter Pilot, Workshop, Erstgespräch), zehn Menschen direkt ansprechen.',
       'Messgröße: Anzahl echter Gespräche pro Woche, nicht Likes. Wochenbericht an den Coach mit Datum.'
+    ] },
+    { id: 'I', name: 'Hindernis-Liste und Angebots-Stapel', text: 'Jedes Hindernis zwischen Kunde und Ergebnis wird zu einem Baustein des Angebots. Ergebnis: ein Stapel aus Kern, Boni, Garantie und Name, den der Kunde ohne Rückfrage versteht.', schritte: [
+      'Das Ergebnis, das der Kunde kauft, in einem Satz in seinen Worten (nicht dein Produkt).',
+      'Hindernisse VOR dem Kauf: Zweifel, Preis, Wechselaufwand, „Was sagt mein Chef?“ Mindestens fünf, aus echten Gesprächen oder Einwänden.',
+      'Hindernisse WÄHREND: Wartezeit, Einarbeitung, Unbequemlichkeit, Abhängigkeit von dir. Mindestens fünf.',
+      'Hindernisse DANACH: Hält es? Was, wenn es nicht wirkt? Wer hilft bei Problemen? Mindestens fünf. Ziel: 15 bis 30 Hindernisse insgesamt.',
+      'Für jedes Hindernis eine Lösung (Feature, Service, Garantie, Format). Bewertung: Wert für den Kunden 1 bis 5, Kosten für dich 1 bis 5. Behalte hoher Wert, niedrige Kosten.',
+      'Stapeln: Der Kern (beschrieben über das Ergebnis), zwei bis drei Boni (jeder tötet genau ein Hindernis), die Garantie (was passiert, wenn es nicht liefert; vorher durchrechnen, was sie bei realistischer Quote kostet).',
+      'Knappheit und Dringlichkeit nur, wenn sie wahr sind (Startwoche, erste Charge). Nie ein erfundener Countdown.',
+      'Name des Angebots: das Ergebnis, nicht die Firma. Test: Versteht ein Fremder in fünf Sekunden, was er bekommt?',
+      'Wertgleichung vorher/nachher, je 1 bis 10: Traumergebnis, Wahrscheinlichkeit, Zeit bis zum Ergebnis, Aufwand. Welcher Baustein bewegt welche Zahl?',
+      'Drei echten Zielkunden den neuen Stapel zeigen, dieselben Fragen wie beim alten. Welche Einwände sind weg, welche neu? Wenn nichts sich bewegt, liegt es nicht am Angebot, sondern an Markt oder Preis.'
+    ] },
+    { id: 'J', name: 'Stückkosten und Break-even', text: 'Bevor ein Preis steht, muss klar sein, was ein Stück kostet und wie viele du verkaufen musst, um zu leben. Ergebnis: Deckungsbeitrag, Break-even und ein Preis, der beides trägt.', schritte: [
+      'Die Einheit festlegen: Was ist „ein Stück“? Eine Stunde, ein Paket, ein Monat Abo, ein Kunde?',
+      'Variable Kosten pro Stück: alles, was nur anfällt, wenn du verkaufst (Material, Einkauf, Zahlungsgebühren, Versand, Stundenlohn für Zuarbeit). Echte Zahlen, keine Schätzungen aus dem Bauch.',
+      'Fixkosten pro Monat: Miete, Software, Versicherung, dein Mindestgehalt zum Leben. Dein Gehalt gehört hinein, sonst rechnest du dich arm.',
+      'Deckungsbeitrag = Preis minus variable Kosten. Bei drei Kandidatenpreisen (niedrig, mittel, hoch) ausrechnen.',
+      'Break-even = Fixkosten geteilt durch Deckungsbeitrag. Wie viele Stück pro Monat bei jedem Preis? Ist das mit deiner Zeit und deinem Markt möglich? Wenn nicht: Preis hoch oder Kosten runter, nicht hoffen.',
+      'Preis gegen den Markt: Was kosten die nächsten Ersatzlösungen für dieselbe Aufgabe, und was ist bei ihnen enthalten? Gleiches mit Gleichem vergleichen.',
+      'Preis gegen den Kunden: die vier Van-Westendorp-Fragen an zehn echte Kunden (Framework E), wenn noch nicht geschehen. Liegt dein Preis im akzeptablen Bereich?',
+      'Preisleiter: Basis, Standard, Premium mit je einem Grund, eine Stufe höher zu gehen. Der mittlere ist der, den du verkaufen willst.',
+      'Startangebot: ein Vorteil zum Start mit Enddatum (Bonus, nicht Rabatt), damit du Kunden nicht beibringst, auf den nächsten Nachlass zu warten.',
+      'Entscheidung: der Preis, der Deckungsbeitrag, der Break-even in Stück pro Monat, und das Datum, an dem du die Zahlen zum ersten Mal mit echten Verkäufen prüfst.'
     ] }
   ];
   function sysBusiness(fw) {
@@ -230,15 +286,16 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
 
   // ---------- Chat-Seite ----------
   let mode = 'coach', scenario = null, framework = null, einwand = null, busy = false, abort = null;
-  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
+  function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'lern' ? 'lern_' + new Date().toISOString().slice(0, 10) : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
   function history() { const S = VA.S; return S.chats[chatKey()] = S.chats[chatKey()] || []; }
   function page(parts) {
     const S = VA.S; const qs = new URLSearchParams((location.hash.split('?')[1] || ''));
     if (qs.get('rp') && window.SZENARIEN.find(s => s.id === qs.get('rp'))) { mode = 'rollenspiel'; scenario = window.SZENARIEN.find(s => s.id === qs.get('rp')); }
     else if (qs.has('biz')) { mode = 'business'; framework = FRAMEWORKS.find(f => f.id === qs.get('biz')) || null; }
     else if (qs.get('einwand') && (window.EINWAENDE || []).find(x => x.id === qs.get('einwand'))) { mode = 'einwand'; einwand = window.EINWAENDE.find(x => x.id === qs.get('einwand')); }
+    else if (qs.has('lern')) { mode = 'lern'; }
     else { mode = 'coach'; }
-    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'einwand' ? `Einwand: „${einwand.einwand}“` : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
+    const title = mode === 'rollenspiel' ? `Rollenspiel: ${scenario.titel}` : mode === 'einwand' ? `Einwand: „${einwand.einwand}“` : mode === 'lern' ? 'Lernsitzung' : mode === 'business' ? `Business-Planer${framework ? ': ' + framework.name : ''}` : 'KI-Coach';
     if (!S.apiKey && mode === 'business' && framework) return `<div class="breadcrumb"><a href="#/business">Business-Planer</a> › ${esc(framework.name)}</div><section class="hero small"><div class="eyebrow">Leitfaden ${framework.id} · ohne Coach</div><h1>${esc(framework.name)}</h1><p class="lead">${esc(framework.text)}</p>
       <p class="muted">Arbeite die Schritte schriftlich durch und speichere deine Antworten unten im Business-Planer. Mit API-Schlüssel führt dich der Coach Schritt für Schritt und widerspricht, wo du vage bleibst.</p></section>
       <div class="card"><ol class="steps">${framework.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></div>
@@ -251,11 +308,11 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     const h = history();
     return `<div class="chat-page">
       <div class="chat-head"><div><div class="eyebrow">${mode === 'rollenspiel' ? 'Rollenspiel · Schreib „ENDE“ für die Bewertung' : mode === 'business' ? 'Business-Planer' : 'Coaching'}</div><h1>${esc(title)}</h1></div>
-        <div class="btn-row"><button class="btn small ghost" data-act="chat-mode" data-mode="coach" ${mode === 'coach' ? 'disabled' : ''}>Coach</button><a class="btn small ghost" href="#/rollenspiel">Rollenspiele</a><a class="btn small ghost" href="#/business">Business</a><button class="btn small ghost" data-act="chat-clear">Neu beginnen</button></div></div>
-      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : mode === 'einwand' ? `<div class="callout practice"><div class="label">Lage</div>${esc(einwand.kontext)}. Der Kunde bringt den Einwand, du antwortest nach LAER. Schreib „ENDE“ für die Bewertung. <a href="#/einwaende/${einwand.id}">Zurück zum Drill</a></div>` : ''}
-      <div class="chat" id="chat">${h.length ? h.map(m => bubble(m.role, m.content)).join('') : `<div class="chat-empty">${mode === 'rollenspiel' ? 'Klick „Gespräch eröffnen“. Der Kunde beginnt.' : mode === 'business' ? 'Beschreibe deine Idee in zwei Sätzen. Der Coach übernimmt die Führung.' : 'Sag dem Coach, was du heute geübt hast, oder stell eine Frage. Er wird nachfragen.'}</div>`}</div>
+        <div class="btn-row"><button class="btn small ghost" data-act="chat-mode" data-mode="coach" ${mode === 'coach' ? 'disabled' : ''}>Coach</button><a class="btn small ghost ${mode === 'lern' ? 'active' : ''}" href="#/coach?lern=1">Lernsitzung</a><a class="btn small ghost" href="#/rollenspiel">Rollenspiele</a><a class="btn small ghost" href="#/business">Business</a><button class="btn small ghost" data-act="chat-clear">Neu beginnen</button></div></div>
+      ${mode === 'rollenspiel' ? `<div class="callout practice"><div class="label">Lage</div>${esc(scenario.lage)}<br><strong>Pflicht:</strong> ${scenario.pflicht.map(esc).join(' · ')}</div>` : mode === 'einwand' ? `<div class="callout practice"><div class="label">Lage</div>${esc(einwand.kontext)}. Der Kunde bringt den Einwand, du antwortest nach LAER. Schreib „ENDE“ für die Bewertung. <a href="#/einwaende/${einwand.id}">Zurück zum Drill</a></div>` : mode === 'lern' ? `<div class="callout practice"><div class="label">So läuft die Sitzung</div>Der Coach fragt ab, du antwortest aus dem Kopf, dann sagst du „sicher, wahrscheinlich oder geraten“. Erst danach kommt Feedback. Blinde Flecken zuerst, dann fällige Karten. Er zeigt keine Antwort vor deinem Versuch, auch nicht auf Nachfrage. Schreib „ENDE“ für das Protokoll.</div>` : ''}
+      <div class="chat" id="chat">${h.length ? h.map(m => bubble(m.role, m.content)).join('') : `<div class="chat-empty">${mode === 'rollenspiel' ? 'Klick „Gespräch eröffnen“. Der Kunde beginnt.' : mode === 'lern' ? 'Klick „Sitzung starten“. Der Coach stellt die erste Frage.' : mode === 'business' ? 'Beschreibe deine Idee in zwei Sätzen. Der Coach übernimmt die Führung.' : 'Sag dem Coach, was du heute geübt hast, oder stell eine Frage. Er wird nachfragen.'}</div>`}</div>
       <form class="chat-form" id="chat-form">
-        ${(mode === 'rollenspiel' || mode === 'einwand') && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : ''}
+        ${(mode === 'rollenspiel' || mode === 'einwand') && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Gespräch eröffnen</button>` : mode === 'lern' && !h.length ? `<button class="btn primary" type="button" data-act="rp-open">Sitzung starten</button>` : ''}
         <textarea id="chat-input" rows="2" placeholder="${mode === 'rollenspiel' ? 'Deine Antwort an den Kunden…' : 'Nachricht an den Coach…'}  (Enter senden, Shift+Enter neue Zeile)"></textarea>
         <button class="btn primary" id="chat-send" ${busy ? 'disabled' : ''}>${busy ? '…' : 'Senden'}</button>
         ${busy ? '<button class="btn ghost" type="button" data-act="chat-stop">Stopp</button>' : ''}
@@ -271,7 +328,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     const id = 'm' + VA.uid(); chat.insertAdjacentHTML('beforeend', bubble('assistant', '…', id)); chat.scrollTop = chat.scrollHeight;
     busy = true; const sendBtn = document.getElementById('chat-send'); if (sendBtn) { sendBtn.disabled = true; sendBtn.textContent = '…'; }
     abort = new AbortController();
-    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'einwand' ? sysEinwand(einwand) : mode === 'business' ? sysBusiness(framework) : sysCoach();
+    const sys = mode === 'rollenspiel' ? sysRollenspiel(scenario) : mode === 'einwand' ? sysEinwand(einwand) : mode === 'lern' ? sysLern() : mode === 'business' ? sysBusiness(framework) : sysCoach();
     const msgs = h.slice(-40).map(m => ({ role: m.role, content: m.content }));
     if (hidden) msgs.push({ role: 'user', content: text });
     let out = '';
@@ -300,7 +357,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     if (a === 'chat-clear') { delete VA.S.chats[chatKey()]; VA.save(); VA.navigate(); }
     else if (a === 'chat-mode') { mode = el.dataset.mode; location.hash = '#/coach?mode=coach'; VA.navigate(); }
     else if (a === 'chat-stop') { abort?.abort(); }
-    else if (a === 'rp-open') { el.remove(); send('(Beginne jetzt das Gespräch in deiner Rolle mit dem ersten Satz.)', { hidden: true }); }
+    else if (a === 'rp-open') { el.remove(); send(mode === 'lern' ? '(Beginne die Lernsitzung jetzt mit der ersten Abruffrage, ohne Zusammenfassung.)' : '(Beginne jetzt das Gespräch in deiner Rolle mit dem ersten Satz.)', { hidden: true }); }
     else if (a === 'biz-del') { VA.S.business = VA.S.business.filter(b => b.id !== el.dataset.id); VA.save(); VA.navigate(); }
   }
   document.addEventListener('keydown', (e) => { if (e.target.id === 'chat-input' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('chat-form').requestSubmit(); } });
@@ -309,7 +366,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   function businessPage() {
     const S = VA.S;
     return `<section class="hero small"><div class="eyebrow">Ich</div><h1>Business-Planer</h1>
-      <p class="lead">Acht Werkzeuge, mit denen der Coach deine Geschäftsideen prüft, plant und mit dir umsetzt. Jedes endet mit Aufgaben in der echten Welt, nicht mit einem Dokument. Ohne API-Schlüssel kannst du die Frameworks als Leitfaden selbst durcharbeiten und deine Antworten unten notieren.</p></section>
+      <p class="lead">Zehn Werkzeuge, mit denen der Coach deine Geschäftsideen prüft, plant und mit dir umsetzt. Jedes endet mit Aufgaben in der echten Welt, nicht mit einem Dokument. Ohne API-Schlüssel kannst du die Frameworks als Leitfaden selbst durcharbeiten und deine Antworten unten notieren.</p></section>
       <div class="grid">${FRAMEWORKS.map(f => `<div class="card"><div class="num">${f.id}</div><h3>${esc(f.name)}</h3><p class="muted">${esc(f.text)}</p><details><summary>${f.schritte.length} Schritte</summary><ol class="steps small">${f.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details><div class="btn-row"><a class="btn small" href="#/coach?biz=${f.id}">${S.apiKey ? 'Mit dem Coach starten' : 'Leitfaden öffnen'}</a></div></div>`).join('')}</div>
       <h2 class="section-title">Meine Ideen und Notizen</h2>
       <form class="biz-add card"><input name="titel" placeholder="Idee in einem Satz" required><textarea class="journal" name="text" rows="4" placeholder="Status, nächste Aufgabe, offene Annahmen…" required></textarea><div class="btn-row"><button class="btn primary small">Speichern</button></div></form>
