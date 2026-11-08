@@ -442,7 +442,7 @@
     return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a> (${t.min} Min)`).join(' · ')}. ${sum > 30 ? 'Fang mit den Karten an, die sind am schnellsten vergessen.' : 'Das passt in eine Kaffeepause.'}</p>`;
   }
   function meilensteine() {
-    const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => (r.art === 'Offline' && /^Bestanden/.test(r.fazit || '')) || (r.art !== 'Offline' && r.score >= 42)));
+    const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => rpStatus(r).s === 2));
     const exams = KURSE.filter(k => examPassed(k.id)).length;
     return [
       { name: 'Erste Lektion', text: 'Erste Lektion komplett abgeschlossen', done: Object.keys(S.lessonsDone).length >= 1 },
@@ -721,7 +721,7 @@
     const wdh = Object.values(S.srs).reduce((a, x) => a + x.n, 0);
     const tage = Object.keys(S.activity).length;
     const drillArr = (prefix) => Object.entries(S.drills).filter(([k]) => k.startsWith(prefix)).flatMap(([, v]) => Array.isArray(v) ? v : []);
-    const rpOk = drillArr('rp_').filter(r => (r.art === 'Offline' && /^Bestanden/.test(r.fazit || '')) || (r.art !== 'Offline' && r.score >= 42)).length;
+    const rpOk = drillArr('rp_').filter(r => rpStatus(r).s === 2).length;
     const training = { einwaende: drillArr('ew_').length, faelle: drillArr('fall_').length, kontraste: drillArr('kt_').length, rollenspiele: rpOk, neins: S.nein.length };
     return `<div class="no-print btn-row"><button class="btn primary" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/">Übersicht</a></div>
       <section class="cert">
@@ -808,13 +808,22 @@
     }
     return false;
   }
+  // Ein Maßstab für alle Rollenspiel-Durchläufe: offline nach dem Fazit des Entscheidungsbaums, live nach Punkten und Ethik des Coach-Rasters.
+  function rpStatus(r) {
+    if (!r) return null;
+    let s;
+    if (r.art === 'Offline') s = /^Bestanden/.test(r.fazit || '') ? 2 : /(^|\.\s)Teilweise( bestanden)?\b/.test(r.fazit || '') ? 1 : 0;
+    else s = (r.score || 0) >= 42 && !/Ethik nicht bestanden/.test(r.fazit || '') ? 2 : (r.score || 0) >= 30 ? 1 : 0;
+    return { s, label: ['nicht bestanden', 'teilweise', 'bestanden'][s], cls: ['red', 'gold', 'green'][s] };
+  }
+  function rpBest(runs) { return runs.reduce((b, r) => { const st = rpStatus(r); return !b || st.s > b.s ? Object.assign({ r }, st) : b; }, null); }
   route('rollenspiel', ([sid]) => {
     const SZ = window.SZENARIEN;
     if (!ensureSzenarienOffline()) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1><p class="lead">Lade Szenarien…</p></section>`;
     if (!sid) return `<section class="hero small"><div class="eyebrow">Training</div><h1>Rollenspiele</h1>
       <p class="lead">Acht Situationen mit verdeckten Informationen und Pflichtkriterien. ${(() => { const n = SZ.filter(x => x.offline).length; return n === SZ.length ? 'Alle spielst du offline als Entscheidungsbaum mit Feedback zu jeder Entscheidung.' : n + ' Szenarien spielst du offline als Entscheidungsbaum.'; })()} Mit API-Schlüssel spielt der Coach den Kunden live und bewertet dich nach dem 7-Punkte-Raster.</p></section>
-      <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = runs.length ? Math.max(...runs.map(r => r.score || 0)) : null;
-        return `<div class="card clickable" data-route="#/rollenspiel/${s.id}"><div class="meta"><span class="tag">${esc(s.level)}</span> ${s.offline ? '' : '<span class="tag gold">nur mit Coach</span>'} ${best !== null ? `<span class="tag green">beste Wertung ${best}</span>` : ''}</div><h3>${esc(s.titel)}</h3><p class="muted">${esc(s.lage)}</p></div>`; }).join('')}</div>`;
+      <div class="grid">${SZ.map(s => { const runs = (S.drills['rp_' + s.id] || []); const best = rpBest(runs);
+        return `<div class="card clickable" data-route="#/rollenspiel/${s.id}"><div class="meta"><span class="tag">${esc(s.level)}</span> ${s.offline ? '' : '<span class="tag gold">nur mit Coach</span>'} ${best ? `<span class="tag ${best.cls}">${best.label} · ${runs.length}×</span>` : ''}</div><h3>${esc(s.titel)}</h3><p class="muted">${esc(s.lage)}</p></div>`; }).join('')}</div>`;
     const s = SZ.find(x => x.id === sid); if (!s) return routes.rollenspiel([]);
     const runs = (S.drills['rp_' + s.id] || []);
     return `<div class="breadcrumb"><a href="#/rollenspiel">Rollenspiele</a> › ${esc(s.titel)}</div>
@@ -827,7 +836,7 @@
         <a class="btn ${s.offline ? 'ghost' : 'primary'}" href="#/coach?rp=${s.id}">${S.apiKey ? 'Live mit dem Coach spielen' : 'Live mit Coach (API-Schlüssel nötig)'}</a>
       </div></section>
       <div id="rp-box">${rpState && rpState.sid === sid ? renderRp(s) : ''}</div>
-      ${runs.length ? `<h2 class="section-title">Deine Durchläufe</h2>${runs.slice().reverse().map(r => `<div class="log-entry"><div class="meta">${fmtTime(r.ts)} · ${r.art}</div><div class="body">${esc(r.fazit)}</div></div>`).join('')}` : ''}`;
+      ${runs.length ? `<h2 class="section-title">Deine Durchläufe</h2>${runs.slice().reverse().map(r => { const st = rpStatus(r); return `<div class="log-entry ${st.s === 2 ? 'ok' : st.s === 0 ? 'fail' : ''}"><div class="meta">${fmtTime(r.ts)} · ${r.art} · <span class="tag ${st.cls}">${st.label}</span>${r.art === 'Offline' && r.n ? ` · ${r.score} von ${r.n} Entscheidungen stark` : ''}${r.pflicht ? ` · Pflichtkriterien ${r.pflicht.length} von ${s.pflicht.length}` : ''}</div><div class="body">${esc(r.fazit)}</div></div>`; }).join('')}` : ''}`;
   });
   // Vorbereitung vor dem Rollenspiel: drei Zeilen, die ein Profi vor jedem Gespräch aufschreibt (Ziel, Eröffnung, Grenze).
   function rpPlanBox(s) {
@@ -847,8 +856,11 @@
     const st = rpState; const node = s.offline.knoten[st.node];
     const hist = st.hist.map(h => `<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(h.npc)}</div><div class="you"><span class="who">Du</span> ${esc(h.you)}</div><div class="feedback ${h.bewertung}">${esc(h.feedback)}</div></div>`).join('');
     if (node.ende) {
+      const runs = S.drills['rp_' + s.id] || []; const last = runs[runs.length - 1]; const st = rpStatus(last) || { s: 0, label: 'nicht bestanden', cls: 'red' };
+      const good = rpState.hist.filter(h => h.bewertung === 'good').length, ok = rpState.hist.filter(h => h.bewertung === 'ok').length, bad = rpState.hist.length - good - ok;
       return `${hist}<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(node.npc)}</div></div>
-        <div class="callout ${/^Bestanden/.test(node.fazit) ? 'study' : 'warn'}"><div class="label">Fazit</div>${esc(node.fazit)}</div>
+        <div class="callout ${st.s === 2 ? 'study' : st.s === 1 ? 'practice' : 'warn'} rp-fazit"><div class="label">Fazit · <span class="tag ${st.cls}">${st.label}</span></div>${esc(node.fazit)}<p class="muted small rp-bilanz">${rpState.hist.length} Entscheidungen: ${good} stark, ${ok} brauchbar, ${bad} schwach. Dieselben Maßstäbe wie beim Coach: Ein Rollenspiel gilt erst als bestanden, wenn der Weg stimmt, nicht nur das Ende.</p></div>
+        ${last && !last.pflicht ? `<form class="card rp-pflicht" data-sid="${s.id}"><div class="eyebrow">Pflichtkriterien im Verlauf</div><p class="muted small">Lies den Verlauf oben und hake nur ab, was tatsächlich vorkam. Der Coach prüft dieselbe Liste.</p>${s.pflicht.map((p, i) => `<label class="check"><input type="checkbox" name="p" value="${i}"><span>${esc(p)}</span></label>`).join('')}<div class="btn-row"><button class="btn small primary" type="submit">Festhalten</button></div></form>` : last && last.pflicht ? `<p class="muted small">Pflichtkriterien laut deiner Prüfung: ${last.pflicht.length} von ${s.pflicht.length}${last.pflicht.length < s.pflicht.length ? '. Fehlend: ' + s.pflicht.filter((p, i) => !last.pflicht.includes(i)).map(esc).join(' · ') : ''}.</p>` : ''}
         ${S.rpPlan[s.id] ? `<div class="callout practice"><div class="label">Plan gegen Verlauf</div>Dein Ziel war: „${esc(S.rpPlan[s.id].ziel)}“. Deine Grenze: „${esc(S.rpPlan[s.id].grenze)}“. Lies den Verlauf oben noch einmal und entscheide ehrlich, ob du beides gehalten hast. Wer seinen Plan im Gespräch verliert, verliert meist das Gespräch.</div>` : ''}
         <div class="btn-row"><button class="btn primary" data-act="rp-start" data-sid="${s.id}">Nochmal</button><a class="btn ghost" href="#/rollenspiel">Alle Szenarien</a></div>`;
     }
@@ -1049,7 +1061,7 @@
     const rows = [
       { name: 'Einwand-Drill', href: '#/einwaende', all: arr('ew_'), gut: x => x.wert === 2 },
       { name: 'Konzept-Kontraste', href: '#/kontraste', all: arr('kt_'), gut: x => x.score === x.n },
-      { name: 'Rollenspiele', href: '#/rollenspiel', all: arr('rp_'), gut: x => x.bestanden || x.passed },
+      { name: 'Rollenspiele', href: '#/rollenspiel', all: arr('rp_'), gut: x => rpStatus(x).s === 2 },
       { name: 'Fälle', href: '#/faelle', all: arr('fall_'), gut: x => (x.coach != null ? x.coach : x.selbst) >= 14 },
       { name: 'Schritt für Schritt', href: '#/beispiele', all: Object.entries(S.drills).filter(([k, v]) => k.startsWith('wb_') && v).map(([, v]) => v), gut: x => x.stufe >= 4 },
     ];
@@ -1345,6 +1357,7 @@
     else if (f.classList.contains('vorfrage-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 15) return toast('Ein ganzer Satz, bitte. Raten ist erlaubt.', 'bad'); S.vorfragen[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.querySelector('.lesson h1'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
+    else if (f.classList.contains('rp-pflicht')) { e.preventDefault(); const runs = S.drills['rp_' + f.dataset.sid] || []; const last = runs[runs.length - 1]; if (!last) return; last.pflicht = [...f.querySelectorAll('input[name="p"]:checked')].map(i => Number(i.value)); save(); const s = window.SZENARIEN.find(x => x.id === f.dataset.sid); toast(`Pflichtkriterien: ${last.pflicht.length} von ${s.pflicht.length}.`, last.pflicht.length === s.pflicht.length ? 'good' : ''); const box = $('#rp-box'); if (box && rpState && rpState.sid === s.id) box.innerHTML = renderRp(s); }
     else if (f.classList.contains('rp-plan-form')) { e.preventDefault(); const fd = new FormData(f); S.rpPlan[f.dataset.sid] = { ziel: (fd.get('ziel') || '').trim().slice(0, 300), erste: (fd.get('erste') || '').trim().slice(0, 300), grenze: (fd.get('grenze') || '').trim().slice(0, 300), ts: Date.now() }; rpPlanEdit = null; touch(); save(); navigate(); toast('Plan festgehalten. Jetzt spielen.', 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
     else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Befund, Empfehlung, Prüfung, Risiko: alles vier gehört hinein.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
@@ -1366,7 +1379,7 @@
     else if (a === 'myth-answer') { const s = mythState; const it = s.items[s.i]; const ok = (el.dataset.v === '1') === it.echt; if (ok) s.score++; s.last = { ok, erkl: it.erkl }; touch(); navigate(); }
     else if (a === 'myth-next') { const s = mythState; s.last = null; s.i++; if (s.i >= s.items.length) { s.done = true; (S.drills.mythen = S.drills.mythen || []).push({ ts: Date.now(), score: s.score }); save(); } navigate(); }
     else if (a === 'rp-start') { const s = window.SZENARIEN.find(x => x.id === el.dataset.sid); rpState = { sid: s.id, node: s.offline.start, hist: [] }; navigate(); setTimeout(() => $('#rp-box') && $('#rp-box').scrollIntoView({ behavior: 'smooth' }), 50); }
-    else if (a === 'rp-choose') { const s = window.SZENARIEN.find(x => x.id === rpState.sid); const node = s.offline.knoten[rpState.node]; const o = node.optionen[Number(el.dataset.oi)]; rpState.hist.push({ npc: node.npc, you: o.text, feedback: o.feedback, bewertung: o.bewertung }); rpState.node = o.next; const nn = s.offline.knoten[o.next]; if (nn.ende) { const good = rpState.hist.filter(h => h.bewertung === 'good').length; (S.drills['rp_' + s.id] = S.drills['rp_' + s.id] || []).push({ ts: Date.now(), art: 'Offline', score: good, fazit: nn.fazit }); touch(); save(); } $('#rp-box').innerHTML = renderRp(s); }
+    else if (a === 'rp-choose') { const s = window.SZENARIEN.find(x => x.id === rpState.sid); const node = s.offline.knoten[rpState.node]; const o = node.optionen[Number(el.dataset.oi)]; rpState.hist.push({ npc: node.npc, you: o.text, feedback: o.feedback, bewertung: o.bewertung }); rpState.node = o.next; const nn = s.offline.knoten[o.next]; if (nn.ende) { const good = rpState.hist.filter(h => h.bewertung === 'good').length; (S.drills['rp_' + s.id] = S.drills['rp_' + s.id] || []).push({ ts: Date.now(), art: 'Offline', score: good, n: rpState.hist.length, fazit: nn.fazit }); touch(); save(); } $('#rp-box').innerHTML = renderRp(s); }
     else if (a === 'drill-done') { const k = 'tag_' + el.dataset.id; (S.drills[k] = S.drills[k] || []).push({ ts: Date.now() }); touch(); save(); toast('Drill erledigt.', 'good'); navigate(); }
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
