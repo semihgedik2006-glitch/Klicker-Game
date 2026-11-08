@@ -93,7 +93,7 @@ KURSE.push({
 <h2>Die Zahlen hinter dem Nein</h2>
 <ul>
 <li>Branchenzahlen von Vertriebsberatungen (etwa der Brevet Group) nennen im B2B-Vertrieb durchschnittlich etwa 8 Kontaktversuche, bis ein Gespräch zustande kommt, während die meisten Verkäufer nach ein bis zwei Versuchen aufgeben. Das sind Erfahrungswerte aus der Praxis, keine kontrollierten Studien. Wer bei diesem Schnitt nach dem zweiten Versuch aufhört, hat drei Viertel des Weges zum Gespräch noch vor sich.</li>
-<li>Jedes Nein bringt dich statistisch näher an ein Ja. Wenn deine Quote 1 zu 10 ist, ist ein Nein 10 % eines Abschlusses wert.</li>
+<li>Ein Nein bringt dich dem nächsten Ja nicht näher; jeder Versuch ist unabhängig vom vorigen. Rechnen darfst du anders: Bei einer Quote von 1 zu 10 ist jeder Versuch im Schnitt ein Zehntel eines Abschlusses wert, egal wie er ausgeht. Wer zehn Versuche macht, hat im Schnitt einen Abschluss verdient; wer nach zwei aufhört, hat ihn sich verbaut.</li>
 </ul>
 <h2>Umdeuten: Was ein Nein bedeutet</h2>
 <p>Hinter einem Nein steht meist einer von fünf Gründen: nicht jetzt, nicht so, nicht verstanden, andere Prioritäten oder falscher Ansprechpartner. Ein Urteil über dich als Person ist fast nie darunter. Diese Umdeutung (im Englischen Reframing) macht aus dem Nein eine Frage nach der Ursache. Deine Aufgabe danach ist deshalb ein einziger Satz: <em>Was genau war der Grund?</em></p>
