@@ -679,6 +679,9 @@
     const reports = Object.values(S.reports).flat().filter(r => r.bestanden).length;
     const wdh = Object.values(S.srs).reduce((a, x) => a + x.n, 0);
     const tage = Object.keys(S.activity).length;
+    const drillArr = (prefix) => Object.entries(S.drills).filter(([k]) => k.startsWith(prefix)).flatMap(([, v]) => Array.isArray(v) ? v : []);
+    const rpOk = drillArr('rp_').filter(r => (r.art === 'Offline' && /^Bestanden/.test(r.fazit || '')) || (r.art !== 'Offline' && r.score >= 42)).length;
+    const training = { einwaende: drillArr('ew_').length, faelle: drillArr('fall_').length, kontraste: drillArr('kt_').length, rollenspiele: rpOk, neins: S.nein.length };
     return `<div class="no-print btn-row"><button class="btn primary" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/">Übersicht</a></div>
       <section class="cert">
         <div class="cert-inner">
@@ -689,6 +692,7 @@
           <div class="cert-name">${esc(S.name || 'Namenlos')}</div>
           <p class="cert-text">das vollständige Curriculum aus zehn Modulen zu Verkauf, Verkaufspsychologie, Wirkung, Körpersprache, Fragetechnik, Gesprächsführung, Straight Line, Kundenanalyse, Selbstvermarktung und Verhandlung durchlaufen, alle zehn Modulprüfungen sowie die Abschlussprüfung mit mindestens ${PASS} % bestanden hat.</p>
           <div class="cert-stats"><div><strong>${best.pct} %</strong><span>Abschlussprüfung</span></div><div><strong>${reports}</strong><span>Übungsberichte aus der Praxis</span></div><div><strong>${wdh}</strong><span>Wiederholungen</span></div><div><strong>${tage}</strong><span>aktive Tage</span></div></div>
+          <div class="cert-stats cert-training"><div><strong>${training.einwaende}</strong><span>Einwände geübt</span></div><div><strong>${training.kontraste}</strong><span>Kontrast-Drills</span></div><div><strong>${training.faelle}</strong><span>Fälle bearbeitet</span></div><div><strong>${training.rollenspiele}</strong><span>Rollenspiele bestanden</span></div><div><strong>${training.neins}</strong><span>Neins gesammelt</span></div></div>
           <div class="cert-foot"><span>${new Date(best.ts).toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' })}</span><span>Rang: Absolvent</span></div>
           <p class="cert-small">Dieses Zertifikat bestätigt bestandene Prüfungen in einer persönlichen Lern-App. Es ist kein anerkannter Abschluss. Der eigentliche Beweis steht im Beweisbuch: echte Gespräche, echte Ergebnisse.</p>
         </div>
@@ -1044,9 +1048,15 @@
     const F = window.KA_FRAGEN;
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Kundenanalyse</h1><p class="lead">Beantworte neun Fragen über einen echten Kunden. Du bekommst Kaufmotiv, Verhaltenstendenz (DISG, Hinweis: niedrige wissenschaftliche Validität, als Gesprächshilfe gedacht), Big-Five-Hinweise, Qualifizierung (BANT) und konkrete Gesprächsempfehlungen.</p></section>
       <form id="ka-form" class="card"><label>Name oder Kürzel des Kunden <input name="name" required placeholder="z. B. Café Krüger"></label>
+        <div class="callout practice"><div class="label">Erst seine Worte, dann deine Einordnung</div>Ein Profil taugt nur so viel wie die Zitate dahinter. Schreib auf, was der Kunde wörtlich gesagt hat, bevor du ihn in Typen sortierst. Ein Gespräch ergibt eine Hypothese, kein Urteil; nach dem zweiten Gespräch prüfst du sie.</div>
+        <label>Auslöser: Was ist passiert, dass er jetzt sucht? <input name="ausloeser" placeholder="z. B. „Seit die Steuerprüfung zwei Tage gedauert hat …“"></label>
+        <label>Wörtliche Zitate (Schmerz, Wunsch, Einwand) <textarea name="zitate" rows="3" placeholder="Ein Zitat pro Zeile, in seinen Worten, nicht in deinen"></textarea></label>
+        <label>Alternativen, die er erwägt <input name="alternativen" placeholder="z. B. Wettbewerber X, selbst machen, nichts tun"></label>
         ${F.map(f => `<div class="ka-q"><div class="q">${esc(f.text)}</div>${f.optionen.map((o, i) => `<label class="opt"><input type="radio" name="${f.id}" value="${i}" required> <span>${esc(o.text)}</span></label>`).join('')}</div>`).join('')}
         <div class="btn-row"><button class="btn primary">Profil erstellen</button></div></form>
-      ${S.ka.length ? `<h2 class="section-title">Gespeicherte Profile</h2>${S.ka.slice().reverse().map(p => `<div class="card"><div class="meta">${fmtDate(p.ts)} <button class="btn small ghost" data-act="ka-del" data-id="${p.id}">Löschen</button></div><h3>${esc(p.name)}</h3>${p.html}</div>`).join('')}` : ''}`;
+      ${S.ka.length ? `<h2 class="section-title">Gespeicherte Profile</h2><div class="btn-row no-print" style="margin-top:0"><button class="btn ghost" data-act="print">Profile drucken oder als PDF sichern</button></div>${S.ka.slice().reverse().map(p => `<div class="card ka-profile"><div class="meta">${fmtDate(p.ts)} <span class="muted">· Hypothese aus einem Gespräch, nach dem nächsten prüfen</span> <button class="btn small ghost no-print" data-act="ka-del" data-id="${p.id}">Löschen</button></div><h3>${esc(p.name)}</h3>
+        ${p.ausloeser || p.zitate || p.alternativen ? `<div class="persona">${p.ausloeser ? `<div class="sb-row"><div class="lbl">Auslöser</div><div>${esc(p.ausloeser)}</div></div>` : ''}${p.zitate ? `<div class="sb-row"><div class="lbl">Seine Worte</div><div>${p.zitate.split(/\n+/).filter(Boolean).map(z => `<div class="zitat">„${esc(z.trim().replace(/^[„"“]|[“"”]$/g, ''))}“</div>`).join('')}</div></div>` : ''}${p.alternativen ? `<div class="sb-row"><div class="lbl">Alternativen</div><div>${esc(p.alternativen)}</div></div>` : ''}</div>` : ''}
+        ${p.html}</div>`).join('')}` : ''}`;
   });
   function kaProfile(form) {
     const fd = new FormData(form); const F = window.KA_FRAGEN; let motiv = null; const disg = {}; const big5 = []; let bant = 0, bantN = 0; const bantNeg = [];
@@ -1058,7 +1068,8 @@
       <div class="eyebrow">Big-Five-Hinweise</div><p>${big5.includes('aengstlich') ? 'Hoher Neurotizismus: Rückversicherung, Garantien, kein Druck, Referenzen. ' : 'Emotional stabil: direkt entscheiden lassen, Fakten reichen. '}${big5.includes('vertraeglich') ? 'Hohe Verträglichkeit: Höfliche Jas prüfen („Was müsste passieren, damit das nicht klappt?“). ' : big5.includes('fordernd') ? 'Fordernd: Klar ankern, Zugeständnisse nur gegen Gegenleistung. ' : ''}</p>
       <div class="eyebrow">Qualifizierung (BANT ${bant}/${bantN})</div><p>${esc(q)}</p>
       <div class="eyebrow">Gesprächsplan</div><ol class="steps"><li>Einstieg in der Sprache des Motivs: ${esc(Mo.name)}.</li><li>Tempo und Stil anpassen: ${D ? esc(D.name) : 'neutral'}.</li><li>Drei Auswirkungsfragen zum Problem, bevor du eine Lösung nennst.</li><li>Nächster Schritt: ${bant >= 3 ? 'Abschluss oder Angebot mit Termin' : 'Qualifizierungslücken schließen, dann Termin'}.</li></ol>`;
-    S.ka.push({ id: uid(), name: fd.get('name'), ts: Date.now(), html }); touch(); save(); toast('Profil erstellt.', 'good'); navigate();
+    const cut = (k, n) => (fd.get(k) || '').trim().slice(0, n);
+    S.ka.push({ id: uid(), name: fd.get('name'), ts: Date.now(), html, ausloeser: cut('ausloeser', 300), zitate: cut('zitate', 1200), alternativen: cut('alternativen', 300), motiv: Mo.name, disg: D ? D.name : '' }); touch(); save(); toast('Profil erstellt.', 'good'); navigate();
   }
 
   // ---------- Wiederholen ----------
