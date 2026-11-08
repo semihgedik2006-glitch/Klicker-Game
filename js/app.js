@@ -918,12 +918,23 @@
 
   // ---------- Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird ----------
   let ktState = null;
+  // Abgrenzung bei einer Verwechslung: die Bedingung des gewählten Begriffs neben der des richtigen. Beide stehen schon in den Karten („Wann“); hier treffen sie am konkreten Fall aufeinander.
+  function ktAbgrenzung(x, wahl, richtig) {
+    if (wahl === richtig) return '';
+    return `<p class="kt-abgrenzung"><strong>${esc(x.begriffe[wahl].name)}</strong> hätte gepasst: ${esc(x.begriffe[wahl].wann)}<br><strong>${esc(x.begriffe[richtig].name)}</strong> passt hier: ${esc(x.begriffe[richtig].wann)}</p>`;
+  }
+  // Häufigste Verwechslung über eine Liste von Fehlern [[wahl, richtig], …]
+  function ktTopFehler(x, fehler) {
+    const m = {}; for (const [w, r] of fehler) { const k = w + '>' + r; m[k] = (m[k] || 0) + 1; }
+    const top = Object.entries(m).sort((a, b) => b[1] - a[1])[0]; if (!top) return null;
+    const [w, r] = top[0].split('>').map(Number); return { wahl: w, richtig: r, n: top[1], wahlName: x.begriffe[w].name, richtigName: x.begriffe[r].name };
+  }
   route('kontraste', ([kid]) => {
     const K = window.KONTRASTE || [];
     if (!kid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
         <p class="lead">Viele Fehler im Gespräch sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
-        <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${wvTag('kt_', x.id)}${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
+        <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); const top = ktTopFehler(x, r.flatMap(z => z.fehler || [])); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${wvTag('kt_', x.id)}${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}${top && top.n >= 2 ? `${fl ? ' · ' : ''}<span class="kt-top">Verwechselst du oft: ${esc(top.wahlName)} statt ${esc(top.richtigName)} (${top.n}×)</span>` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = K.find(k => k.id === kid); if (!x) return routes.kontraste([]);
     if (!ktState || ktState.id !== kid) ktState = { id: kid, i: 0, antworten: [], gewaehlt: null };
@@ -935,11 +946,12 @@
       <div class="callout study"><div class="label">Faustregel</div>${esc(x.faustregel)}</div>
       <section class="card exam-q kt-drill"><div class="eyebrow">Fall ${Math.min(ktState.i + 1, x.faelle.length)} von ${x.faelle.length} · die Methode wird nicht genannt</div>
         ${fertig ? `<h2>${score} von ${x.faelle.length} richtig zugeordnet</h2><p class="muted">${score === x.faelle.length ? 'Alle Fälle getroffen. In einer Woche noch einmal, dann sitzt die Unterscheidung.' : 'Lies bei den falschen Fällen die Begründung noch einmal und formuliere den Unterschied in einem eigenen Satz. Dann den Drill wiederholen.'}</p>
-          <ol class="kt-review">${x.faelle.map((ff, i) => { const a = ktState.antworten[i]; return `<li class="${a.ok ? 'ok' : 'bad'}"><div class="muted small">${esc(ff.situation)}</div><div><strong>${a.ok ? 'Richtig' : 'Du: ' + esc(x.begriffe[a.wahl].name) + ' · Richtig: ' + esc(x.begriffe[ff.richtig].name)}</strong> · ${esc(ff.warum)}</div></li>`; }).join('')}</ol>
+          ${(() => { const top = ktTopFehler(x, ktState.antworten.map((a, i) => a.ok ? null : [a.wahl, x.faelle[i].richtig]).filter(Boolean)); return top && top.n >= 2 ? `<div class="callout warn kt-verwechslung"><div class="label">Dein Muster in diesem Durchgang</div>${top.n}× <strong>${esc(top.wahlName)}</strong> gewählt, wo <strong>${esc(top.richtigName)}</strong> vorlag. Der Unterschied, den du dir merken musst:${ktAbgrenzung(x, top.wahl, top.richtig)}</div>` : ''; })()}
+          <ol class="kt-review">${x.faelle.map((ff, i) => { const a = ktState.antworten[i]; return `<li class="${a.ok ? 'ok' : 'bad'}"><div class="muted small">${esc(ff.situation)}</div><div><strong>${a.ok ? 'Richtig' : 'Du: ' + esc(x.begriffe[a.wahl].name) + ' · Richtig: ' + esc(x.begriffe[ff.richtig].name)}</strong> · ${esc(ff.warum)}${a.ok ? '' : ktAbgrenzung(x, a.wahl, ff.richtig)}</div></li>`; }).join('')}</ol>
           <div class="btn-row"><button class="btn primary" data-act="kt-restart">Noch einmal</button><a class="btn ghost" href="#/kontraste">Alle Kontraste</a></div>`
         : `<h2 class="situation">${esc(f.situation)}</h2>
           ${ktState.gewaehlt === null ? `<p class="muted">Welches Prinzip liegt hier vor? Entscheide erst, dann klicke.</p><div class="btn-row wrap">${shuffle(x.begriffe.map((b, i) => i)).map(i => `<button class="btn ghost" data-act="kt-wahl" data-i="${i}">${esc(x.begriffe[i].name)}</button>`).join('')}</div>`
-          : `<div class="callout ${ktState.gewaehlt === f.richtig ? 'practice' : 'warn'}"><div class="label">${ktState.gewaehlt === f.richtig ? 'Richtig: ' + esc(x.begriffe[f.richtig].name) : 'Nicht ganz. Du hast ' + esc(x.begriffe[ktState.gewaehlt].name) + ' gewählt, es ist ' + esc(x.begriffe[f.richtig].name)}</div>${esc(f.warum)}</div><div class="btn-row"><button class="btn primary" data-act="kt-next">${ktState.i + 1 < x.faelle.length ? 'Nächster Fall' : 'Auswertung'}</button></div>`}`}
+          : `<div class="callout ${ktState.gewaehlt === f.richtig ? 'practice' : 'warn'}"><div class="label">${ktState.gewaehlt === f.richtig ? 'Richtig: ' + esc(x.begriffe[f.richtig].name) : 'Nicht ganz. Du hast ' + esc(x.begriffe[ktState.gewaehlt].name) + ' gewählt, es ist ' + esc(x.begriffe[f.richtig].name)}</div>${esc(f.warum)}${ktAbgrenzung(x, ktState.gewaehlt, f.richtig)}</div><div class="btn-row"><button class="btn primary" data-act="kt-next">${ktState.i + 1 < x.faelle.length ? 'Nächster Fall' : 'Auswertung'}</button></div>`}`}
       </section>`;
   });
 
@@ -1389,7 +1401,7 @@
     else if (a === 'fall-back') { faState.stufe = 0; navigate(); }
     else if (a === 'fall-restart') { faState = { id: faState.id, text: '', stufe: 0, wertung: {} }; navigate(); }
     else if (a === 'kt-wahl') { ktState.gewaehlt = Number(el.dataset.i); const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.antworten[ktState.i] = { wahl: ktState.gewaehlt, ok: ktState.gewaehlt === x.faelle[ktState.i].richtig }; navigate(); }
-    else if (a === 'kt-next') { const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.i++; ktState.gewaehlt = null; if (ktState.i >= x.faelle.length) { (S.drills['kt_' + x.id] = S.drills['kt_' + x.id] || []).push({ ts: Date.now(), score: ktState.antworten.filter(z => z.ok).length, n: x.faelle.length }); touch(); save(); } navigate(); }
+    else if (a === 'kt-next') { const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.i++; ktState.gewaehlt = null; if (ktState.i >= x.faelle.length) { (S.drills['kt_' + x.id] = S.drills['kt_' + x.id] || []).push({ ts: Date.now(), score: ktState.antworten.filter(z => z.ok).length, n: x.faelle.length, fehler: ktState.antworten.map((z, i) => z.ok ? null : [z.wahl, x.faelle[i].richtig]).filter(Boolean) }); touch(); save(); } navigate(); }
     else if (a === 'kt-restart') { ktState = null; navigate(); }
     else if (a === 'wb-next') { const x = window.BEISPIELE.find(b => b.id === wbState.id); const reached = wbState.stufe + 1; const saved = S.drills['wb_' + x.id] || { stufe: 0 }; if (reached > saved.stufe) { S.drills['wb_' + x.id] = { stufe: reached, ts: Date.now(), n: saved.n || 1 }; touch(); save(); } else if (reached >= 4) { S.drills['wb_' + x.id] = { stufe: 4, ts: Date.now(), n: (saved.n || 1) + 1 }; touch(); save(); } if (reached >= 4) { toast('Alle vier Stufen geschafft. In einer Woche mit eigenem Fall wiederholen.', 'good'); wbState = { id: x.id, stufe: 3, offen: false, text: '' }; location.hash = '#/beispiele'; return; } wbState = { id: x.id, stufe: reached, offen: false, text: '' }; navigate(); window.scrollTo(0, 0); }
     else if (a === 'wb-retry') { wbState.offen = false; wbState.text = ''; navigate(); }

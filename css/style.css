@@ -437,3 +437,11 @@ a.gl:hover { color: var(--gold, #c9a85c); text-decoration-style: solid; }
 .rp-pflicht .eyebrow { margin-bottom: 6px; }
 .rp-fazit .label .tag { margin-left: 6px; vertical-align: middle; }
 .rp-bilanz { margin: 10px 0 0; }
+
+/* Konzept-Kontraste: Abgrenzung bei Verwechslung, Muster-Hinweis */
+.kt-abgrenzung { margin: 10px 0 0; padding: 10px 14px; border-left: 2px solid var(--gold); background: rgba(201,168,76,.06); border-radius: 0 8px 8px 0; font-size: .92rem; line-height: 1.5; }
+.kt-review li .kt-abgrenzung { margin-top: 8px; }
+.kt-verwechslung .kt-abgrenzung { background: rgba(0,0,0,.15); }
+.card.kontrast .row:last-child { padding: 8px 10px; margin: 10px -10px 0; border-radius: 8px; background: rgba(201,168,76,.06); }
+.card.kontrast .row:last-child .eyebrow { color: var(--gold); }
+.kt-top { color: var(--gold); }
