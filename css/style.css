@@ -375,3 +375,20 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
 /* Einstellungen */
 .settings .eyebrow.gap { margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line); }
 .card.gefahr { border-color: #4a2a2a; background: #160f0f; }
+
+/* Spielbuch */
+.spielbuch { display: grid; gap: 16px; }
+.card.sb h3 { margin: 6px 0 12px; font-size: 1.25rem; }
+.sb-row { display: grid; grid-template-columns: 150px 1fr; gap: 12px; padding: 8px 0; border-top: 1px solid var(--line); font-size: .95rem; }
+.sb-row .lbl { color: var(--muted); font-size: .8rem; text-transform: uppercase; letter-spacing: .06em; padding-top: 3px; }
+.sb-row.mine { background: var(--bg-3); margin: 0 -12px; padding: 10px 12px; border-radius: 8px; border-top: 0; }
+.sb-row.mine .lbl { color: var(--gold); }
+.sb-row.falle .lbl { color: var(--red); }
+@media (max-width: 560px) { .sb-row { grid-template-columns: 1fr; gap: 4px; } }
+.card.rs .meta { margin-bottom: 8px; }
+.nav-count { display: inline-block; min-width: 18px; padding: 0 5px; border-radius: 9px; background: var(--gold); color: #111; font-size: .7rem; text-align: center; margin-left: 4px; }
+@media print {
+  .spielbuch .card { break-inside: avoid; border-color: #bbb; background: #fff; color: #111; box-shadow: none; }
+  .sb-row.mine { background: #f3eedd; } .sb-row .lbl { color: #666; } .sb-row.mine .lbl { color: #7a5c14; } .sb-row.falle .lbl { color: #8a2a2a; }
+  .card.sb h3, .hero h1 { color: #111; } .hero .lead, .meta, .muted { color: #444; } details.muster { display: none; } .tag { border: 1px solid #999; color: #333; }
+}
