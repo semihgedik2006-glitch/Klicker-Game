@@ -640,7 +640,13 @@
   let examState = null;
   route('pruefung', ([kid]) => {
     const k = kursById(kid); if (!k) return routes.start();
-    if (!allLessonsDone(k)) return `<div class="callout warn"><div class="label">Gesperrt</div>Erst alle Lektionen von Modul ${k.nr} abschließen. <a href="#/kurs/${k.id}">Zum Modul</a></div>`;
+    if (!allLessonsDone(k)) { const offen = k.lektionen.filter(l => !lessonDone(l.id)); return `
+      <div class="breadcrumb"><a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Prüfung</div>
+      <section class="hero small"><div class="eyebrow">Modulprüfung · noch gesperrt</div><h1>${esc(k.titel)}</h1>
+        <p class="lead">Die Prüfung öffnet sich, sobald alle ${k.lektionen.length} Lektionen abgeschlossen sind. ${offen.length === 1 ? 'Eine fehlt noch:' : `${offen.length} fehlen noch:`}</p>
+        <ul class="wv-list pruefung-offen">${offen.map(l => `<li><a href="#/lektion/${k.id}/${l.id}">Lektion ${k.nr}.${lessonIndex(k, l.id) + 1} · ${esc(l.titel)}</a><span class="muted small"> · ${esc(l.dauer || '10 Min')}</span></li>`).join('')}</ul>
+        <div class="btn-row"><a class="btn primary" href="#/lektion/${k.id}/${offen[0].id}">Weiter mit Lektion ${k.nr}.${lessonIndex(k, offen[0].id) + 1} →</a></div>
+      </section>`; }
     const ex = S.exams[kid] || { attempts: [], passed: false, best: 0 };
     const lastFail = ex.attempts.filter(a => !a.passed).slice(-1)[0];
     const locked = lastFail && Date.now() - lastFail.ts < EXAM_COOLDOWN && !ex.passed;
@@ -648,7 +654,7 @@
     return `
       <div class="breadcrumb"><a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Prüfung</div>
       <section class="hero small"><div class="eyebrow">Modulprüfung</div><h1>${esc(k.titel)}</h1>
-        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang.</p>
+        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen${k.nr > 1 ? ' plus 3 Rückblick-Fragen aus früheren Modulen' : ''}, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang; nach einem Fehlversuch sind ${EXAM_COOLDOWN / 60000} Minuten Pause.</p>
         ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length}${ex.attempts.some(a => a.abgebrochen) ? ' (davon ' + ex.attempts.filter(a => a.abgebrochen).length + ' abgebrochen)' : ''} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
         ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Du hast dieses Modul mit ${ex.best} % bestanden. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
         ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nicht bestanden. Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten. Nutze die Zeit: Lies die Lektionen, in denen du Fehler hattest.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="${kid}">Prüfung starten</button></div>`}
