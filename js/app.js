@@ -756,14 +756,14 @@
         <p class="lead">${esc(p.kurz)}</p>
         <div class="legend"><span class="tag green">primär</span> belegt in Interview/Brief/Rede · <span class="tag gold">buch</span> aus eigenem Buch oder autorisierter Biografie · <span class="tag">zugeschrieben</span> keine Primärquelle gefunden</div>
         ${p.zitate.map(z => quoteCard(z)).join('')}
-        ${p.mythen && p.mythen.length ? `<h2>Mythen-Check</h2>${p.mythen.map(m => `<div class="callout warn"><div class="label">Mythos</div><p><em>${esc(m.text)}</em></p><div class="label">Wahrheit</div>${esc(m.wahrheit)}</div>`).join('')}` : ''}`;
+        ${p.mythen && p.mythen.length ? `<h2>Falsch zugeschrieben</h2>${p.mythen.map(m => `<div class="callout warn"><div class="label">Angeblich</div><p><em>${esc(m.text)}</em></p><div class="label">Wahrheit</div>${esc(m.wahrheit)}</div>`).join('')}` : ''}`;
     }
     const themen = window.MILLIARDAERE_THEMEN;
     const f = libFilter;
     const persons = M.filter(p => (f.kat === 'alle' || p.kategorie === f.kat)).sort((a, b) => (a.prio || 9) - (b.prio || 9));
     const quotes = M.flatMap(p => p.zitate.map(z => ({ ...z, person: p }))).filter(z => (f.thema === 'alle' || z.thema === f.thema) && (f.kat === 'alle' || z.person.kategorie === f.kat) && (!f.q || (z.en + z.de + z.person.name + (z.lektion || '')).toLowerCase().includes(f.q.toLowerCase())));
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Milliardärs-Bibliothek</h1>
-      <p class="lead">${M.length} Personen, ${M.reduce((a, p) => a + p.zitate.length, 0)} Zitate, jedes nach Quellenlage markiert. Danach: <a href="#/mythen">Mythen-Check</a>.</p><div class="callout warn"><div class="label">Lies das richtig</div>Erfahrungswissen von Gewinnern, kein Beweis (Survivorship Bias, Lektion 1.3).</div></section>
+      <p class="lead">${M.length} Personen, ${M.reduce((a, p) => a + p.zitate.length, 0)} Zitate, jedes nach Quellenlage markiert. Dazu: <a href="#/mythen">Mythen-Check</a>.</p><div class="callout warn"><div class="label">Lies das richtig</div>Erfahrungswissen von Gewinnern, kein Beweis (Survivorship Bias, Lektion 1.3).</div></section>
       <input class="search" id="lib-q" aria-label="Suche in Zitaten und Namen" placeholder="Suche in Zitaten und Namen…" value="${esc(f.q)}">
       <div class="filters" id="lib-kat">${[['alle', 'Alle'], ['tech', 'Tech'], ['investor', 'Investoren'], ['unternehmer', 'Unternehmer']].map(([v, t]) => `<button class="${f.kat === v ? 'active' : ''}" data-kat="${v}">${t}</button>`).join('')}</div>
       <div class="filters" id="lib-thema"><button class="${f.thema === 'alle' ? 'active' : ''}" data-thema="alle">Alle Themen</button>${Object.entries(themen).map(([k, v]) => `<button class="${f.thema === k ? 'active' : ''}" data-thema="${k}">${esc(v)}</button>`).join('')}</div>
@@ -779,22 +779,23 @@
   }
 
   let mythState = null;
+  function mythQuote(m) { const p = window.MILLIARDAERE.find(x => x.name === m.person); const z = p && p.zitate.find(z => z.en.startsWith(m.zitat)); return { p, z }; }
+  function mythReveal(m) { const { p, z } = mythQuote(m); return `<div class="quote-card"><div class="en">“${esc(z.en)}”</div><div class="de">${esc(z.de)}</div><div class="src">${p ? `<a href="#/milliardaere/${p.id}">${esc(m.person)}</a>` : esc(m.person)} · ${esc(z.quelle)}</div></div><p><strong>Merke:</strong> ${esc(m.merke)}</p>`; }
   route('mythen', () => {
-    const M = window.MILLIARDAERE;
-    if (!mythState) {
-      const items = [];
-      M.forEach(p => { p.zitate.forEach(z => items.push({ typ: 'zitat', text: z.en, de: z.de, name: p.name, echt: z.status !== 'zugeschrieben', erkl: `${z.status === 'primaer' ? 'Primärquelle' : z.status === 'buch' ? 'Buchquelle' : 'Keine Primärquelle gefunden'}: ${z.quelle}` })); (p.mythen || []).forEach(m => items.push({ typ: 'mythos', text: m.text, name: p.name, echt: false, erkl: m.wahrheit })); });
-      const echt = shuffle(items.filter(x => x.echt)).slice(0, 5), falsch = shuffle(items.filter(x => !x.echt)).slice(0, 5);
-      mythState = { items: shuffle(echt.concat(falsch)), i: 0, score: 0, done: false, last: null };
-    }
+    if (!ensureData('MYTHEN', 'mythen', 'Mythen')) return '<section class="hero small"><h1>Mythen-Check</h1><p class="muted">Lädt…</p></section>';
+    const all = window.MYTHEN.filter(m => mythQuote(m).z);
+    const namen = [...new Set(all.map(m => m.person))];
+    if (!mythState) mythState = { items: shuffle(all.slice()).slice(0, 10).map(m => ({ m, opts: shuffle([m.person].concat(shuffle(namen.filter(n => n !== m.person)).slice(0, 2))) })), i: 0, score: 0, done: false, last: null };
     const s = mythState;
-    if (s.done) { const r = s; mythState = null; return `<section class="hero small"><div class="eyebrow">Mythen-Check</div><h1>${r.score} von ${r.items.length}</h1><p class="lead">${r.score >= 8 ? 'Du erkennst, was belegt ist.' : 'Zurück in die Bibliothek und auf die Quellenmarkierung achten.'}</p><div class="btn-row"><a class="btn primary" href="#/mythen">Nochmal</a><a class="btn ghost" href="#/milliardaere">Bibliothek</a></div></section>`; }
+    const liste = `<details class="card"><summary>Alle ${all.length} Mythen mit Quelle</summary>${all.map(m => `<h3>${esc(m.mythos)}</h3>${mythReveal(m)}`).join('')}</details>`;
+    if (s.done) { const r = s; mythState = null; return `<section class="hero small"><div class="eyebrow">Mythen-Check</div><h1>${r.score} von ${r.items.length}</h1><div class="btn-row"><a class="btn primary" href="#/mythen">Nochmal</a></div></section>${liste}`; }
     const it = s.items[s.i];
     return `<section class="hero small"><div class="eyebrow">Mythen-Check · ${s.i + 1} von ${s.items.length} · Richtig: ${s.score}</div>
-      <h1>Echt oder erfunden?</h1>
-      <div class="quote-card"><div class="en">“${esc(it.text)}”</div>${it.de ? `<div class="de">${esc(it.de)}</div>` : ''}<div class="src">zugeschrieben: ${esc(it.name)}</div></div>
-      ${s.last ? `<div class="callout ${s.last.ok ? 'study' : 'warn'}"><div class="label">${s.last.ok ? 'Richtig' : 'Falsch'}</div>${esc(s.last.erkl)}</div><div class="btn-row"><button class="btn primary" data-act="myth-next">Weiter</button></div>`
-        : `<div class="btn-row"><button class="btn" data-act="myth-answer" data-v="1">Belegt (Primär- oder Buchquelle)</button><button class="btn ghost" data-act="myth-answer" data-v="0">Zugeschrieben / verkürzt / erfunden</button></div>`}
+      <h1>Wer hat diesen Mythos widerlegt?</h1>
+      <p class="lead">Verbreitete Annahmen übers Verkaufen, denen Milliardäre selbst widersprechen.</p>
+      <div class="callout warn"><div class="label">Mythos</div><p><em>${esc(it.m.mythos)}</em></p></div>
+      ${s.last ? `<div class="callout ${s.last.ok ? 'study' : 'warn'}"><div class="label">${s.last.ok ? 'Richtig' : 'Es war ' + esc(it.m.person)}</div>${mythReveal(it.m)}</div><div class="btn-row"><button class="btn primary" data-act="myth-next">Weiter</button></div>`
+        : `<div class="btn-row">${it.opts.map(n => `<button class="btn" data-act="myth-answer" data-v="${esc(n)}">${esc(n)}</button>`).join('')}</div>`}
     </section>`;
   });
 
@@ -1377,7 +1378,7 @@
     const el = e.target.closest('[data-act]'); if (!el) return; const a = el.dataset.act;
     if (a === 'exam-start') startExam(el.dataset.kid);
     else if (a === 'exam-answer') examAnswer(el.dataset.oi);
-    else if (a === 'myth-answer') { const s = mythState; const it = s.items[s.i]; const ok = (el.dataset.v === '1') === it.echt; if (ok) s.score++; s.last = { ok, erkl: it.erkl }; touch(); navigate(); }
+    else if (a === 'myth-answer') { const s = mythState; const it = s.items[s.i]; const ok = el.dataset.v === it.m.person; if (ok) s.score++; s.last = { ok }; touch(); navigate(); }
     else if (a === 'myth-next') { const s = mythState; s.last = null; s.i++; if (s.i >= s.items.length) { s.done = true; (S.drills.mythen = S.drills.mythen || []).push({ ts: Date.now(), score: s.score }); save(); } navigate(); }
     else if (a === 'rp-start') { const s = window.SZENARIEN.find(x => x.id === el.dataset.sid); rpState = { sid: s.id, node: s.offline.start, hist: [] }; navigate(); setTimeout(() => $('#rp-box') && $('#rp-box').scrollIntoView({ behavior: 'smooth' }), 50); }
     else if (a === 'rp-choose') { const s = window.SZENARIEN.find(x => x.id === rpState.sid); const node = s.offline.knoten[rpState.node]; const o = node.optionen[Number(el.dataset.oi)]; rpState.hist.push({ npc: node.npc, you: o.text, feedback: o.feedback, bewertung: o.bewertung }); rpState.node = o.next; const nn = s.offline.knoten[o.next]; if (nn.ende) { const good = rpState.hist.filter(h => h.bewertung === 'good').length; (S.drills['rp_' + s.id] = S.drills['rp_' + s.id] || []).push({ ts: Date.now(), art: 'Offline', score: good, n: rpState.hist.length, fazit: nn.fazit }); touch(); save(); } $('#rp-box').innerHTML = renderRp(s); }
