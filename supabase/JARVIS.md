@@ -43,7 +43,8 @@ Sobald Teil 2 eingerichtet ist, ersetzt der Anruf am Sonntag die Telegram-Nachri
 ## Kosten
 
 - Supabase: kostenlos.
-- Claude: Standard ist `claude-opus-5-5`, grob 2 bis 4 Cent pro Nachricht. Mit dem Secret `JARVIS_MODELL` = `claude-haiku-5-5` etwa 40-mal günstiger, dafür weniger gründlich.
+- Claude: Standard ist `claude-opus-5-5`, grob 2 bis 5 Cent pro Nachricht. Mit dem Secret `JARVIS_MODELL` = `claude-sonnet-5-5` etwa halb so teuer, mit `claude-haiku-5-5` etwa 40-mal günstiger, dafür weniger gründlich.
+- In der Anthropic Console unter **Limits** ein Monatslimit setzen (z. B. 10 €). Das ist der wichtigste Schutz gegen Überraschungen.
 - Anrufe: Vapi 5 Cent pro Minute plus Telefonie, Spracherkennung, Stimme und Modell. Vor dem ersten Monat in Vapi unter **Billing** die tatsächlichen Minutenkosten prüfen.
 
 ## Was wo liegt

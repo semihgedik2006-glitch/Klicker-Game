@@ -68,7 +68,7 @@ insert into public.jarvis_einstellungen (schluessel, wert) values
 on conflict (schluessel) do nothing;
 
 create extension if not exists pg_cron;
-create extension if not exists pg_net;
+create extension if not exists pg_net schema extensions;
 
 select cron.unschedule('jarvis-takt') where exists (select 1 from cron.job where jobname = 'jarvis-takt');
 select cron.schedule('jarvis-takt', '*/5 * * * *', $$
