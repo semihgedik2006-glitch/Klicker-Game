@@ -170,7 +170,7 @@ th { color: var(--gold); font-weight: 500; font-size: .78rem; letter-spacing: .1
 .quiz label.opt input { accent-color: var(--gold); margin-top: 4px; }
 .count { font-size: .8rem; margin: 6px 0 0; }
 .count.ok { color: var(--green); }
-.log-entry .meta { font-size: .75rem; color: var(--muted); margin-bottom: 4px; display: flex; gap: 8px; align-items: center; }
+.log-entry .meta { font-size: .75rem; color: var(--muted); margin-bottom: 4px; display: flex; gap: 4px 10px; align-items: center; flex-wrap: wrap; }
 .log-entry.ok { border-left-color: var(--green); }
 .log-entry.fail { border-left-color: var(--red); }
 .log-entry .feedback { margin-top: 8px; padding: 10px 14px; background: var(--bg-2); border-radius: 10px; font-size: .9rem; }

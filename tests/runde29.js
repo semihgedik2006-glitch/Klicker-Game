@@ -1,0 +1,35 @@
+// Runde 5, Durchgang 30: Lektionsseite auf dem Handy in allen Phasen (Vorfrage, Lesen, Abruf, Quiz, Bericht, fertig)
+const { chromium } = require('playwright'); const path = require('path');
+(async () => {
+  const b = await chromium.launch(); const page = await b.newPage({ viewport: { width: 390, height: 844 } });
+  const errs = []; page.on('pageerror', e => errs.push(e.message)); page.on('console', m => { if (m.type() === 'error') errs.push(m.text()); });
+  await page.goto('file://' + path.resolve(__dirname, '..', 'index.html'));
+  const go = async h => { await page.evaluate(hh => { location.hash = hh; }, h); await page.waitForTimeout(600); };
+  const ok = (name, cond, extra = '') => console.log(name + ':', cond ? 'OK' : 'FEHLER', extra);
+  const L = '#/lektion/grundlagen/g1';
+  const noOverflow = () => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  await page.evaluate(() => { const S = window.VA.S; S.onboarded = true; S.name = 'Test'; window.VA.save(); });
+  await go(L);
+  const v = await page.evaluate(() => ({ ph: document.querySelector('.vorfrage-form textarea').getAttribute('placeholder'), note: (document.querySelector('.vorfrage .small-note') || {}).textContent || '' }));
+  ok('Vorfrage: kurzer Platzhalter, Erklärung als Text davor', v.ph.length < 30 && /Pretesting/.test(v.note), v.ph);
+  ok('Vorfrage: kein Overflow', await noOverflow());
+  await page.fill('.vorfrage-form textarea', 'Ich vermute, dass Ambiverts besser zuhören und deshalb mehr verkaufen.');
+  await page.click('.vorfrage-form button[type=submit]'); await page.waitForTimeout(600);
+  ok('Nach der Vorfrage: Text und Abruf-Formular sichtbar', await page.evaluate(() => !!document.querySelector('.abruf-form') && !document.querySelector('.locked-note')));
+  await page.fill('.abruf-form textarea', 'Pink hat gezeigt, dass rund 40 Prozent der Arbeitszeit aus Überzeugen ohne Geldfluss bestehen. Verkaufen heißt helfen, eine Entscheidung zu treffen. Ablehnung ist normal.');
+  await page.click('.abruf-form button[type=submit]'); await page.waitForTimeout(600);
+  ok('Nach dem Abruf: Kernpunkte und Quiz offen', await page.evaluate(() => !!document.querySelector('.abruf .kern') && !document.querySelector('#quiz-box.locked')));
+  ok('Quiz-Phase: kein Overflow', await noOverflow());
+  await page.evaluate(() => { const S = window.VA.S; S.quiz.g1 = { score: 6, total: 6, ts: Date.now(), versuche: 1 }; window.VA.save(); });
+  await go('#/'); await go(L);
+  const btns = await page.evaluate(() => [...document.querySelectorAll('.report .btn-row .btn')].map(b => b.className));
+  ok('Bericht: Hauptaktion steht zuerst', /primary/.test(btns[0]) && /ghost/.test(btns[1]), JSON.stringify(btns));
+  await page.evaluate(() => { const S = window.VA.S; S.reports.g1 = [{ text: 'Ich habe gestern meinen Kollegen gefragt, ob er das neue Tool testet. Er hat Nein gesagt. Ich habe nachgefragt, was ihn Zeit kostet, und er hat eine Stunde nächste Woche zugesagt.', ts: Date.now(), bestanden: true, note: 8, von: 'Selbst-Check', feedback: 'Konkret.' }]; S.lessonsDone.g1 = Date.now(); window.VA.save(); });
+  await go('#/'); await go(L);
+  const meta = await page.evaluate(() => { const m = document.querySelector('#report-box .log-entry .meta'); return { text: m.textContent, spans: m.querySelectorAll('span').length }; });
+  ok('Bericht-Kopfzeile ohne lose Trennpunkte', !/·/.test(meta.text) && meta.spans === 4 && /Note 8\/10/.test(meta.text) && /Selbst-Check/.test(meta.text), meta.text);
+  ok('Fertig: Weiter-Button zur nächsten Lektion', await page.evaluate(() => /Nächste Lektion/.test([...document.querySelectorAll('.btn-row')].pop().textContent)));
+  ok('Fertig: kein Overflow', await noOverflow());
+  console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');
+  await b.close();
+})();
