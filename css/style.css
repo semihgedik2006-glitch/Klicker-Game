@@ -422,3 +422,14 @@ a.gl { color: inherit; text-decoration: underline dotted var(--gold, #c9a85c); t
 a.gl:hover { color: var(--gold, #c9a85c); text-decoration-style: solid; }
 .gl-hint { margin: -4px 0 14px; }
 @media print { a.gl { text-decoration: none; } .gl-hint { display: none; } }
+
+/* Einwand-Drill: Texthinweise und Selbstbewertung nach Kriterien */
+.ew-check ul { margin: 6px 0 8px; padding-left: 18px; }
+.ew-check li { margin-bottom: 6px; }
+.ew-check li.warn::marker { color: var(--red); }
+.ew-check li.ok::marker { color: var(--green); }
+.ew-rubrik label.check { display: flex; gap: 12px; align-items: flex-start; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px; margin-bottom: 8px; cursor: pointer; font-size: .95rem; }
+.ew-rubrik label.check:has(input:checked) { border-color: var(--gold); background: rgba(201,168,76,.06); }
+.ew-rubrik label.check input { margin-top: 4px; accent-color: var(--gold); flex: none; }
+.ew-rubrik label.check.falle { border-style: dashed; }
+.ew-rubrik .btn-row { margin-top: 12px; }

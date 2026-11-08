@@ -989,6 +989,26 @@
     if (!ewLoading) { ewLoading = true; const sc = document.createElement('script'); sc.src = 'js/data/einwaende.js'; sc.onload = () => navigate(); sc.onerror = () => { ewLoading = false; toast('Einwände konnten nicht geladen werden.', 'bad'); }; document.head.appendChild(sc); }
     return false;
   }
+  // Dieselben Kriterien wie im Coach-Prompt (sysEinwand): vier Dimensionen plus Falle. „Getroffen“ = alle vier und Falle vermieden, „teilweise“ = mindestens zwei.
+  const EW_KRITERIEN = [
+    { id: 'zuhoeren', name: 'Zugehört und anerkannt', frage: 'Label oder Spiegel, bevor ein Argument kommt.' },
+    { id: 'erkunden', name: 'Erkundet statt verteidigt', frage: 'Eine Frage, die isoliert oder den Maßstab holt.' },
+    { id: 'beleg', name: 'Beleg oder Zahl des Kunden', frage: 'Seine Zahl, sein Beispiel, nicht deine Prospektzahl.' },
+    { id: 'schritt', name: 'Nächster Schritt vereinbart', frage: 'Ein konkreter Vorschlag, was als Nächstes passiert.' },
+  ];
+  function ewWertAus(kriterien, falle) { return kriterien.length === 4 && falle ? 2 : kriterien.length >= 2 ? 1 : 0; }
+  // Rein sprachliche Prüfung der Antwort: findet Muster, die im Text sichtbar sind. Kein Urteil über Ton und Timing.
+  function ewHinweise(text, e) {
+    const t = ' ' + text.replace(/\s+/g, ' ').trim() + ' '; const erster = t.split(/(?<=[.!?])\s/)[0] || t;
+    const out = [];
+    if (!/\?/.test(t)) out.push({ art: 'warn', text: 'Keine Frage in deiner Antwort. Erkunden und Isolieren gehen nur mit einer Frage, zum Beispiel „Zu teuer im Vergleich womit?“ oder „Angenommen, das wäre geklärt, würden Sie es dann machen?“' });
+    if (/^\s*(aber|nein|doch|das stimmt nicht|falsch)\b/i.test(text) || /\b(aber|allerdings)\b/i.test(erster) && !/\?/.test(erster)) out.push({ art: 'warn', text: 'Dein erster Satz widerspricht. Nach LAER kommt das Argument an dritter oder vierter Stelle; davor stehen Zuhören und Anerkennen.' });
+    if (/\b(rabatt|nachlass|skonto|günstiger|billiger|entgegenkommen|prozent)\b|\d\s?%/i.test(t) && /^(teuer|budget|rabatt|wettbewerber|gehalt)$/.test(e.id)) out.push({ art: 'warn', text: 'Du bietest von dir aus einen Nachlass an. Das ist bei diesem Einwand die häufigste Falle: ein Zugeständnis ohne Gegenleistung, bevor der Maßstab geklärt ist.' });
+    if (/\b(verstehe|klingt|höre|hört sich|scheint|nachvollziehen|es wirkt)\b/i.test(erster)) out.push({ art: 'ok', text: 'Du beginnst mit Anerkennen oder einem Label. Das ist der erste Schritt nach LAER.' });
+    if (/\b(sie sagten|sie meinten|vorhin|ihre zahl|bei ihnen|in ihrem)\b/i.test(t)) out.push({ art: 'ok', text: 'Du greifst etwas auf, das der Kunde gesagt hat. Seine Zahlen tragen weiter als deine.' });
+    if (!out.length) return '';
+    return `<div class="callout study ew-check"><div class="label">Was im Text steht</div><ul>${out.map(h => `<li class="${h.art}">${esc(h.text)}</li>`).join('')}</ul><p class="muted small">Eine Textprüfung auf Fragezeichen, Reihenfolge und Zugeständnisse. Ton, Tempo und Pausen kann nur ein Gegenüber beurteilen: der Coach mit Schlüssel oder ein Mensch im echten Gespräch.</p></div>`;
+  }
   route('einwaende', ([eid]) => {
     if (!ensureEinwaende()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Drill</h1><p class="muted">Lade Einwände…</p></section>';
     const E = window.EINWAENDE;
@@ -1005,13 +1025,18 @@
     return `<div class="breadcrumb"><a href="#/einwaende">Einwand-Drill</a> › ${esc(e.einwand)}</div>
       <section class="card exam-q"><div class="eyebrow">${esc(e.kontext)}</div><h2>„${esc(e.einwand)}“</h2>
         ${ewState.offen ? `<div class="log-entry"><div class="meta">Deine Antwort</div><div class="body">${esc(ewState.antwort)}</div></div>
+          ${ewHinweise(ewState.antwort, e)}
           <div class="callout study"><div class="label">Was meist dahintersteckt</div>${esc(e.warum)}</div>
           <h3>Vorgehen</h3><ol class="steps">${e.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol>
           <div class="callout practice"><div class="label">Ein mögliches Muster</div>${esc(e.muster)}</div>
           <div class="callout warn"><div class="label">Die häufigste Falle</div>${esc(e.falle)}</div>
           <p class="muted small"><strong>Beleg, der die Antwort trägt:</strong> ${esc(e.beweis)}${fl ? ` · Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a>` : ''}</p>
-          <h3>Ehrliche Selbstbewertung</h3><p class="muted">Vergleiche deine Antwort mit dem Vorgehen, nicht mit dem Wortlaut. Hast du zugehört und anerkannt, bevor du argumentiert hast? Hast du isoliert oder gefragt, statt zu verteidigen?</p>
-          <div class="btn-row"><button class="btn ghost" data-act="ew-wert" data-wert="0">Daneben</button><button class="btn ghost" data-act="ew-wert" data-wert="1">Teilweise</button><button class="btn primary" data-act="ew-wert" data-wert="2">Getroffen</button></div>`
+          <h3>Selbstbewertung nach Kriterien</h3><p class="muted">Dieselben vier Kriterien, nach denen auch der Coach bewertet. Hake nur ab, was in deiner Antwort tatsächlich steht, nicht, was du gemeint hast. Das Urteil ergibt sich aus den Haken.</p>
+          <form class="ew-rubrik" data-id="${e.id}">
+            ${EW_KRITERIEN.map(k => `<label class="check"><input type="checkbox" name="k" value="${k.id}"><span><strong>${k.name}</strong> <span class="muted">${k.frage}</span></span></label>`).join('')}
+            <label class="check falle"><input type="checkbox" name="falle" value="1"><span><strong>Falle vermieden</strong> <span class="muted">Die Falle hier: ${esc(e.falle.split('.')[0].replace(/^./, c => c.toLowerCase()))}.</span></span></label>
+            <div class="btn-row"><button class="btn primary" type="submit">Bewertung speichern</button></div>
+          </form>`
         : `<p class="muted">Antworte so, wie du es dem Kunden sagen würdest, in ganzen Sätzen. Mindestens 60 Zeichen. Noch besser: erst laut sprechen, dann tippen.</p>
           <form class="ew-form" data-id="${e.id}"><textarea class="journal" rows="4" placeholder="Deine Antwort an den Kunden…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Antwort festhalten und Muster sehen</button>${S.apiKey ? `<a class="btn ghost" href="#/coach?einwand=${e.id}">Mit dem Coach live üben</a>` : ''}</div></form>`}
       </section>
@@ -1296,7 +1321,7 @@
       <div class="spielbuch">${mit.map(e => { const r = eintrag(e); return `<article class="card sb"><div class="meta"><span class="tag ${r.wert === 2 ? 'green' : r.wert === 1 ? 'gold' : ''}">${WERT[r.wert]}</span><span class="muted">${esc(e.kontext)}</span></div>
         <h3>„${esc(e.einwand)}“</h3>
         <div class="sb-row"><div class="lbl">Dahinter steckt meist</div><div>${esc(e.warum)}</div></div>
-        <div class="sb-row mine"><div class="lbl">Meine Antwort</div><div>${esc(r.antwort)}${r.coach != null ? ` <span class="muted small">(Coach: ${r.coach}/40)</span>` : ''}</div></div>
+        <div class="sb-row mine"><div class="lbl">Meine Antwort</div><div>${esc(r.antwort)}${r.coach != null ? ` <span class="muted small">(Coach: ${r.coach}/40)</span>` : r.kriterien ? ` <span class="muted small">(Selbstcheck ${r.kriterien.length}/4${r.falle ? ', Falle vermieden' : ''})</span>` : ''}</div></div>
         <details class="muster"><summary>Muster nach LAER</summary><p>${esc(e.muster)}</p><ol class="steps">${e.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details>
         <div class="sb-row falle"><div class="lbl">Falle</div><div>${esc(e.falle)}</div></div>
         ${e.beweis ? `<div class="sb-row"><div class="lbl">Beleg</div><div>${esc(e.beweis)}</div></div>` : ''}
@@ -1325,6 +1350,7 @@
     else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Befund, Empfehlung, Prüfung, Risiko: alles vier gehört hinein.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('fall-rubrik')) { e.preventDefault(); const w = {}; window.FAELLE_RUBRIK.forEach(d => { const r = f.querySelector(`input[name="r-${d.id}"]:checked`); w[d.id] = r ? Number(r.value) : 1; }); faState.wertung = w; faState.stufe = 2; const sum = Object.values(w).reduce((a, b) => a + b, 0); (S.drills['fall_' + faState.id] = S.drills['fall_' + faState.id] || []).push({ ts: Date.now(), selbst: sum, wertung: w, text: faState.text.slice(0, 4000) }); touch(); save(); navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('wb-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Schreib alle Schritte aus.`, 'bad'); wbState.text = t; wbState.offen = true; navigate(); }
+    else if (f.classList.contains('ew-rubrik')) { e.preventDefault(); const id = f.dataset.id; if (!ewState || ewState.id !== id) return; const kriterien = [...f.querySelectorAll('input[name="k"]:checked')].map(i => i.value); const falle = !!f.querySelector('input[name="falle"]:checked'); const wert = ewWertAus(kriterien, falle); (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert, antwort: ewState.antwort.slice(0, 400), kriterien, falle }); touch(); save(); ewState = null; toast(wert === 2 ? 'Getroffen: alle vier Kriterien und Falle vermieden. Morgen noch einmal, dann sitzt es.' : wert === 1 ? `Teilweise: ${kriterien.length} von 4${falle ? '' : ', Falle nicht vermieden'}. Nimm dir beim nächsten Mal zuerst das fehlende Kriterium vor.` : 'Daneben. Lies das Vorgehen noch einmal und probier den ersten Schritt heute in einem echten Gespräch.', wert === 2 ? 'good' : ''); navigate(); }
     else if (f.classList.contains('ew-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 60) return toast(`Zu kurz. ${60 - t.length} Zeichen fehlen. Sag es so, wie du es sagen würdest.`, 'bad'); ewState = { id: f.dataset.id, antwort: t, offen: true }; navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
@@ -1356,7 +1382,7 @@
     else if (a === 'wb-retry') { wbState.offen = false; wbState.text = ''; navigate(); }
     else if (a === 'wb-back') { wbState = { id: wbState.id, stufe: Math.max(0, wbState.stufe - 1), offen: false, text: '' }; navigate(); }
     else if (a === 'show-opts') { const box = el.closest('.quiz-q'); box.querySelector('.opts').hidden = false; el.remove(); }
-    else if (a === 'ew-wert') { const id = ewState.id; (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert: Number(el.dataset.wert), antwort: ewState.antwort.slice(0, 400) }); touch(); save(); ewState = null; toast(el.dataset.wert === '2' ? 'Gemerkt. Morgen noch einmal, dann sitzt es.' : 'Gemerkt. Lies das Vorgehen noch einmal und probier es heute in einem echten Gespräch.', el.dataset.wert === '2' ? 'good' : ''); navigate(); }
+
     else if (a === 'report-vorlage') { const ta = el.closest('form').querySelector('textarea'); const tpl = 'Situation (wann, wo, mit wem):\n\nWas ich konkret gesagt oder getan habe:\n\nWas daraufhin passiert ist (Reaktion, Wortlaut, Ergebnis):\n\nWas ich beim nächsten Mal anders mache und woran ich merke, dass es wirkt:\n'; ta.value = ta.value.trim() ? ta.value + '\n\n' + tpl : tpl; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); }
     else if (a === 'print') { window.print(); }
     else if (a === 'rp-plan-edit') { rpPlanEdit = el.dataset.sid; navigate(); }
