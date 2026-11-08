@@ -339,11 +339,16 @@
       else deutung = `Mittelfeld: ${ps !== null ? `${ps} % richtig bei „sicher“` : 'noch nie „sicher“ angekreuzt'}${pu !== null ? `, ${pu} % bei „unsicher“` : ''}. Je größer der Abstand zwischen beiden, desto besser kennst du dein eigenes Wissen.`;
     }
     const blind = blindIds.map(id => { const [lid, qi] = id.split(':'); const fl = findLesson(lid); const q = fl && fl.lektion.quiz[Number(qi)]; return fl && q ? { lid, kid: fl.kurs.id, titel: fl.lektion.titel, frage: q.frage, ts: S.blind[id] } : null; }).filter(Boolean).sort((a, b) => b.ts - a.ts);
+    // Nächster Schritt aus der Selbsteinschätzung: ein konkreter Link statt einer Diagnose ohne Folge
+    let schritt = '';
+    if (blind.length) { const byK = {}; for (const b of blind) byK[b.kid] = (byK[b.kid] || 0) + 1; const top = Object.entries(byK).sort((a, b) => b[1] - a[1])[0]; const kurs = KURSE.find(k => k.id === top[0]); if (kurs) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>${top[1]} deiner blinden Flecken liegen in „${esc(kurs.titel)}“. Wiederhol die Karten unten, dann <a href="#/pruefung/${kurs.id}">leg die Modulprüfung noch einmal ab</a>: Erst wenn „sicher“ dort stimmt, trägt das Wissen im Gespräch.</div>`; }
+    else if (n >= 10 && ps !== null && ps < 70) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>Mach die nächsten zehn Quizfragen mit Gegenprobe: Sag dir vor dem Klick in einem Satz, was gegen deine Antwort spricht. Wer Gegengründe sucht, schätzt sich treffender ein (Koriat, Lichtenstein & Fischhoff 1980).</div>`;
+    else if (n >= 10 && ps !== null && pu !== null && pu >= 80 && pu >= ps - 10) schritt = `<div class="callout practice"><div class="label">Nächster Schritt</div>Trau deinem Wissen im Ernstfall: Nimm dir <a href="#/einwaende">einen Einwand</a> und antworte laut, ohne vorher die Musterlösung zu lesen. Bewerte erst danach.</div>`;
     const row = (name, k, ok, p) => `<div class="kalib-row"><span class="lbl">${name} <span class="muted">(${k})</span></span><div class="bar"><div class="bar-fill" style="width:${p || 0}%"></div></div><strong>${p === null ? '–' : p + ' %'}</strong></div>`;
     return `<div class="card kalib"><div class="eyebrow">Selbsteinschätzung</div>
       <p class="muted">Bei jeder Quizfrage kannst du „Ich bin mir sicher“ ankreuzen. Hier siehst du, ob dein Gefühl die Wahrheit sagt.</p>
       ${row('Sicher', c.sicher, c.sicherOk, ps)}${row('Unsicher', c.unsicher, c.unsicherOk, pu)}
-      <p class="small">${deutung}</p>
+      <p class="small">${deutung}</p>${schritt}
       ${blind.length ? `<details><summary>${blind.length} blinde Flecken: sicher und trotzdem falsch</summary><ul class="wv-list">${blind.slice(0, 12).map(b => `<li><a href="#/lektion/${b.kid}/${b.lid}">${esc(b.titel)}</a><br><span class="muted small">${esc(b.frage)}</span></li>`).join('')}</ul><p class="muted small">Ein blinder Fleck verschwindet, sobald du die Karte in der Wiederholung richtig beantwortest.</p></details>` : '<p class="muted small">Kein blinder Fleck: Noch nie sicher und falsch zugleich.</p>'}</div>`;
   }
   function kalibZeile() {
