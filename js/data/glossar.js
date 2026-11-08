@@ -1,6 +1,13 @@
 // Glossar: Fachbegriffe des Curriculums mit Kurzdefinition und Fundstelle. Wird in #/glossar lazy geladen.
 // Felder: b Begriff, d Definition, syn Synonyme (optional), k Kurs-id, l Lektions-id der einführenden Lektion.
 window.GLOSSAR = [
+  { b: "Besitztumseffekt", d: "Was man besitzt, bewertet man höher als dasselbe Ding, das man nicht besitzt; Besitzer verlangten im Tassenexperiment etwa das Doppelte des Käuferpreises (Kahneman, Knetsch & Thaler 1990). Grundlage von Probezeit und Probefahrt.", syn: ["Endowment-Effekt"], k: "psychologie", l: "p4" },
+  { b: "Status-quo-Verzerrung", d: "Neigung, beim Bestehenden zu bleiben, nur weil es besteht; wächst mit der Zahl der Alternativen (Samuelson & Zeckhauser 1988). Gegenmittel im Verkauf: einen kleinen, umkehrbaren ersten Schritt anbieten.", syn: ["Status-quo-Bias"], k: "psychologie", l: "p4" },
+  { b: "Versunkene Kosten", d: "Bereits ausgegebenes, nicht rückholbares Geld, das Entscheidungen trotzdem beeinflusst („wir haben da so viel investiert“; Arkes & Blumer 1985). Antwort: Was kostet jede Option ab heute?", syn: ["Sunk-Cost-Effekt"], k: "psychologie", l: "p4" },
+  { b: "Fluch des Wissens", d: "Wer etwas weiß, kann sich nicht mehr vorstellen, es nicht zu wissen, und erklärt zu knapp oder zu fachlich (Camerer, Loewenstein & Weber 1989; Klopf-Experiment Newton 1990).", syn: ["Curse of Knowledge"], k: "kundenanalyse", l: "a1" },
+  { b: "Fundamentaler Attributionsfehler", d: "Fremdes Verhalten wird dem Charakter zugeschrieben, eigenes der Situation (Jones & Harris 1967; Ross 1977). Im Verkauf: „Der ist schwierig“ statt „Der hat gerade ein Problem“.", k: "kundenanalyse", l: "a1" },
+  { b: "Bestätigungsfehler", d: "Informationen werden so gesucht und gewichtet, dass sie die eigene Annahme stützen (Wason 1960; Nickerson 1998). Gefahr bei jeder schnellen Typ-Einordnung des Kunden.", syn: ["Confirmation Bias"], k: "kundenanalyse", l: "a1" },
+  { b: "Jobs to be Done", d: "Sicht auf den Kauf als „Einstellen“ eines Produkts für einen Fortschritt in einer bestimmten Situation (Christensen u. a. 2016). Vier Kräfte entscheiden: Schub vom Alten, Zug zum Neuen, Angst vor dem Neuen, Gewohnheit beim Alten (Moesta & Spiek 2020).", syn: ["JTBD"], k: "kundenanalyse", l: "a1" },
   { b: "Accusation Audit", d: "Voss' Technik, die negativen Gedanken des anderen auszusprechen, bevor er es tut („Sie denken wahrscheinlich, wir sind zu teuer“). Entschärft über denselben Mechanismus wie Labeling.", k: "verhandlung", l: "n2" },
   { b: "Ackerman-Methode", d: "Voss' Zugeständnis-Schema: Erstes Angebot bei 65 % des Ziels, dann 85, 95, 100 %, mit Labeln und kalibrierten Fragen dazwischen. Die letzte Zahl ist präzise und krumm, dazu ein nicht-monetäres Extra.", k: "verhandlung", l: "n2" },
   { b: "Agenda-Frame", d: "Rahmen zur Eröffnung, der Struktur, Zeit und Ziel des Gesprächs festlegt und mit „Passt das für Sie?“ das erste kleine Ja holt.", k: "gespraech", l: "v1" },
@@ -92,3 +99,4 @@ window.GLOSSAR = [
   { b: "ZOPA", d: "Zone of Possible Agreement: der Bereich zwischen dem Minimum des Verkäufers und dem Maximum des Käufers. Die fremde ZOPA lotest du mit Fragen aus, die eigene Grenze bleibt verdeckt.", syn: ["Einigungszone"], k: "verhandlung", l: "n1" },
   { b: "Zweiseitige Botschaft", d: "Argumentation, die das Gegenargument selbst nennt und entkräftet. Überzeugt laut O'Keefe (1999) am stärksten; nur nennen ohne Entkräften ist am schwächsten.", k: "gespraech", l: "v3" },
 ];
+window.GLOSSAR.sort((a, b) => a.b.localeCompare(b.b, 'de'));
