@@ -32,7 +32,7 @@ window.KONTRASTE = [
   { id: 'rezi-fitd-ditf', titel: 'Reziprozität, Fuß in der Tür oder Tür ins Gesicht?', lektion: 'p1',
     frage: 'Drei Techniken, die mit einer ersten Bitte oder Gabe arbeiten. Der Mechanismus ist jedes Mal ein anderer.',
     begriffe: [
-      { name: 'Reziprozität', kern: 'Erst geben, dann bitten. Die Gabe erzeugt das Gefühl, etwas zurückgeben zu müssen.', wirkung: 'Regan 1971: Eine unerwartete Cola verdoppelte die Losekäufe, unabhängig von Sympathie.', wann: 'Wenn du etwas Wertvolles, Unerwartetes und Persönliches geben kannst.' },
+      { name: 'Reziprozität', kern: 'Erst geben, dann bitten. Die Gabe erzeugt das Gefühl, etwas zurückgeben zu müssen.', wirkung: 'Regan 1971: Eine unerwartete Cola verdoppelte die Los-Käufe, unabhängig von Sympathie.', wann: 'Wenn du etwas Wertvolles, Unerwartetes und Persönliches geben kannst.' },
       { name: 'Fuß in der Tür', kern: 'Erst eine kleine Bitte, der zugestimmt wird, dann die große.', wirkung: 'Freedman & Fraser 1966: 76 % statt 17 % stimmten der großen Bitte zu, weil sie sich nun als hilfsbereit sahen.', wann: 'Wenn du Zeit hast und die kleine Bitte zum Selbstbild des Kunden passt.' },
       { name: 'Tür ins Gesicht', kern: 'Erst eine große Bitte, die abgelehnt wird, dann die eigentliche, kleinere.', wirkung: 'Cialdini 1975: Das Zugeständnis des Bittstellers löst ein Gegenzugeständnis aus.', wann: 'Wenn die große Bitte glaubwürdig ist und die kleine direkt danach kommt.' }
     ],
