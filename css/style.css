@@ -449,3 +449,8 @@ a.gl:hover { color: var(--gold, #c9a85c); text-decoration-style: solid; }
 /* Sichtbarer Tastaturfokus auch auf Haken und Radios (die allgemeine input:focus-Regel nimmt ihn sonst weg) */
 input[type="checkbox"]:focus-visible, input[type="radio"]:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 label.check:has(input:focus-visible), label.opt:has(input:focus-visible) { border-color: var(--gold); }
+
+/* Prüfung gesperrt: offene Lektionen als Liste */
+.pruefung-offen { margin: 0 0 18px; }
+.pruefung-offen li { padding: 8px 0; border-bottom: 1px solid var(--line); }
+.pruefung-offen li:last-child { border-bottom: 0; }
