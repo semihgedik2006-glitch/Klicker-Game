@@ -1,5 +1,3 @@
-// Baut js/data/quellen.js aus den Markdown-Tabellen in research/quellen/*.md
-// Aufruf: node tools/build-quellen.js
 const fs = require('fs'), path = require('path');
 const dir = path.join(__dirname, '..', 'research', 'quellen');
 const TITEL = { 'koerpersprache-stimme': 'Körpersprache & Stimme', 'milliardaere-investoren': 'Milliardäre & Investoren', 'selbstvermarktung-business': 'Selbstvermarktung & Business', 'tech-milliardaere': 'Tech-Milliardäre', 'verhandlung-einwaende-abschluss': 'Verhandlung, Einwände, Abschluss', 'verkaufsmethoden-coaches': 'Verkaufsmethoden & Coaches', 'entscheidungspsychologie': 'Entscheidungspsychologie', 'ueberzeugungspsychologie': 'Überzeugungspsychologie', 'kunden-analysieren': 'Kunden analysieren', 'selbstbewusstsein-kompetenzwirkung': 'Selbstbewusstsein & Kompetenzwirkung', 'lernforschung': 'Lernforschung (Methode der App)' };

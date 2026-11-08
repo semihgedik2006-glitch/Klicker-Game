@@ -1,5 +1,3 @@
-// Praxisprogramm: 30-Tage-Ablehnungstraining, Erfolgsleiter, tägliche Drills.
-// Quellen: research/selbstbewusstsein-kompetenzwirkung.md (Bandura, Seligman ABCDE, Exposition), Jiang (2015).
 window.ABLEHNUNGSTRAINING = [
   { tag: 1, aufgabe: "Frage in einem Geschäft nach einem Rabatt, ohne Grund. Egal welche Antwort.", stufe: 1 },
   { tag: 2, aufgabe: "Bitte einen Fremden um die Uhrzeit, obwohl du ein Handy hast. Halte Blickkontakt.", stufe: 1 },

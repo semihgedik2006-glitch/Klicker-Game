@@ -1,5 +1,3 @@
-// Rollenspiel-Szenarien. Jedes Szenario hat (a) eine Offline-Version mit Entscheidungsbaum und (b) eine Coach-Version mit verdeckten Infos und Pflichtkriterien für die KI.
-// Quelle u. a. research/verhandlung-einwaende-abschluss.md, Abschnitt 7.
 window.SZENARIEN = [
   {
     id: "preishammer", titel: "Der Preis-Hammer", level: "Einsteiger", modul: "gespraech",

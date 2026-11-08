@@ -1,4 +1,3 @@
-// Prüft Struktur aller Kursdateien: node tools/check-kurse.js
 global.window = global;
 const fs = require('fs'), path = require('path');
 const dir = path.join(__dirname, '..', 'js', 'data', 'kurse');

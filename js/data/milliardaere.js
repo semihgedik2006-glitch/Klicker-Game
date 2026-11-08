@@ -1,5 +1,3 @@
-// Milliardärs-Bibliothek. status: "primaer" (an Primärquelle geprüft), "buch" (Buch/Rede bekannt, Wortlaut vor Zitat prüfen), "zugeschrieben" (nur Sekundärquellen).
-// Quelle: research/tech-milliardaere-verkaufen.md und research/milliardaere-investoren.md
 window.MILLIARDAERE = [
   { id: "jobs", name: "Steve Jobs", firma: "Apple", kategorie: "tech", prio: true,
     kurz: "Gründer von Apple und Pixar. Der beste Produkt-Präsentator seiner Generation. Lehre: vom Kunden her denken, eine Botschaft, Dramaturgie.",
