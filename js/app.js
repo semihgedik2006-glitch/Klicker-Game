@@ -2,7 +2,7 @@
 (function () {
   'use strict';
 
-  // ---------- Hilfsfunktionen ----------
+  // Hilfsfunktionen
   const $ = (sel, el = document) => el.querySelector(sel);
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const today = () => new Date().toISOString().slice(0, 10);
@@ -14,7 +14,7 @@
   const REPORT_MIN = 250;       // Mindestzeichen für einen Übungsbericht
   const EXAM_COOLDOWN = 20 * 60 * 1000; // 20 Minuten Sperre nach nicht bestandener Prüfung
 
-  // ---------- Zustand ----------
+  // Zustand
   const KEY = 'verkaufsakademie_v1';
   const DEFAULT = {
     name: '', apiKey: '', model: 'claude-opus-5-5',
@@ -44,7 +44,7 @@
   }
   function touch() { S.activity[today()] = (S.activity[today()] || 0) + 1; }
 
-  // ---------- Fortschrittslogik ----------
+  // Fortschrittslogik
   const KURSE = window.KURSE;
   const kursById = (id) => KURSE.find(k => k.id === id);
   function lessonIndex(kurs, lid) { return kurs.lektionen.findIndex(l => l.id === lid); }
@@ -87,7 +87,7 @@
   }
   function wocheAktiv() { let c = 0; const d = new Date(); for (let i = 0; i < 7; i++) { if (S.activity[d.toISOString().slice(0, 10)]) c++; d.setDate(d.getDate() - 1); } return c; }
 
-  // ---------- Wiederholung mit Abständen (Leitner, 6 Stufen) ----------
+  // Wiederholung mit Abständen (Leitner, 6 Stufen)
   const SRS_INTERVALLE = [1, 3, 7, 14, 30, 60];
   const SRS_MAX_TAG = 20;
   function srsKarten() { const out = []; for (const k of KURSE) for (const l of k.lektionen) if (lessonDone(l.id)) l.quiz.forEach((q, i) => out.push({ id: l.id + ':' + i, q, lektion: l, kurs: k })); return out; }
@@ -103,7 +103,7 @@
     S.srs[id] = st; S.srsLog[today()] = (S.srsLog[today()] || 0) + 1; touch(); save();
   }
 
-  // ---------- UI-Bausteine ----------
+  // UI-Bausteine
   function toast(msg, kind = '') {
     let t = $('#toast'); if (!t) { t = document.createElement('div'); t.id = 'toast'; document.body.appendChild(t); }
     t.textContent = msg; t.className = 'show ' + kind; clearTimeout(t._t); t._t = setTimeout(() => t.className = '', 3200);
@@ -127,10 +127,12 @@
     h = h.replace(/<br><ul>/g, '<ul>').replace(/<\/ul><br>/g, '</ul>').replace(/<p>(\s|<br>)*<\/p>/g, '').replace(/<p>(<ul>|<h3>|<h4>|<pre>)/g, '$1').replace(/(<\/ul>|<\/h3>|<\/h4>|<\/pre>)<\/p>/g, '$1');
     return '<p>' + h + '</p>';
   }
+  const ICON_MENU = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M3 5h14M3 10h14M3 15h14" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
+  const ICON_CLOSE = '<svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>';
   const ICON_LOCK = '<svg class="ico" viewBox="0 0 16 16" width="13" height="13" aria-hidden="true" focusable="false"><rect x="3" y="7" width="10" height="7.5" rx="1.5" fill="currentColor"/><path d="M5 7V5a3 3 0 0 1 6 0v2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>';
   const lock = (t) => `<span class="lock" title="${esc(t)}" aria-label="gesperrt">${ICON_LOCK}</span>`;
 
-  // ---------- Router ----------
+  // Router
   const routes = {};
   function route(path, fn) { routes[path] = fn; }
   function navigate() {
@@ -140,7 +142,7 @@
     const fn = routes[name] || routes.start;
     if (examState && !(name === 'pruefung' && examState.kid !== 'abschluss') && !(name === 'abschluss' && examState.kid === 'abschluss')) { const ex = S.exams[examState.kid] = S.exams[examState.kid] || { attempts: [], passed: false, best: 0 }; ex.attempts.push({ ts: Date.now(), pct: 0, passed: false, abgebrochen: true }); examState = null; save(); toast('Prüfung verlassen. Das zählt als nicht bestanden.', 'bad'); }
     const main = $('#main');
-    main.className = 'main fade';
+    main.className = 'main';
     try { main.innerHTML = fn(parts.slice(1)) || ''; }
     catch (e) { main.innerHTML = `<div class="callout warn"><div class="label">Fehler</div>${esc(e.message)}</div>`; console.error(e); }
     main.scrollTop = 0; window.scrollTo(0, 0); main.setAttribute('tabindex', '-1'); if (document.activeElement && document.activeElement !== document.body) main.focus({ preventScroll: true });
@@ -188,7 +190,7 @@
     const p = totalProgress(); $('#total-pct').textContent = p + ' %'; $('#total-bar').style.width = p + '%';
   }
 
-  // ---------- Seiten ----------
+  // Seiten
   route('start', () => {
     if (!S.onboarded) return onboarding();
     const ns = nextStep(); const st = streak(); const k = currentKurs();
@@ -204,7 +206,7 @@
         <div class="eyebrow">${S.name ? 'Willkommen zurück, ' + esc(S.name) : 'Verkaufsakademie'} · Rang: <strong>${rang()}</strong></div>
         <h1>Dein nächster Schritt</h1>
         <p class="lead">${esc(ns.text)}</p>
-        <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter →</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
+        <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
       </section>
       ${!S.einstufung && Object.keys(S.lessonsDone).length < 3 ? `<div class="callout practice"><div class="label">Quereinsteiger?</div>Wenn du schon verkauft hast: Die <a href="#/einstufung">Einstufung</a> (20 Fragen, 10 Minuten) zeigt dir, wo du Vorwissen hast und wo nicht. Sie schaltet nichts frei, aber du liest danach gezielter.</div>` : ''}
       ${ersteSchritte()}
@@ -280,7 +282,7 @@
           <p class="muted small">Ein konkreter Auslöser plus eine konkrete Handlung. Menschen mit so einem Plan setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006, 94 Studien). Du kannst ihn später ändern.</p>
           <label>Textgröße <select name="textsize"><option value="normal">Normal</option><option value="gross">Groß</option><option value="sehr-gross">Sehr groß</option></select></label>
           <p class="muted small">Der KI-Coach braucht später einen eigenen Anthropic-API-Schlüssel (Einstellungen). Ohne Schlüssel funktioniert alles andere.</p>
-          <div class="btn-row"><button class="btn primary" type="submit">Los geht's</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
+          <div class="btn-row"><button class="btn primary" type="submit">Starten</button><label class="btn ghost">Sicherung importieren <input type="file" id="import-file" accept="application/json" hidden></label></div>
         </form>
       </div>`;
   }
@@ -302,7 +304,7 @@
     return `<div class="card tour"><div class="eyebrow">Erste Schritte · ${n} von ${steps.length}</div>
       <div class="bar"><div class="bar-fill" style="width:${Math.round(n / steps.length * 100)}%"></div></div>
       <ol class="tour-list">${steps.map(x => `<li class="${x.done ? 'done' : x === next ? 'next' : ''}"><span class="ms-icon">${x.done ? '✓' : '○'}</span><span><a href="${x.route}">${esc(x.name)}</a>${x === next ? `<br><span class="muted small">${esc(x.text)}</span>` : ''}</span></li>`).join('')}</ol>
-      <div class="btn-row"><a class="btn small primary" href="${next.route}">${esc(next.name)} →</a><button class="btn small ghost" data-act="tour-weg">Liste ausblenden</button></div>
+      <div class="btn-row"><a class="btn small primary" href="${next.route}">${esc(next.name)}</a><button class="btn small ghost" data-act="tour-weg">Liste ausblenden</button></div>
       ${!S.apiKey ? '<p class="muted small">Optional: Mit eigenem API-Schlüssel (Einstellungen) bewertet der Coach Berichte, Fälle und Rollenspiele. Ohne Schlüssel läuft alles andere.</p>' : ''}</div>`;
   }
   function wochenrueckblick() {
@@ -384,7 +386,7 @@
     if (aktiv < 3 || seit < 14 * 864e5) return '';
     return `<div class="callout warn"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. Seit ${Math.floor(seit / 864e5)} Tagen keine Sicherung. <a href="#/einstellungen">Jetzt exportieren</a> (eine Datei, 10 Sekunden).</div>`;
   }
-  // ---------- Wiedervorlagen für Übungen: +1, +7, +30 Tage (sukzessives Wiederlernen) ----------
+  // Wiedervorlagen für Übungen: +1, +7, +30 Tage (sukzessives Wiederlernen)
   const WV_TAGE = [1, 7, 30];
   function wiedervorlagen() {
     const now = Date.now(); const out = [];
@@ -494,7 +496,6 @@
             <h3>${esc(l.titel)}</h3>${l.lernziele ? `<p class="muted small-note">${esc(l.lernziele[0])}</p>` : ''}</div>`;
         }).join('')}
         <div class="card ${allLessonsDone(k) ? 'clickable exam' : 'locked'}" ${allLessonsDone(k) ? `data-route="#/pruefung/${k.id}"` : ''}>
-          <div class="num">★</div>
           <div class="meta"><span>Mindestens ${PASS} %</span>${examPassed(k.id) ? `<span class="tag green">bestanden mit ${S.exams[k.id].best} %</span>` : allLessonsDone(k) ? '<span class="tag gold">freigeschaltet</span>' : lock('Alle Lektionen abschließen')}</div>
           <h3>Modulprüfung ${k.nr}</h3></div>
       </div>`;
@@ -539,7 +540,7 @@
         ${qp ? renderReportForm(lid, reps) : `<p class="muted">${lock('')} Erst das Quiz bestehen.</p>`}
       </section>
       <div class="btn-row">
-        ${lessonDone(lid) ? (next ? `<a class="btn primary" href="#/lektion/${k.id}/${next.id}">Nächste Lektion →</a>` : `<a class="btn primary" href="#/pruefung/${k.id}">Zur Modulprüfung →</a>`) : `<span class="muted">Quiz bestehen und Bericht abgeben, um fortzufahren.</span>`}
+        ${lessonDone(lid) ? (next ? `<a class="btn primary" href="#/lektion/${k.id}/${next.id}">Nächste Lektion</a>` : `<a class="btn primary" href="#/pruefung/${k.id}">Zur Modulprüfung</a>`) : `<span class="muted">Quiz bestehen und Bericht abgeben, um fortzufahren.</span>`}
         <a class="btn ghost" href="#/kurs/${k.id}">Modulübersicht</a>
       </div>`;
   });
@@ -637,7 +638,7 @@
   }
   function findLesson(lid) { for (const k of KURSE) { const l = k.lektionen.find(x => x.id === lid); if (l) return { kurs: k, lektion: l }; } }
 
-  // ---------- Modulprüfung ----------
+  // Modulprüfung
   let examState = null;
   route('pruefung', ([kid]) => {
     const k = kursById(kid); if (!k) return routes.start();
@@ -646,7 +647,7 @@
       <section class="hero small"><div class="eyebrow">Modulprüfung · noch gesperrt</div><h1>${esc(k.titel)}</h1>
         <p class="lead">Die Prüfung öffnet sich, sobald alle ${k.lektionen.length} Lektionen abgeschlossen sind. ${offen.length === 1 ? 'Eine fehlt noch:' : `${offen.length} fehlen noch:`}</p>
         <ul class="wv-list pruefung-offen">${offen.map(l => `<li><a href="#/lektion/${k.id}/${l.id}">Lektion ${k.nr}.${lessonIndex(k, l.id) + 1} · ${esc(l.titel)}</a><span class="muted small"> · ${esc(l.dauer || '10 Min')}</span></li>`).join('')}</ul>
-        <div class="btn-row"><a class="btn primary" href="#/lektion/${k.id}/${offen[0].id}">Weiter mit Lektion ${k.nr}.${lessonIndex(k, offen[0].id) + 1} →</a></div>
+        <div class="btn-row"><a class="btn primary" href="#/lektion/${k.id}/${offen[0].id}">Weiter mit Lektion ${k.nr}.${lessonIndex(k, offen[0].id) + 1}</a></div>
       </section>`; }
     const ex = S.exams[kid] || { attempts: [], passed: false, best: 0 };
     const lastFail = ex.attempts.filter(a => !a.passed).slice(-1)[0];
@@ -702,11 +703,11 @@
       <p class="lead">${abschluss ? (passed ? `Bestanden. Du hast das gesamte Curriculum nachgewiesen. Rang: ${rang()}. Dein Zertifikat wartet.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Die Fehler unten zeigen, welche Module du wiederholst.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
       ${passed && Date.now() - Math.max(S.lastExport || 0, 0) > 864e5 ? `<div class="callout warn export-hinweis"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. ${S.lastExport ? `Letzte Sicherung vor ${Math.floor((Date.now() - S.lastExport) / 864e5)} Tagen.` : 'Noch nie gesichert.'} Eine Datei, zehn Sekunden: <button class="btn small" data-act="export">Jetzt exportieren</button></div>` : ''}
       ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Alle Prüfungsfehler sammeln sich in der <a href="#/rueckschau">Prüfungs-Rückschau</a>, bis du sie in der Wiederholung richtig beantwortet hast.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
-      <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen →</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul →</a>` : '<a class="btn primary" href="#/training">Zum Training →</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
+      <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul</a>` : '<a class="btn primary" href="#/training">Zum Training</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
   }
 
-  // ---------- Abschlussprüfung und Zertifikat ----------
+  // Abschlussprüfung und Zertifikat
   route('abschluss', () => {
     const n = KURSE.filter(k => examPassed(k.id)).length;
     if (!allExamsPassed()) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
@@ -749,7 +750,7 @@
       </section>`;
   });
 
-  // ---------- Milliardärs-Bibliothek ----------
+  // Milliardärs-Bibliothek
   let libFilter = { kat: 'alle', thema: 'alle', q: '' };
   route('milliardaere', ([pid]) => {
     const M = window.MILLIARDAERE;
@@ -782,7 +783,7 @@
       ${z.lektion ? `<div class="lesson-note"><strong>Lektion:</strong> ${esc(z.lektion)}</div>` : ''}</div>`;
   }
 
-  // ---------- Mythen-Check ----------
+  // Mythen-Check
   let mythState = null;
   route('mythen', () => {
     const M = window.MILLIARDAERE;
@@ -798,12 +799,12 @@
     return `<section class="hero small"><div class="eyebrow">Mythen-Check · ${s.i + 1} von ${s.items.length} · Richtig: ${s.score}</div>
       <h1>Echt oder erfunden?</h1>
       <div class="quote-card"><div class="en">“${esc(it.text)}”</div>${it.de ? `<div class="de">${esc(it.de)}</div>` : ''}<div class="src">zugeschrieben: ${esc(it.name)}</div></div>
-      ${s.last ? `<div class="callout ${s.last.ok ? 'study' : 'warn'}"><div class="label">${s.last.ok ? 'Richtig' : 'Falsch'}</div>${esc(s.last.erkl)}</div><div class="btn-row"><button class="btn primary" data-act="myth-next">Weiter →</button></div>`
+      ${s.last ? `<div class="callout ${s.last.ok ? 'study' : 'warn'}"><div class="label">${s.last.ok ? 'Richtig' : 'Falsch'}</div>${esc(s.last.erkl)}</div><div class="btn-row"><button class="btn primary" data-act="myth-next">Weiter</button></div>`
         : `<div class="btn-row"><button class="btn" data-act="myth-answer" data-v="1">Belegt (Primär- oder Buchquelle)</button><button class="btn ghost" data-act="myth-answer" data-v="0">Zugeschrieben / verkürzt / erfunden</button></div>`}
     </section>`;
   });
 
-  // ---------- Rollenspiele ----------
+  // Rollenspiele
   let rpState = null;
   // Die Entscheidungsbäume der fünf großen Szenarien (61 KB) kommen erst, wenn jemand die Rollenspiele öffnet.
   let szOfflineLoading = false, szOfflineReady = false; const szOfflineWarteliste = [];
@@ -877,8 +878,8 @@
       <div class="options">${shuffle(node.optionen.map((o, i) => ({ o, i }))).map(({ o, i }) => `<button class="opt btn-opt" data-act="rp-choose" data-oi="${i}">${esc(o.text)}</button>`).join('')}</div></div>`;
   }
 
-  // ---------- Training: Drills, Ablehnung, Erfolgsleiter ----------
-  // ---------- Fälle: offene Checkpoint-Fälle mit Rubrik ----------
+  // Training: Drills, Ablehnung, Erfolgsleiter
+  // Fälle: offene Checkpoint-Fälle mit Rubrik
   let faLoading = false, faState = null;
   // Generischer Nachlader für Datendateien, die nicht beim Start gebraucht werden: true, wenn da; sonst wird geladen und danach neu gerendert.
   const lazyLoading = {};
@@ -935,7 +936,7 @@
       <div class="btn-row">${S.apiKey ? `<a class="btn primary" href="#/coach?fall=${f.id}">Vom Coach bewerten lassen</a>` : ''}<button class="btn ghost" data-act="fall-restart">Noch einmal, mit dem Gelernten</button><a class="btn ghost" href="#/faelle">Alle Fälle</a></div></section>`;
   });
 
-  // ---------- Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird ----------
+  // Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird
   let ktState = null;
   // Abgrenzung bei einer Verwechslung: die Bedingung des gewählten Begriffs neben der des richtigen. Beide stehen schon in den Karten („Wann“); hier treffen sie am konkreten Fall aufeinander.
   function ktAbgrenzung(x, wahl, richtig) {
@@ -975,7 +976,7 @@
       </section>`;
   });
 
-  // ---------- Schritt für Schritt: Worked Examples mit abnehmender Hilfe ----------
+  // Schritt für Schritt: Worked Examples mit abnehmender Hilfe
   let wbState = null;
   const WB_STUFEN = ['Beispiel mit Begründung', 'Lückenaufgabe', 'Allein', 'Neuer Kontext'];
   route('beispiele', ([bid]) => {
@@ -1025,7 +1026,7 @@
   // Einwandtext zu einer Id, auch wenn einwaende.js noch nicht geladen ist (dann wird nachgeladen und neu gerendert)
   function ewTitel(id) { const E = window.EINWAENDE; if (!E) { ensureEinwaende(); return 'Einwand „' + id + '“'; } const e = E.find(x => x.id === id); return e ? e.einwand : id; }
 
-  // ---------- Einwand-Drill: erst selbst antworten, dann Muster, dann Selbstbewertung ----------
+  // Einwand-Drill: erst selbst antworten, dann Muster, dann Selbstbewertung
   let ewState = null;
   function ewWertung(id) { return (S.drills['ew_' + id] || []); }
   let ewLoading = false;
@@ -1098,12 +1099,12 @@
       { name: 'Fälle', href: '#/faelle', all: arr('fall_'), gut: x => (x.coach != null ? x.coach : x.selbst) >= 14 },
       { name: 'Schritt für Schritt', href: '#/beispiele', all: Object.entries(S.drills).filter(([k, v]) => k.startsWith('wb_') && v).map(([, v]) => v), gut: x => x.stufe >= 4 },
     ];
-    if (rows.every(r => !r.all.length)) return `<div class="card empty"><div class="eyebrow">Trainingsbilanz</div><p>Noch keine Übung gemacht. Der schnellste Einstieg: ein <a href="#/einwaende">Einwand-Drill</a>, fünf Minuten, ohne Vorwissen. Danach steht hier deine erste Zeile.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Drill starten →</a><a class="btn small ghost" href="#/kontraste">Oder Konzept-Kontraste</a></div></div>`;
+    if (rows.every(r => !r.all.length)) return `<div class="card empty"><div class="eyebrow">Trainingsbilanz</div><p>Noch keine Übung gemacht. Der schnellste Einstieg: ein <a href="#/einwaende">Einwand-Drill</a>, fünf Minuten, ohne Vorwissen. Danach steht hier deine erste Zeile.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Drill starten</a><a class="btn small ghost" href="#/kontraste">Oder Konzept-Kontraste</a></div></div>`;
     return `<div class="card"><div class="eyebrow">Trainingsbilanz</div>
       <table class="week-table"><thead><tr><th>Übung</th><th>Gesamt</th><th>7 Tage</th><th>Getroffen</th></tr></thead><tbody>${rows.map(r => { const n7 = r.all.filter(x => x.ts > t7).length; const gut = r.all.filter(r.gut).length; return `<tr><td><a href="${r.href}">${r.name}</a></td><td class="wk">${r.all.length}</td><td class="wk ${n7 ? '' : 'muted'}">${n7}</td><td class="wk">${r.all.length ? Math.round(gut / r.all.length * 100) + ' %' : '–'}</td></tr>`; }).join('')}</tbody></table>
       <p class="muted small">„Getroffen“ heißt: Einwand als getroffen bewertet, alle Kontrast-Fälle richtig, Rollenspiel bestanden, Fall mit mindestens 14 von 18, alle vier Stufen geschafft. Eine Übung, die seit sieben Tagen bei Null steht, ist die nächste.</p></div>`;
   }
-  // ---------- Einstufung: Diagnose für Quereinsteiger, schaltet nichts frei ----------
+  // Einstufung: Diagnose für Quereinsteiger, schaltet nichts frei
   let esState = null;
   function einstufungFragen() {
     return KURSE.flatMap(k => { const pool = k.lektionen.flatMap(l => l.quiz.filter(q => q.typ !== 'anwendung').map(q => ({ ...q, kurs: k.id, lektion: l.titel }))); const idx = hashStr('einstufung:' + k.id) % pool.length; return [pool[idx], pool[(idx + Math.floor(pool.length / 2)) % pool.length]]; });
@@ -1149,7 +1150,7 @@
         <form class="leiter-add inline"><input aria-label="Eigene Stufe hinzufügen" placeholder="Eigene Stufe hinzufügen…"><button class="btn small">Hinzufügen</button></form></div>`;
   });
 
-  // ---------- Körpersprache-Trainer ----------
+  // Körpersprache-Trainer
   route('koerper', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Körpersprache-Trainer</h1>
       <p class="lead">Zeitgesteuerte Drills vor Spiegel oder Kamera. Nach jedem Drill bewertest du dich an festen Kriterien. Die Belege stehen bei jedem Drill, inklusive dem, was NICHT belegt ist (Power Posing, 7-38-55).</p></section>
       <div class="grid">${window.KOERPER_DRILLS.map(d => { const runs = S.drills['kd_' + d.id] || []; const avg = runs.length ? Math.round(runs.reduce((a, r) => a + r.score, 0) / runs.length * 10) / 10 : null;
@@ -1165,7 +1166,7 @@
     $('#kd-form').onsubmit = (e) => { e.preventDefault(); const score = [...e.target.querySelectorAll('input:checked')].length; (S.drills['kd_' + d.id] = S.drills['kd_' + d.id] || []).push({ ts: Date.now(), score }); touch(); save(); closeModal(); toast(`${score}/${d.kriterien.length} Kriterien. ${score === d.kriterien.length ? 'Sauber.' : 'Morgen nochmal.'}`, score === d.kriterien.length ? 'good' : ''); navigate(); };
   }
 
-  // ---------- Checklisten ----------
+  // Checklisten
   route('checklisten', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Checklisten</h1><p class="lead">Drei Listen für die Zeit vor, während und nach dem Gespräch. Die Haken bleiben pro Liste gespeichert, bis du sie zurücksetzt. Gedruckt passen sie auf eine Seite neben das Telefon.</p>
     <div class="btn-row no-print"><button class="btn ghost" data-act="print">Drucken oder als PDF sichern</button></div></section>
     <div class="checklisten">
@@ -1173,7 +1174,7 @@
       return `<div class="card"><div class="meta">${n}/${c.punkte.length} <button class="btn small ghost no-print" data-act="check-reset" data-id="${c.id}">Zurücksetzen</button></div><h3>${esc(c.titel)}</h3><p class="muted">${esc(c.beschreibung)}</p>
         ${c.punkte.map((p, i) => `<label class="check ${st[i] ? 'done' : ''}"><input type="checkbox" data-act="check-toggle" data-id="${c.id}" data-i="${i}" ${st[i] ? 'checked' : ''}> ${esc(p)}</label>`).join('')}</div>`; }).join('')}</div>`);
 
-  // ---------- Kundenanalyse ----------
+  // Kundenanalyse
   route('kundenanalyse', () => {
     const F = window.KA_FRAGEN;
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Kundenanalyse</h1><p class="lead">Beantworte neun Fragen über einen echten Kunden. Du bekommst Kaufmotiv, Verhaltenstendenz (DISG, Hinweis: niedrige wissenschaftliche Validität, als Gesprächshilfe gedacht), Big-Five-Hinweise, Qualifizierung (BANT) und konkrete Gesprächsempfehlungen.</p></section>
@@ -1202,7 +1203,7 @@
     S.ka.push({ id: uid(), name: fd.get('name'), ts: Date.now(), html, ausloeser: cut('ausloeser', 300), zitate: cut('zitate', 1200), alternativen: cut('alternativen', 300), motiv: Mo.name, disg: D ? D.name : '' }); touch(); save(); toast('Profil erstellt.', 'good'); navigate();
   }
 
-  // ---------- Wiederholen ----------
+  // Wiederholen
   let srsState = null;
   route('wiederholen', () => {
     const karten = srsKarten(); const f = srsFaellig();
@@ -1214,7 +1215,7 @@
       return `<div class="breadcrumb">Wiederholen · noch ${srsState.rest} heute</div>
         <section class="card exam-q"><div class="eyebrow">Lektion ${c.kurs.nr}.${lessonIndex(c.kurs, c.lektion.id) + 1} · ${esc(c.lektion.titel)}</div><h2>${esc(q.frage)}</h2>
         ${srsState.antwort === undefined ? srsState.order.map(oi => `<button class="opt btn-opt" data-act="srs-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')
-          : `${srsState.order.map(oi => `<div class="opt ${oi === q.richtig ? 'correct' : oi === srsState.antwort ? 'wrong' : ''}">${esc(q.optionen[oi])}</div>`).join('')}<div class="explain">${srsState.antwort !== q.richtig && q.warumFalsch && q.warumFalsch[srsState.antwort] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(q.warumFalsch[srsState.antwort])}</span> ` : ''}${esc(q.erklaerung)}</div><div class="btn-row"><button class="btn primary" data-act="srs-next">${srsState.rest > 0 ? 'Nächste Karte →' : 'Fertig für heute'}</button><a class="btn ghost" href="#/lektion/${c.kurs.id}/${c.lektion.id}">Lektion nachlesen</a></div>`}
+          : `${srsState.order.map(oi => `<div class="opt ${oi === q.richtig ? 'correct' : oi === srsState.antwort ? 'wrong' : ''}">${esc(q.optionen[oi])}</div>`).join('')}<div class="explain">${srsState.antwort !== q.richtig && q.warumFalsch && q.warumFalsch[srsState.antwort] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(q.warumFalsch[srsState.antwort])}</span> ` : ''}${esc(q.erklaerung)}</div><div class="btn-row"><button class="btn primary" data-act="srs-next">${srsState.rest > 0 ? 'Nächste Karte' : 'Fertig für heute'}</button><a class="btn ghost" href="#/lektion/${c.kurs.id}/${c.lektion.id}">Lektion nachlesen</a></div>`}
         </section>`;
     }
     const n = Math.min(f.due.length, f.rest);
@@ -1226,7 +1227,7 @@
       <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
   });
 
-  // ---------- Quellenverzeichnis ----------
+  // Quellenverzeichnis
   let qFilter = { b: 'alle', st: 'alle', q: '' };
   const stKlasse = (st) => { const t = (st || '').trim(); if (/^(A|✅|G)/.test(t)) return 'A'; if (/^(B|📘)/.test(t)) return 'B'; if (/^C/.test(t)) return 'C'; if (/^(D|MYTHOS|\[!\]|❌|K|Illustration|keine)/i.test(t)) return 'D'; return '?'; };
   const ST_LABEL = { A: 'A · robust / Primärquelle', B: 'B · solide / seriöse Sekundärquelle', C: 'C · Praxis / Buch / Meinung', D: 'D · Mythos, widerlegt, dramatisiert', '?': 'ohne Einstufung' };
@@ -1294,7 +1295,7 @@
       <div class="q-list">${list.slice(0, 120).map(x => `<div class="q-item"><div class="meta"><span class="tag st-${stKlasse(x.st)}">${esc(x.st || '–')}</span> <span>${esc(x.typ)}</span> <span>${esc(B[x.b] || x.b)} · ${esc(x.s)} · Nr. ${x.nr}</span></div><div class="q-src">${x.l ? `<a href="${esc(x.l)}" target="_blank" rel="noopener">${esc(x.q)}</a>` : esc(x.q)}</div><div class="q-kern">${esc(x.k)}</div></div>`).join('')}${list.length > 120 ? '<p class="muted">Mehr als 120 Treffer. Bitte eingrenzen.</p>' : ''}</div>`;
   });
 
-  // ---------- Journal & Beweisbuch ----------
+  // Journal & Beweisbuch
   route('journal', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Journal & Beweisbuch</h1><p class="lead">Drei Bücher. Das <strong>Erfolgsprotokoll</strong> (jeden Abend drei Dinge, die du geschafft hast). Das <strong>Beweisbuch</strong> (Belege, dass du kannst, was du behauptest: Zahlen, Feedback, Abschlüsse). Das <strong>Ablehnungstagebuch</strong> mit ABCDE-Analyse nach Seligman.</p></section>
     <div class="two-col">
       <div class="card"><h3>Erfolgsprotokoll</h3><form class="j-add" data-book="erfolg"><textarea class="journal" rows="2" aria-label="Neuer Eintrag im Erfolgsprotokoll" placeholder="Was habe ich heute geschafft? (drei Einträge pro Abend)"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('erfolg')}</div>
@@ -1310,7 +1311,7 @@
       ${S.nein.slice().reverse().slice(0, 20).map(n => `<div class="log-entry"><div class="meta">${fmtTime(n.ts)}</div><div class="body"><strong>A</strong> ${esc(n.a)}<br><strong>B</strong> ${esc(n.b)}<br><strong>C</strong> ${esc(n.c)}<br><strong>D</strong> ${esc(n.d)}<br><strong>E</strong> ${esc(n.e)}</div></div>`).join('')}</div>`);
   function jList(book) { return S[book].slice().reverse().slice(0, 30).map(e => `<div class="log-entry"><div class="meta">${fmtTime(e.ts)} <button class="x" data-act="j-del" data-book="${book}" data-id="${e.id}">×</button></div><div class="body">${esc(e.text)}</div></div>`).join(''); }
 
-  // ---------- Einstellungen ----------
+  // Einstellungen
   route('einstellungen', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Einstellungen</h1></section>
     <form id="settings" class="card settings">
       <div class="eyebrow">Profil</div>
@@ -1330,7 +1331,7 @@
       <div class="btn-row"><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
 
 
-  // ---------- Prüfungs-Rückschau: alle falsch beantworteten Prüfungsfragen, bis sie in der Wiederholung sitzen ----------
+  // Prüfungs-Rückschau: alle falsch beantworteten Prüfungsfragen, bis sie in der Wiederholung sitzen
   function rueckschauListe() {
     const seen = new Map();
     for (const [kid, ex] of Object.entries(S.exams)) for (const at of (ex.attempts || [])) for (const f of (at.falsch || [])) {
@@ -1354,7 +1355,7 @@
       ${fertig.length ? `<details class="card"><summary>${fertig.length} erledigt</summary><ul class="wv-list">${fertig.map(x => `<li><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · <span class="muted">${esc(x.q.frage)}</span></li>`).join('')}</ul></details>` : ''}`;
   });
 
-  // ---------- Einwand-Spielbuch: die eigenen besten Antworten je Einwand, zum Mitnehmen ----------
+  // Einwand-Spielbuch: die eigenen besten Antworten je Einwand, zum Mitnehmen
   route('spielbuch', () => {
     if (!ensureEinwaende()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1><p class="muted">Lade Einwände…</p></section>';
     const E = window.EINWAENDE;
@@ -1364,7 +1365,7 @@
     return `<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1>
       <p class="lead">Dein eigenes Nachschlagewerk für das nächste Gespräch: je Einwand, was dahintersteckt, deine beste eigene Antwort aus dem Drill, die häufigste Falle und der Beleg, der die Antwort trägt. Eigene Worte bleiben besser hängen als fremde Muster (Slamecka & Graf 1978), deshalb steht deine Antwort oben und das Muster darunter.</p>
       <div class="btn-row no-print"><button class="btn" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/einwaende">Zum Einwand-Drill</a></div></section>
-      ${!mit.length ? `<div class="card empty"><p>Noch leer. Das Spielbuch füllt sich mit jeder Antwort aus dem <a href="#/einwaende">Einwand-Drill</a>: Du schreibst deine Antwort, vergleichst sie mit dem Muster und bewertest sie. Die beste Antwort je Einwand landet hier.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Einwand üben →</a></div></div>` : `<p class="muted small">${S.name ? esc(S.name) + ' · ' : ''}Stand ${new Date().toLocaleDateString('de-DE')} · ${mit.length} von ${E.length} Einwänden mit eigener Antwort${mit.filter(e => eintrag(e).wert === 2).length ? `, ${mit.filter(e => eintrag(e).wert === 2).length} davon sitzen` : ''}.</p>`}
+      ${!mit.length ? `<div class="card empty"><p>Noch leer. Das Spielbuch füllt sich mit jeder Antwort aus dem <a href="#/einwaende">Einwand-Drill</a>: Du schreibst deine Antwort, vergleichst sie mit dem Muster und bewertest sie. Die beste Antwort je Einwand landet hier.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Einwand üben</a></div></div>` : `<p class="muted small">${S.name ? esc(S.name) + ' · ' : ''}Stand ${new Date().toLocaleDateString('de-DE')} · ${mit.length} von ${E.length} Einwänden mit eigener Antwort${mit.filter(e => eintrag(e).wert === 2).length ? `, ${mit.filter(e => eintrag(e).wert === 2).length} davon sitzen` : ''}.</p>`}
       <div class="spielbuch">${mit.map(e => { const r = eintrag(e); return `<article class="card sb"><div class="meta"><span class="tag ${r.wert === 2 ? 'green' : r.wert === 1 ? 'gold' : ''}">${WERT[r.wert]}</span><span class="muted">${esc(e.kontext)}</span></div>
         <h3>„${esc(e.einwand)}“</h3>
         <div class="sb-row"><div class="lbl">Dahinter steckt meist</div><div>${esc(e.warum)}</div></div>
@@ -1376,7 +1377,7 @@
       ${ohne.length && mit.length ? `<h2 class="section-title">Noch ohne eigene Antwort</h2><div class="wv-list-wrap card"><ul class="wv-list">${ohne.map(e => `<li><a href="#/einwaende/${e.id}">„${esc(e.einwand)}“</a> <span class="muted small">· ${esc(e.kontext)}</span></li>`).join('')}</ul></div>` : ''}`;
   });
 
-  // ---------- Business-Planer und Coach-Seite werden von coach.js geliefert ----------
+  // Business-Planer und Coach-Seite werden von coach.js geliefert
   route('coach', (p) => {
     if (/[?&]einwand=/.test(location.hash) && !ensureEinwaende()) return '<p class="muted">Lade Einwand…</p>';
     if (/[?&]fall=/.test(location.hash) && !ensureFaelle()) return '<p class="muted">Lade Fall…</p>';
@@ -1385,7 +1386,7 @@
   });
   route('business', (p) => window.Coach ? window.Coach.businessPage(p) : '<p>Coach-Modul fehlt.</p>');
 
-  // ---------- Ereignisse ----------
+  // Ereignisse
   document.addEventListener('submit', async (e) => {
     const f = e.target;
     if (f.classList.contains('quiz')) { e.preventDefault(); gradeQuiz(f); }
@@ -1460,7 +1461,7 @@
   });
   document.addEventListener('change', (e) => { if (e.target.id === 'import-file') { const r = new FileReader(); r.onload = () => { try { const d = JSON.parse(r.result); if (!d.quiz) throw new Error('kein gültiger Export'); S = Object.assign(pickState(d), { apiKey: S.apiKey, keySession: S.keySession }); if (Object.keys(S.activity || {}).length || S.name) S.onboarded = true; applyTextsize(); save(); renderNav(); toast('Importiert.', 'good'); navigate(); } catch (err) { toast('Import fehlgeschlagen: ' + err.message, 'bad'); } }; r.readAsText(e.target.files[0]); } });
   document.addEventListener('click', (e) => { const b = e.target.closest('#lib-kat button, #lib-thema button, #q-b button, #q-st button'); if (!b) return; if (b.dataset.kat) libFilter.kat = b.dataset.kat; if (b.dataset.thema) libFilter.thema = b.dataset.thema; if (b.dataset.b) qFilter.b = b.dataset.b; if (b.dataset.st) qFilter.st = b.dataset.st; navigate(); });
-  function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').textContent = open ? '✕' : '☰'; $('#menu-toggle').setAttribute('aria-expanded', open ? 'true' : 'false'); let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
+  function setMenu(open) { $('#sidebar').classList.toggle('open', open); $('#menu-toggle').innerHTML = open ? ICON_CLOSE : ICON_MENU; $('#menu-toggle').setAttribute('aria-expanded', open ? 'true' : 'false'); let bg = $('#sidebar-bg'); if (open && !bg) { bg = document.createElement('div'); bg.id = 'sidebar-bg'; bg.className = 'sidebar-bg'; bg.onclick = () => setMenu(false); document.body.appendChild(bg); } if (!open && bg) bg.remove(); }
   $('#menu-toggle').onclick = () => setMenu(!$('#sidebar').classList.contains('open'));
   const skip = document.querySelector('.skip-link'); if (skip) skip.onclick = (e) => { e.preventDefault(); const m = $('#main'); m.setAttribute('tabindex', '-1'); m.focus(); };
   window.addEventListener('hashchange', navigate);
@@ -1468,7 +1469,7 @@
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
   window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
-  // ---------- Öffentliche Schnittstelle für coach.js ----------
+  // Öffentliche Schnittstelle für coach.js
   window.VA = { get S() { return S; }, wiedervorlagen, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
 
   function applyTextsize() { document.documentElement.dataset.textsize = S.textsize || 'normal'; }
