@@ -289,14 +289,15 @@
     const drillsAny = Object.keys(S.drills).some(k => /^(tag_|ew_|kt_|fall_|wb_|rp_|kd_)/.test(k));
     const steps = [
       { name: 'Einrichtung', text: 'Name und Wenn-Dann-Plan festgelegt.', done: true, route: '#/einstellungen' },
-      { name: 'Erste Lektion lesen und aus dem Kopf zusammenfassen', text: 'Lektion 1.1, etwa 15 Minuten. Der Abruf nach dem Lesen ist der Teil, der hängen bleibt.', done: Object.keys(S.abruf).length > 0, route: '#/lektion/grundlagen/g1' },
-      { name: 'Erstes Quiz bestehen', text: `Mindestens ${PASS} %. Die Optionen siehst du erst, wenn du selbst eine Antwort im Kopf hast.`, done: Object.keys(S.quiz).some(quizPassed), route: '#/lektion/grundlagen/g1' },
+      { name: 'Erste Lektion lesen und aus dem Kopf zusammenfassen', text: 'Lektion 1.1, etwa 15 Minuten. Der Abruf nach dem Lesen ist der Teil, der hängen bleibt.', done: Object.keys(S.abruf).length > 0 || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
+      { name: 'Erstes Quiz bestehen', text: `Mindestens ${PASS} %. Die Optionen siehst du erst, wenn du selbst eine Antwort im Kopf hast.`, done: Object.keys(S.quiz).some(quizPassed) || Object.keys(S.lessonsDone).length > 0, route: '#/lektion/grundlagen/g1' },
       { name: 'Ersten Bericht schreiben', text: 'Über etwas, das du wirklich getan hast. Hypothetisches zählt nicht.', done: Object.values(S.reports).flat().some(r => r.bestanden), route: '#/lektion/grundlagen/g1' },
       { name: 'Einen Drill machen', text: 'Fünf Minuten Einwand-Drill: schreiben, Muster vergleichen, selbst bewerten.', done: drillsAny, route: '#/einwaende' },
       { name: 'Erstes Nein sammeln', text: 'Tag 1 des Ablehnungstrainings. Es geht nicht um das Ja.', done: S.nein.length >= 1 || Object.keys(S.ablehnung).length >= 1, route: '#/training' },
     ];
     const n = steps.filter(x => x.done).length;
-    if (S.tourWeg || n === steps.length) return '';
+    // Wer schon eine Modulprüfung bestanden hat, ist über die erste Woche hinaus: Liste weg, Startseite kürzer.
+    if (S.tourWeg || n === steps.length || KURSE.some(k => examPassed(k.id))) return '';
     const next = steps.find(x => !x.done);
     return `<div class="card tour"><div class="eyebrow">Erste Schritte · ${n} von ${steps.length}</div>
       <div class="bar"><div class="bar-fill" style="width:${Math.round(n / steps.length * 100)}%"></div></div>
@@ -424,7 +425,7 @@
     const f = srsFaellig(); const wdh = Math.min(f.due.length, f.rest);
     return [
       { name: 'Lernen', text: ns.text, done: lernen, route: ns.route },
-      { name: 'Wiederholen', text: wdh ? `${wdh} Karten fällig (Abstandswiederholung)` : f.heute ? `${f.heute} heute wiederholt` : 'Noch nichts fällig', done: wdh === 0 && (f.heute > 0 || srsKarten().length === 0), route: '#/wiederholen' },
+      { name: 'Wiederholen', text: wdh ? `${wdh} Karte${wdh === 1 ? '' : 'n'} fällig, etwa ${Math.max(1, Math.round(wdh / 2))} Min` : f.heute ? `${f.heute} heute wiederholt` : 'Noch nichts fällig', done: wdh === 0 && (f.heute > 0 || srsKarten().length === 0), route: '#/wiederholen' },
       (() => { const w = wiedervorlagen(); return { name: 'Üben', text: w.length ? `${w.length} Wiedervorlage${w.length > 1 ? 'n' : ''} fällig: ${w[0].titel}${w.length > 1 ? ' …' : ''}` : 'Ein Drill, ein Rollenspiel, ein Einwand, ein Kontrast-Fall oder ein Körper-Drill', done: drill && !w.length, route: w.length ? w[0].route : '#/training' }; })(),
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
@@ -441,7 +442,7 @@
     else if (!lernenHeute && ns.kurs) teile.push({ min: 10, text: `Modulprüfung ${ns.kurs.nr}`, route: ns.route });
     if (!teile.length) return `<p class="tagesplan muted small">Für heute ist nichts offen. Ein Nein oder ein Drill hält die Serie.</p>`;
     const sum = teile.reduce((a, t) => a + t.min, 0);
-    return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a> (${t.min} Min)`).join(' · ')}. ${sum > 30 ? 'Fang mit den Karten an, die sind am schnellsten vergessen.' : 'Das passt in eine Kaffeepause.'}</p>`;
+    return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a>${teile.length > 1 ? ` (${t.min} Min)` : ''}`).join(' · ')}. ${sum > 30 ? 'Fang mit den Karten an, die sind am schnellsten vergessen.' : 'Das passt in eine Kaffeepause.'}</p>`;
   }
   function meilensteine() {
     const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => rpStatus(r).s === 2));
