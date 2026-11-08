@@ -15,6 +15,7 @@ KURSE.push({
         "Formulieren für ein eigenes Produkt Implikations- und Need-Payoff-Fragen, bevor eine Lösung genannt wird."
       ],
       vorfrage: "Welcher Fragetyp unterscheidet in Rackhams 35.000 Gesprächen Spitzenverkäufer von durchschnittlichen, und warum gerade der?",
+      vorfrageAntwort: "Implikationsfragen (Rackham 1988): Sie machen das Problem in der Wahrnehmung des Kunden groß, bevor eine Lösung genannt wird. Offene oder geschlossene Form spielte keine Rolle, der Inhalt der Frage schon.",
       kernpunkte: [
         "Rackham (1988) wertete 35.000 Verkaufsgespräche in 23 Ländern aus: Abschlusstechniken helfen bei kleinen Verkäufen, schaden bei großen.",
         "Offene und geschlossene Fragen waren gleich erfolgreich; den Unterschied machte der Inhalt: Situation, Problem, Implikation, Need-Payoff.",
@@ -82,6 +83,7 @@ KURSE.push({
         "Anwenden eines terminierten nächsten Schritts am Ende jedes Gesprächs."
       ],
       vorfrage: "Wie viel Prozent der Gesprächszeit sollte ein Verkäufer in einem Erstgespräch selbst reden, und wo liegen die meisten Verkäufer tatsächlich?",
+      vorfrageAntwort: "Gong-Felddaten: Top-Verkäufer reden etwa 43 % der Zeit, Durchschnittsverkäufer 65 bis 72 %. Das ist Korrelation, keine Kausalität, aber Rackham und Grant zeigen in dieselbe Richtung.",
       kernpunkte: [
         "Gong-Felddaten (nicht peer-reviewed): Top-Verkäufer reden etwa 43 % der Zeit, Durchschnittsverkäufer 65-72 %.",
         "Erfolgreiche Discovery-Calls enthalten laut Gong 11-14 Fragen, über das Gespräch verteilt statt als Block.",
@@ -148,6 +150,7 @@ KURSE.push({
         "Unterscheiden „Das stimmt“ von „Sie haben recht“ und die Stille nach einer Frage mindestens vier Sekunden halten."
       ],
       vorfrage: "Ein Kunde sagt „Das ist mir zu teuer“. Was wäre der erste Satz, der ihn zum Weiterreden bringt, ohne dass du ein einziges Argument nennst?",
+      vorfrageAntwort: "„Zu teuer?“ (Spiegeln: die letzten ein bis drei Wörter fragend wiederholen) und dann mindestens vier Sekunden schweigen. Der Kunde erklärt dann, was er mit „teuer“ meint, ohne dass du argumentiert hast.",
       kernpunkte: [
         "Chris Voss (2016): Spiegeln (Mirroring) heißt, die letzten ein bis drei Wörter fragend wiederholen und dann schweigen.",
         "Labeln („Es klingt, als …“) benennt die Emotion in eigenen Worten; Lieberman et al. (2007) zeigten per fMRT, dass das die Amygdala-Aktivität senkt.",

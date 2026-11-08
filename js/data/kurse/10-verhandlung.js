@@ -15,6 +15,7 @@ KURSE.push({
         "Den Fixed-Pie-Bias erkennen und durch Prioritätsfragen Tauschmöglichkeiten über mehrere Variablen finden."
       ],
       vorfrage: "Woraus besteht deine Macht in einer Verhandlung, wenn nicht aus Lautstärke, Titel oder Firmengröße, und wie kannst du sie schon vor dem Gespräch vergrößern?",
+      vorfrageAntwort: "Aus deiner BATNA, der besten Alternative zur Einigung (Fisher und Ury). Du vergrößerst sie vor dem Gespräch, indem du echte Alternativen aufbaust und konkret ausarbeitest; Pinkley et al. (1994) zeigten messbar bessere Ergebnisse.",
       kernpunkte: [
         "Fisher und Ury (1981), Harvard-Konzept: Menschen und Probleme trennen, Interessen statt Positionen, Optionen entwickeln, objektive Kriterien.",
         "BATNA: Deine Macht ist so groß wie deine beste Alternative; Pinkley, Neale und Bennett (1994) zeigten, dass eine starke Alternative messbar bessere Ergebnisse bringt.",
@@ -71,7 +72,8 @@ KURSE.push({
         "Zugeständnisse so gestalten, dass sie abnehmen, langsam kommen und immer eine Gegenleistung auslösen.",
         "Sechs gängige Verhandlungstaktiken erkennen und mit dem passenden Gegenmittel beantworten."
       ],
-      vorfrage: "Sollte man in einer Verhandlung das erste Angebot machen oder abwarten, und was sagt die Forschung zum Ankereffekt dazu?",
+      vorfrage: "Wer sollte in einer Verhandlung das erste Angebot machen, und warum prägt diese erste Zahl alles, was danach kommt?",
+      vorfrageAntwort: "Das erste Angebot machen, wenn du den Wert einschätzen kannst (Galinsky und Mussweiler 2001): Es setzt den Anker, um den sich die Verhandlung dreht. Abwarten lohnt nur, wenn du den Wert gar nicht kennst.",
       kernpunkte: [
         "Galinsky und Mussweiler (2001): Wer das erste Angebot macht, erzielt im Schnitt das bessere Ergebnis, außer er kann den Wert gar nicht einschätzen.",
         "Galinsky et al. (2002): Wer sein erstes Angebot sofort angenommen bekommt, ist unzufriedener, obwohl er bekam, was er wollte.",
@@ -147,6 +149,7 @@ KURSE.push({
         "Drei Wenn-Dann-Pläne für die eigenen Druckmomente formulieren (Gollwitzer & Sheeran 2006)."
       ],
       vorfrage: "Ein Einkäufer sagt „Letztes Angebot, sonst war's das“. Was ist die beste erste Reaktion, und warum sind Nachgeben und Zurückdrohen beide schlecht?",
+      vorfrageAntwort: "Eine kalibrierte Frage („Wie soll ich das machen?“) und Stille (Voss; Rains 2013: Druck erzeugt Reaktanz). Nachgeben bestätigt das Ultimatum und lädt zum nächsten ein, Gegendruck lässt beide ohne Gesicht zurück.",
       kernpunkte: [
         "Rains (2013), Meta-Analyse: Druck erzeugt Reaktanz; die Antwort auf ein Ultimatum ist eine Frage, keine Zahl.",
         "Boles, Croson und Murnighan (2000): Entdeckte Täuschung wird bestraft, auch wenn die Strafe den Getäuschten selbst Geld kostet.",

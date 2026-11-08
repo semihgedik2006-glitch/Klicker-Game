@@ -15,6 +15,7 @@ KURSE.push({
         "Anwenden der Thin-Slice-Befunde auf die ersten Sekunden eines Verkaufsgesprächs: Blick, Haltung, Lächeln, Stimme."
       ],
       vorfrage: "Wie lange braucht ein fremder Mensch deiner Einschätzung nach, um sich ein Urteil über deine Kompetenz zu bilden, und welche zwei Eigenschaften prüft er dabei zuerst?",
+      vorfrageAntwort: "Willis und Todorov (2006): nach etwa 100 Millisekunden; mehr Zeit erhöht nur die Sicherheit des Urteils. Geprüft werden nach Fiske zuerst Wärme, dann Kompetenz.",
       kernpunkte: [
         "Willis und Todorov (2006): Nach 100 Millisekunden steht das Urteil über ein Gesicht; mehr Zeit erhöht nur die Sicherheit.",
         "Fiske: Menschen bewerten andere auf zwei Achsen, Wärme und Kompetenz; Wärme wird zuerst beurteilt, und nur beides zusammen erzeugt Bewunderung.",
@@ -77,7 +78,8 @@ KURSE.push({
         "Erkennen von Uptalk, Knarrstimme und Füllwörtern in der eigenen Aufnahme und sie durch fallende Satzenden und Pausen ersetzen.",
         "Anwenden von mindestens drei Tonalitäten nach Belfort passend zur Gesprächsphase."
       ],
-      vorfrage: "Welche Eigenschaften deiner Stimme beeinflussen deiner Meinung nach am stärksten, ob du kompetent wirkst, und woran würdest du das bei einer Aufnahme von dir selbst festmachen?",
+      vorfrage: "Welche Stimme gewinnt in Klofstads fiktiven Wahlen zwischen sonst gleichen Kandidaten, die tiefere oder die höhere, und gilt das auch für Frauen?",
+      vorfrageAntwort: "Klofstad, Anderson und Peters (2012): die tiefere Stimme, bei Männern wie bei Frauen; Mayew et al. (2013) fanden denselben Zusammenhang bei CEOs. Dazu zählen fallende Satzenden, Pausen statt Füllwörter und ein Tempo um 150 bis 170 Wörter pro Minute.",
       kernpunkte: [
         "Klofstad, Anderson und Peters (2012): Tiefere Stimmen gewannen fiktive Wahlen, bei Männern wie Frauen; Mayew et al. (2013) fanden denselben Zusammenhang bei CEOs.",
         "Uptalk (steigende Satzmelodie bei Aussagen) und Knarrstimme (Anderson et al. 2014) senken die wahrgenommene Autorität; Aussagen enden nach unten.",
@@ -147,6 +149,7 @@ KURSE.push({
         "Unterscheiden, wann ein kleiner Patzer sympathisch macht (Pratfall-Effekt) und wann er schadet."
       ],
       vorfrage: "Angenommen, ein Kunde hält dich nach den ersten zwei Minuten für gepflegt und klar. Was glaubst du, wie das seine Einschätzung deiner Fachkompetenz beeinflusst, die er noch gar nicht geprüft hat?",
+      vorfrageAntwort: "Halo-Effekt (Thorndike 1920; Nisbett und Wilson 1977): Ein starkes Merkmal färbt die Bewertung aller anderen. Wer gepflegt und klar wirkt, dem wird auch Fachkompetenz zugeschrieben, bevor sie geprüft ist.",
       kernpunkte: [
         "Halo-Effekt: Ein einzelnes starkes Merkmal färbt die Bewertung aller anderen (Thorndike 1920; Nisbett und Wilson 1977 mit dem warm oder kühl gespielten Dozenten).",
         "Lefkowitz, Blake und Mouton (1955): Einem Mann im Anzug folgten 3,5-mal so viele Fußgänger bei Rot über die Straße wie demselben Mann in Arbeitskleidung.",

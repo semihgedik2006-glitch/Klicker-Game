@@ -15,6 +15,7 @@ KURSE.push({
         "Anwenden, wie man Kompetenz zeigt, ohne sich selbst zu loben: durch Dritte, Zahlen und höchstens drei Argumente."
       ],
       vorfrage: "Was wirkt auf einen Kunden überzeugender: wenn du selbst von deinen Erfolgen erzählst oder wenn ein Dritter dasselbe über dich sagt, und warum?",
+      vorfrageAntwort: "Wenn ein Dritter es sagt. Pfeffer et al. (2006): Dasselbe Lob aus fremdem Mund steigert Sympathie und Kompetenzurteil, aus dem eigenen Mund senkt es beides, selbst wenn der Dritte erkennbar beauftragt ist.",
       kernpunkte: [
         "Ries und Trout (1981): Eine Position ist der Platz im Kopf des anderen; der Erste in einer Kategorie zählt mehr als der Beste.",
         "Mere-Exposure-Effekt (Zajonc 1968; Montoya et al. 2017, Meta-Analyse über 268 Studien): Was man häufiger sieht, mag man mehr.",
@@ -77,6 +78,7 @@ KURSE.push({
         "Anwenden, wie man ein Gespräch mit eigenen Fragen führt und am Ende Einwand und nächsten Schritt klärt."
       ],
       vorfrage: "Welcher Teil einer Antwort auf „Erzählen Sie von einer Situation, in der…“ wird am häufigsten weggelassen, und warum ist gerade er für den Interviewer entscheidend?",
+      vorfrageAntwort: "Das Result: das messbare Ergebnis am Ende der STAR-Antwort. Ohne Zahl bleibt die Geschichte eine Behauptung; der Interviewer hat dich nie arbeiten sehen und kann nur am Ergebnis prüfen.",
       kernpunkte: [
         "Barrick, Shaffer und DeGrassi (2009), Meta-Analyse: Selbstdarstellung und Ersteindruck prägen das Interviewurteil stark, besonders in unstrukturierten Gesprächen.",
         "Schmidt und Hunter (1998): Strukturierte Interviews sagen Leistung deutlich besser voraus als unstrukturierte; die meisten Gespräche sind trotzdem unstrukturiert.",
@@ -139,6 +141,7 @@ KURSE.push({
         "Eine Gehaltsverhandlung vorbereiten: präziser Anker, Begründung mit Markt und Leistung, BATNA, mehrere Variablen."
       ],
       vorfrage: "Über wen findest du wahrscheinlicher deinen nächsten Job: über enge Freunde oder über lockere Bekannte, und was hat das mit Information zu tun?",
+      vorfrageAntwort: "Über lockere Bekannte (Granovetter 1973; Rajkumar et al. 2022 mit 20 Millionen LinkedIn-Nutzern). Enge Freunde kennen dieselben Informationen wie du; schwache Bindungen reichen in andere Kreise.",
       kernpunkte: [
         "Granovetter (1973): Bekannte („weak ties“) verschaffen Zugang zu anderen Informationskreisen; Rajkumar et al. (2022) bestätigten das kausal mit 20 Millionen LinkedIn-Nutzern.",
         "Grant (2013): Langfristig sind Geber am erfolgreichsten, aber nur die, die Grenzen setzen.",

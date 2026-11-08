@@ -15,6 +15,7 @@ KURSE.push({
         "Erkennen typischer Körpersprache-Mythen (verschränkte Arme, Augenbewegungen, Lügenerkennung) und ihre Belegqualität einschätzen."
       ],
       vorfrage: "Wie viel Prozent einer Botschaft kommen deiner Meinung nach über Körpersprache an, und woher stammt diese Zahl?",
+      vorfrageAntwort: "Die Zahl 93 % (7-38-55) stammt von Mehrabian (1967), der nur maß, welchem Kanal Menschen bei widersprüchlichen Einzelwörtern über Gefühle glauben. Für normale Gespräche gilt sie nicht, das sagt Mehrabian selbst.",
       kernpunkte: [
         "Mehrabian (1967) maß nur, welchem Kanal Menschen bei widersprüchlichen Einzelwörtern über Gefühle glauben; 7-38-55 gilt nicht für normale Gespräche, das sagt Mehrabian selbst.",
         "Carney, Cuddy und Yap (2010) berichteten Hormoneffekte von Power Posing bei 42 Personen; Ranehill et al. (2015) fanden mit 200 Personen keinen Effekt, Carney distanzierte sich 2016.",
@@ -78,6 +79,7 @@ KURSE.push({
         "Spiegeln von Tempo, Haltung und Wortwahl so subtil einsetzen, dass es unbemerkt bleibt."
       ],
       vorfrage: "Wie viel Prozent der Zeit solltest du deinem Kunden beim Zuhören in die Augen schauen, und was passiert, wenn du es übertreibst?",
+      vorfrageAntwort: "Faustregel nach Argyle: beim Zuhören etwa 70 bis 80 %, beim Sprechen deutlich weniger (Kleinke 1986: mehr Blickkontakt wirkt kompetenter und sympathischer). Dauerstarren kippt in Dominanz und Bedrängnis.",
       kernpunkte: [
         "Kleinke (1986): Mehr Blickkontakt wird als kompetenter, glaubwürdiger und sympathischer bewertet; Faustregel nach Argyle: beim Zuhören etwa 70-80 %, beim Sprechen deutlich weniger.",
         "Hall, Coats und LeBeau (2005): Offene, raumgreifende Haltung wird vom Beobachter als dominant und kompetent gelesen; das ist der belegte Teil des Power Posing.",
@@ -144,6 +146,7 @@ KURSE.push({
         "Unterscheiden zwischen beobachtbaren Kaufsignalen, Warnsignalen und unbelegten Deutungen, und jede Deutung mit einer Frage prüfen."
       ],
       vorfrage: "Dein Kunde verschränkt mitten im Gespräch die Arme. Was bedeutet das, und was müsstest du wissen, bevor du es deuten kannst?",
+      vorfrageAntwort: "Verschränkte Arme bedeuten allein nichts; die Abwehr-Deutung ist nicht belegt. Du brauchst Baseline (wie saß er vorher), Cluster (mehrere Signale) und Timing (was wurde gerade gesagt), und prüfst die Hypothese mit einer Frage.",
       kernpunkte: [
         "Maricchiolo et al. (2009): Dieselben Sprecher wurden mit Gesten als überzeugender, kompetenter und sympathischer bewertet als ohne.",
         "Navarros drei Regeln: Baseline zuerst beobachten, nur Cluster aus mehreren Signalen deuten, auf das Timing der Veränderung achten.",
