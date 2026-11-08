@@ -152,6 +152,7 @@
       <div class="nav-section">Curriculum</div>
       ${(() => { const f = srsFaellig(); const n = Math.min(f.due.length, f.rest); return item('#/wiederholen', 'Wiederholen', n ? ` <span class="nav-badge">${n}</span>` : ''); })()}
       ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ` <span class="nav-lock" title="Erst das vorherige Modul bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)).join('')}
+      ${item('#/einstufung', 'Einstufung')}
       ${item('#/abschluss', 'Abschlussprüfung', abschlussPassed() ? ' <span class="nav-ok">✓</span>' : allExamsPassed() ? '' : ` <span class="nav-lock" title="Erst alle Module bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)}
       <div class="nav-section">Training</div>
       ${item('#/rollenspiel', 'Rollenspiele')}
@@ -193,6 +194,8 @@
         <p class="lead">${esc(ns.text)}</p>
         <div class="btn-row"><a class="btn primary" href="${ns.route}">Weiter →</a><a class="btn ghost" href="#/coach">Mit dem Coach sprechen</a></div>
       </section>
+      ${!S.einstufung && Object.keys(S.lessonsDone).length < 3 ? `<div class="callout practice"><div class="label">Quereinsteiger?</div>Wenn du schon verkauft hast: Die <a href="#/einstufung">Einstufung</a> (20 Fragen, 10 Minuten) zeigt dir, wo du Vorwissen hast und wo nicht. Sie schaltet nichts frei, aber du liest danach gezielter.</div>` : ''}
+      ${wvCard(5)}
       <div class="grid stats">
         <div class="stat"><div class="big">${totalProgress()} %</div><div class="lbl">Curriculum</div></div>
         <div class="stat"><div class="big">${exams}/${KURSE.length}</div><div class="lbl">Prüfungen bestanden</div></div>
@@ -302,17 +305,47 @@
     if (aktiv < 3 || seit < 14 * 864e5) return '';
     return `<div class="callout warn"><div class="label">Sicherung</div>Dein Fortschritt liegt nur in diesem Browser. Seit ${Math.floor(seit / 864e5)} Tagen keine Sicherung. <a href="#/einstellungen">Jetzt exportieren</a> (eine Datei, 10 Sekunden).</div>`;
   }
+  // ---------- Wiedervorlagen für Übungen: +1, +7, +30 Tage (sukzessives Wiederlernen) ----------
+  const WV_TAGE = [1, 7, 30];
+  function wiedervorlagen() {
+    const now = Date.now(); const out = [];
+    const name = (prefix, id) => {
+      if (prefix === 'ew_') { const e = (window.EINWAENDE || []).find(x => x.id === id); return { titel: e ? `Einwand „${e.einwand}“` : 'Einwand', route: '#/einwaende/' + id, art: 'Einwand' }; }
+      if (prefix === 'kt_') { const x = (window.KONTRASTE || []).find(k => k.id === id); return { titel: x ? x.titel : 'Kontrast', route: '#/kontraste/' + id, art: 'Kontrast' }; }
+      if (prefix === 'fall_') { const x = (window.FAELLE || []).find(k => k.id === id); return { titel: x ? 'Fall: ' + x.titel : 'Fall', route: '#/faelle/' + id, art: 'Fall' }; }
+      if (prefix === 'wb_') { const x = (window.BEISPIELE || []).find(k => k.id === id); return { titel: x ? x.titel + ' (Stufe 3 und 4 mit eigenem Fall)' : 'Schritt für Schritt', route: '#/beispiele/' + id, art: 'Prozedur' }; }
+    };
+    for (const [key, v] of Object.entries(S.drills)) {
+      const prefix = ['ew_', 'kt_', 'fall_', 'wb_'].find(pf => key.startsWith(pf)); if (!prefix) continue;
+      const id = key.slice(prefix.length);
+      let last, n;
+      if (Array.isArray(v)) { if (!v.length) continue; last = v[v.length - 1].ts; n = v.length; } else { if (!v || v.stufe < 4) continue; last = v.ts; n = v.n || 1; }
+      const due = last + WV_TAGE[Math.min(n - 1, WV_TAGE.length - 1)] * 864e5;
+      if (due <= now) out.push({ key, id, prefix, n, due, ueberfaellig: Math.floor((now - due) / 864e5), ...name(prefix, id) });
+    }
+    if (out.some(x => x.prefix === 'ew_') && !window.EINWAENDE) ensureEinwaende();
+    if (out.some(x => x.prefix === 'fall_') && !window.FAELLE) ensureFaelle();
+    return out.sort((a, b) => a.due - b.due);
+  }
+  function wvTag(prefix, id) { const w = wiedervorlagen().find(x => x.prefix === prefix && x.id === id); return w ? '<span class="tag red">fällig</span>' : ''; }
+  function wvCard(limit) {
+    const w = wiedervorlagen(); if (!w.length) return '';
+    return `<div class="card wv"><div class="eyebrow">Wiedervorlage · ${w.length} fällig</div>
+      <p class="muted small">Eine Übung sitzt erst nach dem dritten Durchgang mit Abstand: nach einem Tag, nach einer Woche, nach einem Monat (sukzessives Wiederlernen, Rawson & Dunlosky 2011). Fällig heißt: nicht nachlesen, sondern noch einmal selbst antworten.</p>
+      <ul class="wv-list">${w.slice(0, limit || 8).map(x => `<li><a href="${x.route}">${esc(x.titel)}</a> <span class="muted small">· ${x.n}. Durchgang war vor ${x.ueberfaellig + WV_TAGE[Math.min(x.n - 1, 2)]} Tagen</span></li>`).join('')}</ul>
+      ${w.length > (limit || 8) ? `<p class="muted small">und ${w.length - (limit || 8)} weitere auf der <a href="#/training">Trainingsseite</a>.</p>` : ''}</div>`;
+  }
   function heute() {
     const t0 = new Date(); t0.setHours(0, 0, 0, 0); const t0ms = t0.getTime();
     const ns = nextStep();
     const lernen = Object.values(S.quiz).some(q => q.ts >= t0ms) || Object.values(S.lessonsDone).some(ts => ts >= t0ms) || Object.values(S.exams).some(e => e.attempts.some(a => a.ts >= t0ms));
-    const drill = Object.entries(S.drills).some(([k, v]) => (k.startsWith('tag_') || k.startsWith('kd_') || k.startsWith('rp_')) && v.some(x => x.ts >= t0ms));
+    const drill = Object.entries(S.drills).some(([k, v]) => (Array.isArray(v) ? (/^(tag_|kd_|rp_|ew_|kt_|fall_)/.test(k) && v.some(x => x.ts >= t0ms)) : (k.startsWith('wb_') && v && v.ts >= t0ms)));
     const nein = S.nein.some(n => n.ts >= t0ms) || Object.values(S.ablehnung).some(a => a.ts >= t0ms);
     const f = srsFaellig(); const wdh = Math.min(f.due.length, f.rest);
     return [
       { name: 'Lernen', text: ns.text, done: lernen, route: ns.route },
       { name: 'Wiederholen', text: wdh ? `${wdh} Karten fällig (Abstandswiederholung)` : f.heute ? `${f.heute} heute wiederholt` : 'Noch nichts fällig', done: wdh === 0 && (f.heute > 0 || srsKarten().length === 0), route: '#/wiederholen' },
-      { name: 'Üben', text: 'Ein Drill, ein Rollenspiel, ein Einwand, ein Kontrast-Fall oder ein Körper-Drill', done: drill, route: '#/training' },
+      (() => { const w = wiedervorlagen(); return { name: 'Üben', text: w.length ? `${w.length} Wiedervorlage${w.length > 1 ? 'n' : ''} fällig: ${w[0].titel}${w.length > 1 ? ' …' : ''}` : 'Ein Drill, ein Rollenspiel, ein Einwand, ein Kontrast-Fall oder ein Körper-Drill', done: drill && !w.length, route: w.length ? w[0].route : '#/training' }; })(),
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
   }
@@ -355,6 +388,7 @@
         <p class="lead">${esc(k.untertitel)}</p>
         <p>${esc(k.beschreibung)}</p>
         ${un ? '' : `<div class="callout warn"><div class="label">Gesperrt</div>Du musst erst die Prüfung von Modul ${k.nr - 1} bestehen.</div>`}
+        ${S.einstufung && S.einstufung.module[k.id] ? `<p class="muted small">Einstufung: ${S.einstufung.module[k.id].ok} von ${S.einstufung.module[k.id].n} richtig${S.einstufung.module[k.id].ok === S.einstufung.module[k.id].n ? '. Vorwissen vorhanden, achte auf die Gegenproben.' : S.einstufung.module[k.id].ok === 0 ? '. Hier gründlich lesen.' : '.'}</p>` : ''}
       </section>
       <div class="lesson-list">
         ${k.lektionen.map((l, i) => {
@@ -711,7 +745,7 @@
     if (!fid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Fälle</h1>
         <p class="lead">Zehn Situationen, wie sie im Beruf ankommen: ohne Überschrift, ohne Hinweis, welche Lektion gemeint ist. Du schreibst eine begründete Einschätzung, dann bewertest du sie an einer Rubrik mit sechs Dimensionen, erst danach siehst du, was eine starke Antwort enthält. Bewertet wird die Qualität des Denkwegs, nicht die Übereinstimmung mit einer Musterlösung. Mit API-Schlüssel bewertet der Coach zusätzlich, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen.</p></section>
-        <div class="grid">${F.map(f => { const k = KURSE.find(x => x.id === f.modul); const r = fallRuns(f.id); const last = r[r.length - 1]; const locked = k && !examPassed(k.id) && !lessonDone(k.lektionen[0].id); return `<div class="card ${locked ? 'locked' : 'clickable'}" ${locked ? '' : `data-route="#/faelle/${f.id}"`}><div class="meta"><span class="tag">Modul ${k ? k.nr : '?'}</span>${last ? `<span class="tag ${last.selbst >= 14 ? 'green' : 'gold'}">${last.coach != null ? 'Coach ' + last.coach : 'selbst ' + last.selbst}/18 · ${r.length}×</span>` : ''}${locked ? lock('Modul noch nicht begonnen') : ''}</div><h3>${esc(f.titel)}</h3></div>`; }).join('')}</div>
+        <div class="grid">${F.map(f => { const k = KURSE.find(x => x.id === f.modul); const r = fallRuns(f.id); const last = r[r.length - 1]; const locked = k && !examPassed(k.id) && !lessonDone(k.lektionen[0].id); return `<div class="card ${locked ? 'locked' : 'clickable'}" ${locked ? '' : `data-route="#/faelle/${f.id}"`}><div class="meta"><span class="tag">Modul ${k ? k.nr : '?'}</span>${wvTag('fall_', f.id)}${last ? `<span class="tag ${last.selbst >= 14 ? 'green' : 'gold'}">${last.coach != null ? 'Coach ' + last.coach : 'selbst ' + last.selbst}/18 · ${r.length}×</span>` : ''}${locked ? lock('Modul noch nicht begonnen') : ''}</div><h3>${esc(f.titel)}</h3></div>`; }).join('')}</div>
         <div class="callout study"><div class="label">Warum Fälle</div>Im Verkauf kommt kein Problem mit dem Kapitelnamen. Wer nur Fragen beantwortet, bei denen die Methode schon im Titel steht, lernt Wiedererkennen, nicht Entscheiden. Offene Fälle mit Rubrik trainieren das, was später zählt: Problem erfassen, Informationen nutzen, Alternativen abwägen, entscheiden, prüfen, erklären.</div>`;
     }
     const f = F.find(x => x.id === fid); if (!f) return routes.faelle([]);
@@ -750,7 +784,7 @@
     if (!kid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
         <p class="lead">Die meisten Fehler im Verkauf sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
-        <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
+        <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${wvTag('kt_', x.id)}${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = K.find(k => k.id === kid); if (!x) return routes.kontraste([]);
     if (!ktState || ktState.id !== kid) ktState = { id: kid, i: 0, antworten: [], gewaehlt: null };
@@ -778,7 +812,7 @@
     if (!bid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Schritt für Schritt</h1>
         <p class="lead">Sechs Prozeduren, die du im Schlaf können musst. Jede in vier Stufen mit abnehmender Hilfe: erst ein vollständiges Beispiel, bei dem jeder Schritt begründet ist. Dann dasselbe mit einer Lücke, die du füllst. Dann allein, mit Kriterien statt Lösung. Zuletzt ein Fall aus einem ganz anderen Lebensbereich, denn erst dort zeigt sich, ob du die Struktur verstanden hast oder nur das Beispiel (Sweller 2006; Renkl 2014).</p></section>
-        <div class="grid">${B.map(x => { const st = S.drills['wb_' + x.id]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/beispiele/${x.id}"><div class="meta"><span class="tag">${x.dauer} Min</span>${st ? `<span class="tag ${st.stufe >= 4 ? 'green' : 'gold'}">${st.stufe >= 4 ? 'alle vier Stufen' : 'Stufe ' + st.stufe + ' von 4'}</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${x.prozedur.length} Schritte${fl ? ` · Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
+        <div class="grid">${B.map(x => { const st = S.drills['wb_' + x.id]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/beispiele/${x.id}"><div class="meta"><span class="tag">${x.dauer} Min</span>${wvTag('wb_', x.id)}${st ? `<span class="tag ${st.stufe >= 4 ? 'green' : 'gold'}">${st.stufe >= 4 ? 'alle vier Stufen' : 'Stufe ' + st.stufe + ' von 4'}</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${x.prozedur.length} Schritte${fl ? ` · Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = B.find(b => b.id === bid); if (!x) return routes.beispiele([]);
     const saved = S.drills['wb_' + x.id] || { stufe: 0 };
@@ -833,7 +867,7 @@
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Drill</h1>
         <p class="lead">${E.length} Einwände, die in echten Gesprächen fallen. Bei jedem antwortest du zuerst selbst, laut oder getippt, und siehst erst danach das Muster nach LAER (zuhören, anerkennen, erkunden, antworten). Dann bewertest du dich ehrlich. Mit API-Schlüssel spielt der Coach den Kunden und bleibt hartnäckig.</p>
         ${gesamt ? `<p class="muted">${gesamt} Durchgänge bisher.</p>` : ''}</section>
-        <div class="grid">${E.map(e => { const w = ewWertung(e.id); const last = w[w.length - 1]; return `<div class="card clickable" data-route="#/einwaende/${e.id}"><div class="meta"><span class="tag">${esc(e.kontext.split(',')[0])}</span>${last ? `<span class="tag ${last.wert === 2 ? 'green' : last.wert === 1 ? 'gold' : 'red'}">${last.wert === 2 ? 'getroffen' : last.wert === 1 ? 'teilweise' : 'daneben'} · ${w.length}×</span>` : ''}</div><h3>„${esc(e.einwand)}“</h3></div>`; }).join('')}</div>`;
+        <div class="grid">${E.map(e => { const w = ewWertung(e.id); const last = w[w.length - 1]; return `<div class="card clickable" data-route="#/einwaende/${e.id}"><div class="meta"><span class="tag">${esc(e.kontext.split(',')[0])}</span>${wvTag('ew_', e.id)}${last ? `<span class="tag ${last.wert === 2 ? 'green' : last.wert === 1 ? 'gold' : 'red'}">${last.wert === 2 ? 'getroffen' : last.wert === 1 ? 'teilweise' : 'daneben'} · ${w.length}×</span>` : ''}</div><h3>„${esc(e.einwand)}“</h3></div>`; }).join('')}</div>`;
     }
     const e = E.find(x => x.id === eid); if (!e) return routes.einwaende([]);
     if (!ewState || ewState.id !== eid) ewState = { id: eid, antwort: '', offen: false };
@@ -869,11 +903,35 @@
       <table class="week-table"><thead><tr><th>Übung</th><th>Gesamt</th><th>7 Tage</th><th>Getroffen</th></tr></thead><tbody>${rows.map(r => { const n7 = r.all.filter(x => x.ts > t7).length; const gut = r.all.filter(r.gut).length; return `<tr><td><a href="${r.href}">${r.name}</a></td><td class="wk">${r.all.length}</td><td class="wk ${n7 ? '' : 'muted'}">${n7}</td><td class="wk">${r.all.length ? Math.round(gut / r.all.length * 100) + ' %' : '–'}</td></tr>`; }).join('')}</tbody></table>
       <p class="muted small">„Getroffen“ heißt: Einwand als getroffen bewertet, alle Kontrast-Fälle richtig, Rollenspiel bestanden, Fall mit mindestens 14 von 18, alle vier Stufen geschafft. Eine Übung, die seit sieben Tagen bei Null steht, ist die nächste.</p></div>`;
   }
+  // ---------- Einstufung: Diagnose für Quereinsteiger, schaltet nichts frei ----------
+  let esState = null;
+  function einstufungFragen() {
+    return KURSE.flatMap(k => { const pool = k.lektionen.flatMap(l => l.quiz.filter(q => q.typ !== 'anwendung').map(q => ({ ...q, kurs: k.id, lektion: l.titel }))); const idx = hashStr('einstufung:' + k.id) % pool.length; return [pool[idx], pool[(idx + Math.floor(pool.length / 2)) % pool.length]]; });
+  }
+  route('einstufung', () => {
+    const E = S.einstufung;
+    if (esState) {
+      const q = esState.fragen[esState.i]; if (!q.order) q.order = shuffle(q.optionen.map((_, i) => i));
+      return `<div class="breadcrumb">Einstufung · Frage ${esState.i + 1} von ${esState.fragen.length}</div>
+        <div class="bar"><div class="bar-fill" style="width:${esState.i / esState.fragen.length * 100}%"></div></div>
+        <section class="card exam-q"><div class="eyebrow">Keine Hilfsmittel · Wenn du es nicht weißt, wähl „Weiß ich nicht“</div><h2>${esc(q.frage)}</h2>
+          ${q.order.map(oi => `<button class="opt btn-opt" data-act="es-answer" data-oi="${oi}">${esc(q.optionen[oi])}</button>`).join('')}
+          <button class="opt btn-opt muted" data-act="es-answer" data-oi="-1">Weiß ich nicht</button></section>`;
+    }
+    return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Einstufung</h1>
+      <p class="lead">Zwanzig Fragen, zwei je Modul, zehn Minuten. Das Ergebnis zeigt dir, wo du Vorwissen mitbringst und wo du besonders gründlich sein solltest. Es schaltet nichts frei: Die Reihenfolge der Module bleibt, weil jedes auf dem vorherigen aufbaut. Aber du weißt danach, wo das Quiz schnell geht und wo du langsamer lesen solltest. Der Coach kennt dein Ergebnis.</p>
+      ${E ? `<p class="muted">Zuletzt am ${new Date(E.ts).toLocaleDateString('de-DE')}: ${E.gesamt} von ${E.n} richtig.</p>` : ''}
+      <div class="btn-row"><button class="btn primary" data-act="es-start">${E ? 'Noch einmal einstufen' : 'Einstufung starten'}</button></div></section>
+      ${E ? `<div class="card"><div class="eyebrow">Dein Profil</div><table class="week-table"><tbody>${KURSE.map(k => { const r = E.module[k.id] || { ok: 0, n: 2 }; return `<tr><td><a href="#/kurs/${k.id}">${k.nr} ${esc(k.titel)}</a></td><td class="wk">${r.ok}/${r.n}</td><td>${r.ok === r.n ? '<span class="tag green">Vorwissen</span>' : r.ok === 0 ? '<span class="tag red">gründlich lesen</span>' : '<span class="tag gold">teilweise</span>'}</td></tr>`; }).join('')}</tbody></table>
+        <p class="muted small">Zwei Fragen je Modul sind eine grobe Schätzung, keine Prüfung. „Vorwissen“ heißt: Lies trotzdem, aber achte auf die Gegenproben und Studien, die du vermutlich nicht kennst. „Gründlich lesen“ heißt: Vorab-Frage und Abruf ernst nehmen, das Quiz nicht vor dem zweiten Lesen.</p></div>
+        <div class="callout study"><div class="label">Warum kein Überspringen</div>Wer ein Modul überspringt, weil er die Begriffe kennt, verpasst meistens die Stellen, an denen das Alltagswissen falsch ist (Mehrabian, Power-Posing, „93 Prozent nonverbal“). Die Modulprüfung mit 80 Prozent ist der Test, nicht das Gefühl, es schon zu wissen.</div>` : ''}`;
+  });
   route('training', () => {
     const day = Object.keys(S.ablehnung).length;
     const stufen = ['Rückblick', 'Stufe 1 · Mikro-Bitten', 'Stufe 2 · Fremde', 'Stufe 3 · Pitch & Rat', 'Stufe 4 · Kaltakquise', 'Stufe 5 · Echtgespräch'];
     return `<section class="hero small"><div class="eyebrow">Training</div><h1>Drills & Programm</h1>
       <p class="lead">Wissen ist billig. Hier zählt, was du draußen tust. Drei Instrumente: tägliche Drills, das 30-Tage-Ablehnungstraining (nach Jia Jiang und der Expositionsforschung) und die Erfolgsleiter (nach Bandura: Selbstwirksamkeit entsteht aus gestuften Erfolgen).</p></section>
+      ${wvCard(20)}
       ${trainingsbilanz()}
       <h2 class="section-title">Tägliche Drills</h2>
       <div class="grid">${window.TAGESDRILLS.map(d => { const n = (S.drills['tag_' + d.id] || []).length; const todayDone = (S.drills['tag_' + d.id] || []).some(x => x.ts > Date.now() - 864e5);
@@ -1063,12 +1121,14 @@
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
     else if (a === 'print') window.print();
+    else if (a === 'es-start') { esState = { fragen: einstufungFragen(), i: 0, antworten: [] }; navigate(); window.scrollTo(0, 0); }
+    else if (a === 'es-answer') { const e = esState; e.antworten.push(Number(el.dataset.oi)); e.i++; if (e.i < e.fragen.length) { navigate(); window.scrollTo(0, 0); return; } const module = {}; e.fragen.forEach((q, i) => { const m = module[q.kurs] = module[q.kurs] || { ok: 0, n: 0 }; m.n++; if (e.antworten[i] === q.richtig) m.ok++; }); const gesamt = Object.values(module).reduce((a, m) => a + m.ok, 0); S.einstufung = { ts: Date.now(), module, gesamt, n: e.fragen.length }; esState = null; touch(); save(); toast(`${gesamt} von ${e.fragen.length}. Dein Profil steht unten.`, 'good'); navigate(); }
     else if (a === 'fall-back') { faState.stufe = 0; navigate(); }
     else if (a === 'fall-restart') { faState = { id: faState.id, text: '', stufe: 0, wertung: {} }; navigate(); }
     else if (a === 'kt-wahl') { ktState.gewaehlt = Number(el.dataset.i); const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.antworten[ktState.i] = { wahl: ktState.gewaehlt, ok: ktState.gewaehlt === x.faelle[ktState.i].richtig }; navigate(); }
     else if (a === 'kt-next') { const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.i++; ktState.gewaehlt = null; if (ktState.i >= x.faelle.length) { (S.drills['kt_' + x.id] = S.drills['kt_' + x.id] || []).push({ ts: Date.now(), score: ktState.antworten.filter(z => z.ok).length, n: x.faelle.length }); touch(); save(); } navigate(); }
     else if (a === 'kt-restart') { ktState = null; navigate(); }
-    else if (a === 'wb-next') { const x = window.BEISPIELE.find(b => b.id === wbState.id); const reached = wbState.stufe + 1; const saved = S.drills['wb_' + x.id] || { stufe: 0 }; if (reached > saved.stufe) { S.drills['wb_' + x.id] = { stufe: reached, ts: Date.now() }; touch(); save(); } if (reached >= 4) { toast('Alle vier Stufen geschafft. In einer Woche mit eigenem Fall wiederholen.', 'good'); wbState = { id: x.id, stufe: 3, offen: false, text: '' }; location.hash = '#/beispiele'; return; } wbState = { id: x.id, stufe: reached, offen: false, text: '' }; navigate(); window.scrollTo(0, 0); }
+    else if (a === 'wb-next') { const x = window.BEISPIELE.find(b => b.id === wbState.id); const reached = wbState.stufe + 1; const saved = S.drills['wb_' + x.id] || { stufe: 0 }; if (reached > saved.stufe) { S.drills['wb_' + x.id] = { stufe: reached, ts: Date.now(), n: saved.n || 1 }; touch(); save(); } else if (reached >= 4) { S.drills['wb_' + x.id] = { stufe: 4, ts: Date.now(), n: (saved.n || 1) + 1 }; touch(); save(); } if (reached >= 4) { toast('Alle vier Stufen geschafft. In einer Woche mit eigenem Fall wiederholen.', 'good'); wbState = { id: x.id, stufe: 3, offen: false, text: '' }; location.hash = '#/beispiele'; return; } wbState = { id: x.id, stufe: reached, offen: false, text: '' }; navigate(); window.scrollTo(0, 0); }
     else if (a === 'wb-retry') { wbState.offen = false; wbState.text = ''; navigate(); }
     else if (a === 'wb-back') { wbState = { id: wbState.id, stufe: Math.max(0, wbState.stufe - 1), offen: false, text: '' }; navigate(); }
     else if (a === 'show-opts') { const box = el.closest('.quiz-q'); box.querySelector('.opts').hidden = false; el.remove(); }
@@ -1104,7 +1164,7 @@
   window.addEventListener('beforeunload', e => { if (examState) { e.preventDefault(); e.returnValue = ''; } });
 
   // ---------- Öffentliche Schnittstelle für coach.js ----------
-  window.VA = { get S() { return S; }, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
+  window.VA = { get S() { return S; }, wiedervorlagen, save, touch, esc, md, toast, modal, closeModal, navigate, fmtTime, uid, KURSE, nextStep, rang, streak, totalProgress, examPassed, lessonDone, currentKurs, findLesson, quizSet, PASS, REPORT_MIN, setAfterRender: (fn) => { afterRender = fn; } };
 
   function applyTextsize() { document.documentElement.dataset.textsize = S.textsize || 'normal'; }
   load(); applyTextsize(); navigate();
