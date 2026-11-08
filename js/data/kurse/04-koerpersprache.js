@@ -196,7 +196,8 @@ KURSE.push({
         "Cook, S. W., Duffy, R. G., & Fenn, K. M. (2013). Consolidation and transfer of learning after observing hand gesture. <em>Child Development</em>, 84(6), 1863-1871.",
         "Peck, J., & Shu, S. B. (2009). The effect of mere touch on perceived ownership. <em>Journal of Consumer Research</em>, 36(3), 434-447.",
         "Navarro, J. (2008). <em>What Every Body Is Saying</em>. Harper. (Deutsch: <em>Menschen lesen</em>)",
-        "Van Edwards, V. (2017). <em>Captivate</em>. Portfolio."
+        "Van Edwards, V. (2017). <em>Captivate</em>. Portfolio.",
+        "Van Edwards, V. (2015). 5 Secrets of a Successful TED Talk. Science of People (Blogbeitrag, Auswertung von TED-Talks, nicht peer-reviewed)."
       ],
       quiz: [
         { frage: "Warum empfiehlt die Lektion, die Hände sichtbar zu halten?", optionen: ["Weil versteckte Hände evolutionär als Waffenversteck gelesen werden, wie Experimente belegen","Weil nur sichtbare Hände gestikulieren können, und Gesten die Wirkung verbessern","Weil sichtbare Hände laut Bond und DePaulo das sicherste Zeichen für Ehrlichkeit sind","Weil die Etikette im Geschäftsgespräch Hände auf dem Tisch vorschreibt"], richtig: 1, erklaerung: "Der Waffen-Gedanke ist nur eine Hypothese. Belegt ist der Nutzen von Gesten (Maricchiolo et al. 2009), und die brauchen sichtbare Hände.", warumFalsch: ["Die Waffen-Begründung ist eine plausible Hypothese, kein Experiment; der Fehler ist, eine einleuchtende Geschichte für einen Beleg zu halten.",null,"Bond und DePaulo zeigten das Gegenteil: Lügen sind per Körpersprache kaum erkennbar, und kein Handsignal ist ein sicheres Ehrlichkeitszeichen.","Etikette ist eine Konvention, kein Wirkungsnachweis; die Lektion begründet den Rat mit dem belegten Nutzen von Gesten."] },

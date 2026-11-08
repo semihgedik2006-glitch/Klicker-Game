@@ -46,7 +46,7 @@ KURSE.push({
 <div class="callout warn"><span class="label">Bei dir selbst erkennen</span>Wenn du merkst, dass du einer Entscheidung zustimmst, nur weil du vorher etwas Ähnliches gesagt hast: Stopp. Frag dich, ob du sie heute, ohne Vorgeschichte, auch treffen würdest.</div>
 `,
       quellen: [
-        "Cialdini, R. B. (2021). <em>Influence, New and Expanded: The Psychology of Persuasion</em>. Harper Business. (Deutsch: <em>Die Psychologie des Überzeugens</em>, Hogrefe)",
+        "Cialdini, R. B. (2021). <em>Influence, New and Expanded: The Psychology of Persuasion</em>. Harper Business. Erstausgabe 1984. (Deutsch: <em>Die Psychologie des Überzeugens</em>, Hogrefe)",
         "Regan, D. T. (1971). Effects of a favor and liking on compliance. <em>Journal of Experimental Social Psychology</em>, 7(6), 627-639.",
         "Freedman, J. L., & Fraser, S. C. (1966). Compliance without pressure: The foot-in-the-door technique. <em>Journal of Personality and Social Psychology</em>, 4(2), 195-202.",
         "Cialdini, R. B. et al. (1975). Reciprocal concessions procedure for inducing compliance: The door-in-the-face technique. <em>JPSP</em>, 31(2), 206-215.",

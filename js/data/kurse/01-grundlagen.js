@@ -159,7 +159,8 @@ KURSE.push({
         "Taleb, N. N. (2001). <em>Fooled by Randomness</em>. Random House.",
         "Mangel, M., & Samaniego, F. J. (1984). Abraham Wald's work on aircraft survivability. <em>Journal of the American Statistical Association</em>, 79(386), 259-267.",
         "Denrell, J. (2003). Vicarious learning, undersampling of failure, and the myths of management. <em>Organization Science</em>, 14(3), 227-243.",
-        "Rosenzweig, P. (2007). <em>The Halo Effect</em>. Free Press."
+        "Rosenzweig, P. (2007). <em>The Halo Effect</em>. Free Press.",
+        "Verbeke, W., Dietz, B., & Verwaal, E. (2011). Drivers of sales performance: A contemporary meta-analysis. <em>Journal of the Academy of Marketing Science</em>, 39(3), 407-428."
       ],
       quiz: [
         { frage: "Wo sollten laut Wald die Bomber gepanzert werden?", optionen: ["An den Stellen mit den meisten Einschusslöchern", "An den Stellen ohne Einschusslöcher", "Überall gleichmäßig", "Dort, wo die Piloten die meisten Treffer meldeten"], richtig: 1, erklaerung: "Flugzeuge, die dort getroffen wurden, kamen nicht zurück. Man sah nur die Überlebenden.", warumFalsch: ["Diese Flugzeuge kamen trotz der Treffer zurück; die Löcher zeigen, wo ein Treffer überlebbar ist. Der Fehler: nur die Überlebenden zählen.", null, "Gleichmäßig verschenkt Gewicht, wo Treffer harmlos sind; Walds Punkt war gerade, dass die Stichprobe zeigt, wo Panzerung nicht nötig ist.", "Auch Pilotenmeldungen stammen nur von Rückkehrern; die Maschinen mit den tödlichen Treffern fehlen in jeder Befragung."] },
