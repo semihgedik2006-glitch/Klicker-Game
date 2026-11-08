@@ -471,3 +471,10 @@ label.check:has(input:focus-visible), label.opt:has(input:focus-visible) { borde
 .drill-kopf { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; }
 .drill-row.done strong { color: var(--muted); }
 .tage-mehr { margin: 12px 0 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Durchgang 35: Desktop-Zeilenlänge. Fließtext außerhalb der Lektion lief bei 1280 px auf 105-130 Zeichen pro Zeile; Lesemaß auf 74ch (rund 85 Zeichen) begrenzen (Lektion hat bereits 78ch). Zentrierte Blöcke (Zertifikat, Hinweise) behalten ihre Breite. */
+.main p, .main li { max-width: 74ch; }
+.stat p, .cert p, .cert-text, .locked-note, .chat-empty, .center p, [style*="text-align: center"] p { max-width: none; }
+.msg { max-width: min(82%, 74ch); }
+/* Formularfelder: Eingabezeilen nicht über die ganze Seitenbreite ziehen; Textareas bleiben breit. */
+label input:not([type=radio]):not([type=checkbox]), label select { max-width: 560px; }
