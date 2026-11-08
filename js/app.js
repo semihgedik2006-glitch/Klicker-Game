@@ -924,8 +924,11 @@
       <section class="hero small"><div class="eyebrow">Worked Example · ${x.dauer} Minuten</div><h1>${esc(x.titel)}</h1>${fl ? `<p class="muted small">Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a></p>` : ''}</section>
       ${done && st === 3 && !wbState.offen ? `<div class="callout study"><div class="label">Alle vier Stufen abgeschlossen am ${new Date(saved.ts).toLocaleDateString('de-DE')}</div>Wiederhole die Stufen 3 und 4 in einer Woche mit einem eigenen Fall aus deinem Alltag. Die Prozedur sitzt, wenn du sie ohne die Liste oben hinschreiben kannst.</div>` : ''}
       ${stepper}${body}
+      ${st >= 2 && x.einwaende && x.einwaende.length ? `<div class="callout practice wb-anwenden"><div class="label">Jetzt anwenden</div>Dieselbe Prozedur, jetzt unter Zeitdruck und ohne Liste: ${x.einwaende.map(id => `<a href="#/einwaende/${id}">${esc(ewTitel(id))}</a>`).join(' · ')}. Antworte laut, bevor du die Musterantwort aufklappst.</div>` : ''}
       ${st > 0 ? `<div class="btn-row"><button class="btn small ghost" data-act="wb-back">Eine Stufe zurück</button></div>` : ''}`;
   });
+  // Einwandtext zu einer Id, auch wenn einwaende.js noch nicht geladen ist (dann wird nachgeladen und neu gerendert)
+  function ewTitel(id) { const E = window.EINWAENDE; if (!E) { ensureEinwaende(); return 'Einwand „' + id + '“'; } const e = E.find(x => x.id === id); return e ? e.einwand : id; }
 
   // ---------- Einwand-Drill: erst selbst antworten, dann Muster, dann Selbstbewertung ----------
   let ewState = null;
