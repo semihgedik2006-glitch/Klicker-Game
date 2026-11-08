@@ -217,6 +217,7 @@
       </div>
       <div class="card today"><div class="eyebrow">Heute · ${new Date().toLocaleDateString('de-DE', { weekday: 'long', day: 'numeric', month: 'long' })}</div>
         <div class="today-row">${heute().map(t => `<a class="today-item ${t.done ? 'done' : ''}" href="${t.route}"><span class="ms-icon">${t.done ? '✓' : '○'}</span><span><strong>${esc(t.name)}</strong><br><span class="muted">${esc(t.text)}</span></span></a>`).join('')}</div>
+        ${tagesplan()}
         <p class="muted small">Die Serie zählt Tage mit mindestens einer dieser Handlungen. Ein Ruhetag pro Woche bricht sie nicht. Diese Woche: ${wocheAktiv()} von 7 Tagen aktiv.</p>
         ${S.plan ? `<div class="plan">Dein Wenn-Dann-Plan: <strong>${esc(S.plan)}</strong></div>` : `<div class="plan muted">Noch kein Wenn-Dann-Plan. Menschen mit einem konkreten Auslöser („Wenn ich morgens den Kaffee aufsetze, dann…“) setzen Vorsätze etwa doppelt so oft um (Gollwitzer & Sheeran 2006). <a href="#/einstellungen">Plan festlegen</a></div>`}</div>
       ${backupHinweis()}
@@ -405,6 +406,20 @@
       (() => { const w = wiedervorlagen(); return { name: 'Üben', text: w.length ? `${w.length} Wiedervorlage${w.length > 1 ? 'n' : ''} fällig: ${w[0].titel}${w.length > 1 ? ' …' : ''}` : 'Ein Drill, ein Rollenspiel, ein Einwand, ein Kontrast-Fall oder ein Körper-Drill', done: drill && !w.length, route: w.length ? w[0].route : '#/training' }; })(),
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
+  }
+  // Tagesplan: was heute offen ist, in Minuten. Karten etwa eine halbe Minute, Wiedervorlagen etwa drei, Lektion laut Angabe, Prüfung etwa zehn.
+  function tagesplan() {
+    const t0 = new Date(); t0.setHours(0, 0, 0, 0); const t0ms = t0.getTime();
+    const f = srsFaellig(); const wdh = Math.min(f.due.length, f.rest); const w = wiedervorlagen(); const ns = nextStep();
+    const teile = [];
+    if (wdh) teile.push({ min: Math.max(1, Math.round(wdh / 2)), text: `${wdh} Karten`, route: '#/wiederholen' });
+    if (w.length) teile.push({ min: w.length * 3, text: `${w.length} Wiedervorlage${w.length > 1 ? 'n' : ''}`, route: w[0].route });
+    const lernenHeute = Object.values(S.lessonsDone).some(ts => ts >= t0ms) || Object.values(S.exams).some(e => e.attempts.some(a => a.ts >= t0ms));
+    if (!lernenHeute && ns.lektion) teile.push({ min: parseInt(ns.lektion.dauer, 10) || 12, text: `Lektion ${ns.kurs.nr}.${lessonIndex(ns.kurs, ns.lektion.id) + 1}`, route: ns.route });
+    else if (!lernenHeute && ns.kurs) teile.push({ min: 10, text: `Modulprüfung ${ns.kurs.nr}`, route: ns.route });
+    if (!teile.length) return `<p class="tagesplan muted small">Für heute ist nichts offen. Ein Nein oder ein Drill hält die Serie.</p>`;
+    const sum = teile.reduce((a, t) => a + t.min, 0);
+    return `<p class="tagesplan small"><strong>Heute etwa ${sum} Minuten:</strong> ${teile.map(t => `<a href="${t.route}">${t.text}</a> (${t.min} Min)`).join(' · ')}. ${sum > 30 ? 'Fang mit den Karten an, die sind am schnellsten vergessen.' : 'Das passt in eine Kaffeepause.'}</p>`;
   }
   function meilensteine() {
     const rpPassed = Object.entries(S.drills).some(([k, v]) => k.startsWith('rp_') && v.some(r => (r.art === 'Offline' && /^Bestanden/.test(r.fazit || '')) || (r.art !== 'Offline' && r.score >= 42)));
@@ -849,6 +864,7 @@
       ${last && last.coach != null ? `<p><strong>Coach:</strong> ${last.coach}/18</p>` : ''}
       <h3>Was eine starke Antwort enthält</h3><ul class="kern">${f.stark.map(x => `<li>${esc(x)}</li>`).join('')}</ul>
       <div class="callout warn"><div class="label">Die häufigste Falle</div>${esc(f.falle)}</div>
+      ${f.nachlesen && f.nachlesen.length ? `<div class="callout study nachlesen"><div class="label">Worauf die starke Antwort baut</div><ul class="wv-list">${f.nachlesen.map(n => { const fl = findLesson(n.lid); return fl ? `<li><a href="#/lektion/${fl.kurs.id}/${n.lid}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, n.lid) + 1}: ${esc(fl.lektion.titel)}</a> <span class="muted small">· ${esc(n.was)}</span></li>` : ''; }).join('')}</ul><p class="muted small">Fehlt dir ein Punkt oben, dann lies dort nach, bevor du den Fall in einer Woche noch einmal bearbeitest.</p></div>` : ''}
       <div class="log-entry"><div class="meta">Deine Einschätzung</div><div class="body">${esc(faState.text)}</div></div>
       <p class="muted">Vergleiche jetzt Element für Element: Welche der fünf Punkte stehen bei dir, wenn auch in anderen Worten? Welche fehlen? Das Fehlende ist dein Lernpunkt, nicht die Punktzahl.</p>
       <div class="btn-row">${S.apiKey ? `<a class="btn primary" href="#/coach?fall=${f.id}">Vom Coach bewerten lassen</a>` : ''}<button class="btn ghost" data-act="fall-restart">Noch einmal, mit dem Gelernten</button><a class="btn ghost" href="#/faelle">Alle Fälle</a></div></section>`;

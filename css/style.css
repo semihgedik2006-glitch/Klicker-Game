@@ -413,3 +413,6 @@ form.inline { flex-wrap: wrap; } form.inline input { flex: 1 1 160px; min-width:
 .persona { margin: 6px 0 14px; } .persona .zitat { padding: 4px 0; font-style: italic; }
 .cert-training { margin-top: 10px; }
 @media print { .ka-profile { break-inside: avoid; border-color: #bbb; background: #fff; color: #111; } .ka-profile .meta, .ka-profile .muted { color: #555; } .ka-profile h3, .ka-profile h4 { color: #111; } }
+
+.tagesplan { margin: 8px 0 4px; } .tagesplan a { font-weight: 600; }
+.nachlesen ul { margin: 6px 0 4px; }
