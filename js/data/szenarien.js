@@ -58,7 +58,7 @@ window.SZENARIEN = [
       knoten: {
         a1: { npc: "Das klingt alles gut, aber das muss ich erst mit meiner Frau besprechen.", optionen: [
           { text: "Natürlich. Darf ich fragen: Angenommen, Ihre Frau wäre einverstanden, würden Sie es dann machen?", next: "a2", bewertung: "good", feedback: "Isolier-Frage. Du prüfst, ob der Partner der echte Grund ist oder ein Vorwand." },
-          { text: "Verstehe. Dann schicke ich Ihnen alles per Mail, und Sie melden sich.", next: "a_weg", bewertung: "bad", feedback: "Du hast den Vorwand akzeptiert und die Kontrolle abgegeben. „Wir melden uns“ ist in 80 % der Fälle ein Nein." },
+          { text: "Verstehe. Dann schicke ich Ihnen alles per Mail, und Sie melden sich.", next: "a_weg", bewertung: "bad", feedback: "Du hast den Vorwand akzeptiert und die Kontrolle abgegeben. „Wir melden uns“ ist fast immer ein Nein, Rackham zählt es als Vertagung ohne Verpflichtung." },
           { text: "Wenn Sie heute unterschreiben, bekommen Sie noch 5 % Rabatt. Das Angebot gilt nur heute.", next: "a_druck", bewertung: "bad", feedback: "Erfundene Knappheit und Druck. Genau das löst bei einem vorsichtigen Ingenieur Reaktanz aus. Und es ist unethisch." }
         ]},
         a2: { npc: "Hm… wahrscheinlich schon. Es ist nur viel Geld, und man liest ja so einiges über Pfusch bei Solaranlagen.", optionen: [
@@ -137,7 +137,7 @@ window.SZENARIEN = [
           { text: "Das klingt sehr gut, vielen Dank, dass Sie sich dafür einsetzen. Können wir festhalten, dass ich bei 58.000 plus 2.000 Euro Weiterbildung und zwei Tagen Homeoffice zusage, und Sie mir das bis Freitag schriftlich bestätigen?", next: "h_gut", bewertung: "good", feedback: "Dank, Bestätigung der Punkte, schriftlich, mit Datum. Du hast 6.000 Euro mehr pro Jahr plus Budget geholt, ohne die Beziehung zu belasten." },
           { text: "Und die 61.000? Da geht doch bestimmt noch was.", next: "h_gier", bewertung: "bad", feedback: "Du hast ein gutes Ergebnis und verhandelst weiter nach oben. Das wirkt gierig und gefährdet den Start in die Beziehung." }
         ]},
-        h_ja: { npc: "Wunderbar, dann schicke ich Ihnen den Vertrag.", ende: true, fazit: "Nicht bestanden. Kein Gegenangebot. Studien zeigen: Wer verhandelt, bekommt im Schnitt mehrere Tausend Euro mehr, und fast niemand verliert deswegen ein Angebot." },
+        h_ja: { npc: "Wunderbar, dann schicke ich Ihnen den Vertrag.", ende: true, fazit: "Nicht bestanden. Kein Gegenangebot. Marks und Harold (2011): Wer verhandelte, bekam im Schnitt rund 5.000 Dollar mehr Einstiegsgehalt, und ein höflich begründetes Gegenangebot kostet praktisch nie das Angebot." },
         h_hart: { npc: "Das übersteigt unser Budget deutlich. Mehr als 54.000 sehe ich nicht.", ende: true, fazit: "Teilweise. Du hast verhandelt, aber ohne Dank, Begründung und Variablen. Das Ergebnis ist entsprechend klein." },
         h_vage: { npc: "Leider nicht, das ist unser Budget für die Stelle.", ende: true, fazit: "Nicht bestanden. Eine vage Frage bekommt ein klares Nein. Nenne Marktdaten und eine präzise Spanne." },
         h_55: { npc: "Schön, dann machen wir das so.", ende: true, fazit: "Teilweise. 55.000 statt 52.000, aber das Band ging bis 60.000 und du hattest Tauschvariablen. Ein zweites Gegenangebot hätte nichts gekostet." },
