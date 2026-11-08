@@ -5,7 +5,7 @@
   const API = 'https://api.anthropic.com/v1/messages';
   const VERSION = '2026-10-21';
 
-  // ---------- API ----------
+  // API
   function headers(key) { return { 'content-type': 'application/json', 'x-api-key': key, 'anthropic-version': VERSION, 'anthropic-dangerous-direct-browser-access': 'true' }; }
   function errorText(status, body) {
     let msg = ''; try { msg = JSON.parse(body).error.message; } catch (e) { msg = body.slice(0, 200); }
@@ -44,7 +44,7 @@
     return true;
   }
 
-  // ---------- Kontext und System-Prompts ----------
+  // Kontext und System-Prompts
   function userContext() {
     const S = VA.S; const ns = VA.nextStep(); const cur = VA.currentKurs();
     const passed = VA.KURSE.filter(k => VA.examPassed(k.id)).map(k => k.nr + ' ' + k.titel);
@@ -301,7 +301,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   }
   function FRAWORKS_LIST() { return FRAMEWORKS.map(f => `${f.id} ${f.name}`).join(', '); }
 
-  // ---------- Berichtsprüfung ----------
+  // Berichtsprüfung
   async function gradeReport({ kurs, lektion }, text) {
     const sys = `${RULES}\n\n# Modus: Berichtsprüfung\nDu prüfst einen Übungsbericht. Antworte NUR mit JSON: {"bestanden": true|false, "note": 1-10, "feedback": "…"}.\nKriterien: (1) Konkrete Handlung in der Vergangenheit, kein Hypothetisches. (2) Was tatsächlich passiert ist (Reaktion, Ergebnis). (3) Ein ehrlicher Lernpunkt, der sich auf die Lektion bezieht. (4) Plausibilität: Wenn der Bericht generisch, kopiert oder erfunden wirkt, fällt er durch. Bestanden ab Note 7.\nNotenstufen: 9-10 = alle vier Kriterien, Lernpunkt nennt einen Kernpunkt der Lektion und was beim nächsten Mal konkret anders läuft. 7-8 = Handlung und Ergebnis konkret, Lernpunkt vorhanden, aber allgemein. 4-6 = eine Komponente fehlt oder der Bericht bleibt vage. 1-3 = hypothetisch, generisch oder erfunden.\nIm Feedback zitierst du mindestens eine Stelle aus dem Bericht wörtlich, trennst Fehler von vertretbaren Entscheidungen und nennst genau eine Hauptkorrektur. Das Feedback: 3-6 Sätze, direkt, mit einer Nachfrage im Stil „Woher weißt du das?“ und einer konkreten Verbesserung. Deutsch, duzen.`;
     const user = `Modul ${kurs.nr}: ${kurs.titel}\nLektion: ${lektion.titel}\nAufgabe: ${lektion.uebung}\nKernpunkte der Lektion:\n${(lektion.kernpunkte || []).map(k => '- ' + k).join('\n')}\n\nBericht des Schülers:\n"""\n${text}\n"""`;
@@ -318,7 +318,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
     return out.trim();
   }
 
-  // ---------- Chat-Seite ----------
+  // Chat-Seite
   let mode = 'coach', scenario = null, framework = null, einwand = null, fall = null, busy = false, abort = null;
   function chatKey() { return mode === 'rollenspiel' ? 'rp_' + scenario.id : mode === 'einwand' ? 'ew_' + einwand.id : mode === 'fall' ? 'fall_' + fall.id : mode === 'lern' ? 'lern_' + new Date().toISOString().slice(0, 10) : mode === 'business' ? 'biz_' + (framework ? framework.id : 'frei') : 'coach'; }
   function history() { const S = VA.S; return S.chats[chatKey()] = S.chats[chatKey()] || []; }
@@ -398,7 +398,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   }
   document.addEventListener('keydown', (e) => { if (e.target.id === 'chat-input' && e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); document.getElementById('chat-form').requestSubmit(); } });
 
-  // ---------- Business-Seite ----------
+  // Business-Seite
   function businessPage() {
     const S = VA.S;
     return `<section class="hero small"><div class="eyebrow">Ich</div><h1>Business-Planer</h1>
