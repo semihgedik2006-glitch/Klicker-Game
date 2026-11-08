@@ -27,15 +27,15 @@ const { chromium } = require('playwright'); const path = require('path');
   const log = await page.evaluate(() => (document.querySelector('.log-entry.ok .meta') || {}).textContent || '');
   ok('Durchlauf-Log: Status, Entscheidungen und Pflichtkriterien', /bestanden/.test(log) && /von \d+ Entscheidungen stark/.test(log) && /Pflichtkriterien 1 von/.test(log), log);
   // Einheitlicher Maßstab: Coach-Lauf mit 45/60 aber Ethik nicht bestanden zählt nicht, Teilweise-Fazit offline = 1
-  await page.evaluate(() => { const S = window.VA.S; S.drills.rp_partner = [{ ts: Date.now(), art: 'Live mit Coach', score: 45, fazit: 'Coach-Bewertung 45/60 · Ethik nicht bestanden' }, { ts: Date.now(), art: 'Offline', score: 2, n: 4, fazit: 'Teilweise. Der gemeinsame Termin war die richtige Idee.' }]; S.drills.rp_gehalt = [{ ts: Date.now(), art: 'Live mit Coach', score: 50, fazit: 'Coach-Bewertung 50/60 · Ethik bestanden' }]; window.VA.save(); });
+  await page.evaluate(() => { const S = window.VA.S; S.drills.rp_partner = [{ ts: Date.now(), art: 'Live mit Coach', score: 45, fazit: 'Coach-Bewertung 45/60 · Ethik nicht bestanden' }, { ts: Date.now(), art: 'Offline', score: 2, n: 4, fazit: 'Teilweise. Der gemeinsame Termin war die richtige Idee.' }]; S.drills.rp_gehalt = [{ ts: Date.now(), art: 'Live mit Coach', score: 50, fazit: 'Coach-Bewertung 50/60 · Ethik bestanden' }]; S.drills.rp_skeptiker = [{ ts: Date.now(), art: 'Offline', score: 4, n: 5, fazit: 'Fast. Du hattest den Schmerz aufgedeckt. Teilweise bestanden. Wiederhole.' }]; window.VA.save(); });
   await go('#/rollenspiel');
   const tags = await page.evaluate(() => [...document.querySelectorAll('.card.clickable')].map(c => ({ t: c.querySelector('h3').textContent, s: [...c.querySelectorAll('.tag')].map(x => x.textContent).join('|') })));
-  const partner = tags.find(x => /Partner/i.test(x.t)) || {}, gehalt = tags.find(x => /Gehalt/i.test(x.t)) || {};
-  ok('Partner: bestes Ergebnis „teilweise“ (Ethik-Durchfall zählt nicht), Gehalt: bestanden', /teilweise · 2×/.test(partner.s || '') && /bestanden · 1×/.test(gehalt.s || '') && !/\|bestanden/.test(partner.s || ''), JSON.stringify({ partner, gehalt }));
+  const partner = tags.find(x => /Partner/i.test(x.t)) || {}, gehalt = tags.find(x => /Gehalt/i.test(x.t)) || {}, skeptiker = tags.find(x => /Skeptiker/i.test(x.t)) || {};
+  ok('Partner: bestes Ergebnis „teilweise“ (Ethik-Durchfall zählt nicht), Gehalt: bestanden, „Teilweise bestanden“ mitten im Fazit zählt als teilweise', /teilweise · 2×/.test(partner.s || '') && /bestanden · 1×/.test(gehalt.s || '') && !/\|bestanden/.test(partner.s || '') && /teilweise · 1×/.test(skeptiker.s || ''), JSON.stringify({ partner, gehalt, skeptiker }));
   // Trainingsbilanz zählt bestandene Rollenspiele (vorher immer 0)
   await go('#/training');
   const tb = await page.evaluate(() => { const row = [...document.querySelectorAll('tr')].find(r => /Rollenspiele/.test(r.textContent)); return row ? row.textContent : document.body.textContent.match(/Rollenspiele[^\n]{0,80}/)?.[0] || ''; });
-  ok('Trainingsbilanz: 4 Rollenspiele, 50 % getroffen (vorher immer 0 %)', /Rollenspiele.*50 %/.test(tb), tb.slice(0, 120));
+  ok('Trainingsbilanz: 5 Rollenspiele, 40 % getroffen (vorher immer 0 %)', /Rollenspiele.*40 %/.test(tb), tb.slice(0, 120));
   await page.setViewportSize({ width: 390, height: 844 }); await go('#/rollenspiel/preishammer');
   ok('Mobile Overflow Rollenspiel', await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1));
   console.log('ERRORS:', errs.length ? errs.join(' | ') : 'none');

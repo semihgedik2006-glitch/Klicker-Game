@@ -812,7 +812,7 @@
   function rpStatus(r) {
     if (!r) return null;
     let s;
-    if (r.art === 'Offline') s = /^Bestanden/.test(r.fazit || '') ? 2 : /^Teilweise/.test(r.fazit || '') ? 1 : 0;
+    if (r.art === 'Offline') s = /^Bestanden/.test(r.fazit || '') ? 2 : /(^|\.\s)Teilweise( bestanden)?\b/.test(r.fazit || '') ? 1 : 0;
     else s = (r.score || 0) >= 42 && !/Ethik nicht bestanden/.test(r.fazit || '') ? 2 : (r.score || 0) >= 30 ? 1 : 0;
     return { s, label: ['nicht bestanden', 'teilweise', 'bestanden'][s], cls: ['red', 'gold', 'green'][s] };
   }
