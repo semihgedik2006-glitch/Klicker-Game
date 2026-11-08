@@ -15,7 +15,11 @@ for (const k of window.KURSE) {
     if (!Array.isArray(l.selbsterklaerung) || l.selbsterklaerung.length < 2) { console.log('selbsterklaerung fehlt', where); errs++; }
     if (l.quiz.length < 3) { console.log('zu wenig Quiz', where); errs++; }
     if (l.quiz.filter(q => q.typ === 'anwendung').length < 2) { console.log('weniger als 2 Anwendungsfragen', where); errs++; }
-    l.quiz.forEach((q, i) => { if (!q.optionen || q.optionen.length < 3 || typeof q.richtig !== 'number' || q.richtig >= q.optionen.length || !q.erklaerung) { console.log('Quizfrage defekt', where, i); errs++; } });
+    l.quiz.forEach((q, i) => {
+      if (!q.optionen || q.optionen.length < 3 || typeof q.richtig !== 'number' || q.richtig >= q.optionen.length || !q.erklaerung) { console.log('Quizfrage defekt', where, i); errs++; return; }
+      if (!Array.isArray(q.warumFalsch) || q.warumFalsch.length !== q.optionen.length || q.warumFalsch[q.richtig] !== null || q.warumFalsch.some((w, j) => j !== q.richtig && (typeof w !== 'string' || w.length < 10))) { console.log('warumFalsch fehlt oder passt nicht', where, i); errs++; }
+      const lens = q.optionen.map(o => o.length); if (lens[q.richtig] === Math.max(...lens) && lens.filter(x => x === lens[q.richtig]).length === 1 && lens[q.richtig] > 1.5 * Math.max(...lens.filter((x, j) => j !== q.richtig))) { console.log('richtige Option deutlich am längsten', where, i); errs++; }
+    });
     if (/<script/i.test(l.inhalt)) { console.log('script im inhalt', where); errs++; }
   }
 }
