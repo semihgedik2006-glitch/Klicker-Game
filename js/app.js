@@ -1081,7 +1081,7 @@
   let srsState = null;
   route('wiederholen', () => {
     const karten = srsKarten(); const f = srsFaellig();
-    const stats = Object.values(S.srs); const gesamt = stats.reduce((a, x) => a + x.n, 0); const sicher = karten.filter(c => (S.srs[c.id] || {}).box >= 3).length;
+    const stats = Object.values(S.srs); const gesamt = stats.reduce((a, x) => a + (x.n || 0), 0); const sicher = karten.filter(c => (S.srs[c.id] || {}).box >= 3).length;
     if (!karten.length) return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1><p class="lead">Hier landen alle Quizfragen abgeschlossener Lektionen als Karten. Sie kommen in wachsenden Abständen wieder (1, 3, 7, 14, 30, 60 Tage), gemischt über alle Module. Das ist die am besten belegte Lerntechnik überhaupt (Cepeda et al. 2006; Dunlosky et al. 2013). Schließ die erste Lektion ab, dann geht es los.</p></section>`;
     if (srsState && srsState.karte) {
       const c = srsState.karte; const q = c.q;
@@ -1095,7 +1095,7 @@
     const n = Math.min(f.due.length, f.rest);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
       <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
-      <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + x.richtig, 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
+      <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + (x.richtig || 0), 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
       ${kalibKarte()}
       ${n || S.apiKey ? `<div class="btn-row">${n ? `<button class="btn primary" data-act="srs-start">Jetzt wiederholen</button>` : ''}${S.apiKey ? `<a class="btn ghost" href="#/coach?lern=1">Lernsitzung mit dem Coach</a>` : ''}</div>` : ''}
       <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
