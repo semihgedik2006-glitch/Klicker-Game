@@ -156,6 +156,8 @@
       <div class="nav-section">Training</div>
       ${item('#/rollenspiel', 'Rollenspiele')}
       ${item('#/einwaende', 'Einwand-Drill')}
+      ${item('#/kontraste', 'Konzept-Kontraste')}
+      ${item('#/beispiele', 'Schritt für Schritt')}
       ${item('#/training', 'Drills & Programm')}
       ${item('#/koerper', 'Körpersprache-Trainer')}
       ${item('#/checklisten', 'Checklisten')}
@@ -304,7 +306,7 @@
     return [
       { name: 'Lernen', text: ns.text, done: lernen, route: ns.route },
       { name: 'Wiederholen', text: wdh ? `${wdh} Karten fällig (Abstandswiederholung)` : f.heute ? `${f.heute} heute wiederholt` : 'Noch nichts fällig', done: wdh === 0 && (f.heute > 0 || srsKarten().length === 0), route: '#/wiederholen' },
-      { name: 'Üben', text: 'Ein Drill, ein Rollenspiel, ein Einwand oder ein Körper-Drill', done: drill, route: '#/training' },
+      { name: 'Üben', text: 'Ein Drill, ein Rollenspiel, ein Einwand, ein Kontrast-Fall oder ein Körper-Drill', done: drill, route: '#/training' },
       { name: 'Raus', text: 'Ein Nein holen oder den Tag im Ablehnungstraining abschließen', done: nein, route: '#/journal' }
     ];
   }
@@ -383,6 +385,7 @@
         ${l.vorfrage ? `<section class="card vorfrage ${vf ? 'done' : ''}"><div class="eyebrow">Bevor du liest</div><p class="q">${esc(l.vorfrage)}</p>
           ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" placeholder="Rate aus dem Bauch. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009)."></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
         ${brauchtVorfrage ? `<div class="muted locked-note">${lock('')} Der Text erscheint, sobald du deine Vorab-Antwort festgehalten hast.</div>` : `${l.inhalt}
+        ${(() => { const kt = (window.KONTRASTE || []).filter(x => x.lektion === lid); const wb = (window.BEISPIELE || []).filter(x => x.lektion === lid); if (!kt.length && !wb.length) return ''; return `<div class="callout practice vertiefen"><div class="label">Vertiefen</div>${kt.map(x => `<div><strong>Nicht verwechseln:</strong> <a href="#/kontraste/${x.id}">${esc(x.titel)}</a> · Vergleichstabelle und Fälle ohne Nennung der Methode</div>`).join('')}${wb.map(x => `<div><strong>Schritt für Schritt:</strong> <a href="#/beispiele/${x.id}">${esc(x.titel)}</a> · Beispiel mit Begründung, dann Lücke, dann allein, dann neuer Kontext</div>`).join('')}</div>`; })()}
         <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
       </article>
       ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
@@ -688,6 +691,79 @@
   }
 
   // ---------- Training: Drills, Ablehnung, Erfolgsleiter ----------
+  // ---------- Konzept-Kontraste: Vergleichstabelle + Fälle, in denen die Methode nicht genannt wird ----------
+  let ktState = null;
+  route('kontraste', ([kid]) => {
+    const K = window.KONTRASTE || [];
+    if (!kid) {
+      return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
+        <p class="lead">Die meisten Fehler im Verkauf sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
+        <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
+    }
+    const x = K.find(k => k.id === kid); if (!x) return routes.kontraste([]);
+    if (!ktState || ktState.id !== kid) ktState = { id: kid, i: 0, antworten: [], gewaehlt: null };
+    const fl = findLesson(x.lektion); const f = x.faelle[ktState.i]; const fertig = ktState.i >= x.faelle.length;
+    const score = ktState.antworten.filter(a => a.ok).length;
+    return `<div class="breadcrumb"><a href="#/kontraste">Konzept-Kontraste</a> › ${esc(x.titel)}</div>
+      <section class="hero small"><div class="eyebrow">Nicht verwechseln</div><h1>${esc(x.titel)}</h1><p class="lead">${esc(x.frage)}</p>${fl ? `<p class="muted small">Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a></p>` : ''}</section>
+      <div class="kontrast-grid cols-${x.begriffe.length}">${x.begriffe.map(b => `<div class="card kontrast"><h3>${esc(b.name)}</h3><div class="row"><div class="eyebrow">Kern</div><p>${esc(b.kern)}</p></div><div class="row"><div class="eyebrow">Wirkung</div><p>${esc(b.wirkung)}</p></div><div class="row"><div class="eyebrow">Wann</div><p>${esc(b.wann)}</p></div></div>`).join('')}</div>
+      <div class="callout study"><div class="label">Faustregel</div>${esc(x.faustregel)}</div>
+      <section class="card exam-q kt-drill"><div class="eyebrow">Fall ${Math.min(ktState.i + 1, x.faelle.length)} von ${x.faelle.length} · die Methode wird nicht genannt</div>
+        ${fertig ? `<h2>${score} von ${x.faelle.length} richtig zugeordnet</h2><p class="muted">${score === x.faelle.length ? 'Alle Fälle getroffen. In einer Woche noch einmal, dann sitzt die Unterscheidung.' : 'Lies bei den falschen Fällen die Begründung noch einmal und formuliere den Unterschied in einem eigenen Satz. Dann den Drill wiederholen.'}</p>
+          <ol class="kt-review">${x.faelle.map((ff, i) => { const a = ktState.antworten[i]; return `<li class="${a.ok ? 'ok' : 'bad'}"><div class="muted small">${esc(ff.situation)}</div><div><strong>${a.ok ? 'Richtig' : 'Du: ' + esc(x.begriffe[a.wahl].name) + ' · Richtig: ' + esc(x.begriffe[ff.richtig].name)}</strong> · ${esc(ff.warum)}</div></li>`; }).join('')}</ol>
+          <div class="btn-row"><button class="btn primary" data-act="kt-restart">Noch einmal</button><a class="btn ghost" href="#/kontraste">Alle Kontraste</a></div>`
+        : `<h2 class="situation">${esc(f.situation)}</h2>
+          ${ktState.gewaehlt === null ? `<p class="muted">Welches Prinzip liegt hier vor? Entscheide erst, dann klicke.</p><div class="btn-row wrap">${shuffle(x.begriffe.map((b, i) => i)).map(i => `<button class="btn ghost" data-act="kt-wahl" data-i="${i}">${esc(x.begriffe[i].name)}</button>`).join('')}</div>`
+          : `<div class="callout ${ktState.gewaehlt === f.richtig ? 'practice' : 'warn'}"><div class="label">${ktState.gewaehlt === f.richtig ? 'Richtig: ' + esc(x.begriffe[f.richtig].name) : 'Nicht ganz. Du hast ' + esc(x.begriffe[ktState.gewaehlt].name) + ' gewählt, es ist ' + esc(x.begriffe[f.richtig].name)}</div>${esc(f.warum)}</div><div class="btn-row"><button class="btn primary" data-act="kt-next">${ktState.i + 1 < x.faelle.length ? 'Nächster Fall' : 'Auswertung'}</button></div>`}`}
+      </section>`;
+  });
+
+  // ---------- Schritt für Schritt: Worked Examples mit abnehmender Hilfe ----------
+  let wbState = null;
+  const WB_STUFEN = ['Beispiel mit Begründung', 'Lückenaufgabe', 'Allein', 'Neuer Kontext'];
+  route('beispiele', ([bid]) => {
+    const B = window.BEISPIELE || [];
+    if (!bid) {
+      return `<section class="hero small"><div class="eyebrow">Training</div><h1>Schritt für Schritt</h1>
+        <p class="lead">Sechs Prozeduren, die du im Schlaf können musst. Jede in vier Stufen mit abnehmender Hilfe: erst ein vollständiges Beispiel, bei dem jeder Schritt begründet ist. Dann dasselbe mit einer Lücke, die du füllst. Dann allein, mit Kriterien statt Lösung. Zuletzt ein Fall aus einem ganz anderen Lebensbereich, denn erst dort zeigt sich, ob du die Struktur verstanden hast oder nur das Beispiel (Sweller 2006; Renkl 2014).</p></section>
+        <div class="grid">${B.map(x => { const st = S.drills['wb_' + x.id]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/beispiele/${x.id}"><div class="meta"><span class="tag">${x.dauer} Min</span>${st ? `<span class="tag ${st.stufe >= 4 ? 'green' : 'gold'}">${st.stufe >= 4 ? 'alle vier Stufen' : 'Stufe ' + st.stufe + ' von 4'}</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${x.prozedur.length} Schritte${fl ? ` · Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
+    }
+    const x = B.find(b => b.id === bid); if (!x) return routes.beispiele([]);
+    const saved = S.drills['wb_' + x.id] || { stufe: 0 };
+    if (!wbState || wbState.id !== bid) wbState = { id: bid, stufe: Math.min(saved.stufe, 3), offen: false, text: '' };
+    const fl = findLesson(x.lektion); const st = wbState.stufe;
+    const stepper = `<ol class="stepper">${WB_STUFEN.map((n, i) => `<li class="${i < st ? 'done' : i === st ? 'cur' : ''}"><span>${i + 1}</span> ${n}</li>`).join('')}</ol>`;
+    const proz = `<div class="callout ziele"><div class="label">Die Prozedur</div><ol>${x.prozedur.map(p => `<li>${esc(p)}</li>`).join('')}</ol></div>`;
+    let body = '';
+    if (st === 0) {
+      body = `${proz}<section class="card"><div class="eyebrow">Stufe 1 · Vollständiges Beispiel</div><p class="kontext">${esc(x.beispiel.kontext)}</p>
+        <ol class="steps wb">${x.beispiel.schritte.map((sch, i) => `<li><div class="eyebrow">${esc(x.prozedur[i].split(':')[0])}</div><p>${esc(sch.text)}</p><div class="warum"><strong>Warum so:</strong> ${esc(sch.warum)}</div></li>`).join('')}</ol>
+        <p class="muted">Lies das Beispiel einmal mit Blick auf das Warum, nicht auf den Wortlaut. Dann decke es ab und sag dir die vier Schritte selbst auf.</p>
+        <div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter zur Lückenaufgabe</button></div></section>`;
+    } else if (st === 1) {
+      const L = x.luecke; const gap = L.schritte.findIndex(z => z === null);
+      body = `<section class="card"><div class="eyebrow">Stufe 2 · Lückenaufgabe</div><p class="kontext">${esc(L.kontext)}</p>
+        <ol class="steps wb">${L.schritte.map((sch, i) => `<li class="${sch === null ? 'gap' : ''}"><div class="eyebrow">${esc(x.prozedur[i].split(':')[0])}</div>${sch === null ? (wbState.offen ? `<div class="log-entry"><div class="meta">Deine Lösung</div><div class="body">${esc(wbState.text)}</div></div><div class="callout practice"><div class="label">Eine mögliche Lösung</div>${esc(L.loesung)}</div>` : `<p class="muted">${esc(L.frage)}</p>`) : `<p>${esc(sch)}</p>`}</li>`).join('')}</ol>
+        ${wbState.offen ? `<p class="muted"><strong>Vergleich:</strong> ${esc(L.hinweis)} Erfüllt deine Lösung das? Dann weiter. Wenn nicht, formuliere sie noch einmal, bevor du weitergehst.</p><div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter: allein</button><button class="btn ghost" data-act="wb-retry">Noch einmal versuchen</button></div>`
+        : `<form class="wb-form" data-min="40"><div class="callout warn"><div class="label">Hinweis</div>${esc(L.hinweis)}</div><textarea class="journal" rows="3" placeholder="Schritt ${gap + 1} in direkter Rede…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und vergleichen</button></div></form>`}</section>`;
+    } else {
+      const E = st === 2 ? x.eigen : x.fern;
+      body = `${st === 2 ? proz : ''}<section class="card"><div class="eyebrow">Stufe ${st + 1} · ${WB_STUFEN[st]}</div><p class="kontext">${esc(E.kontext)}</p>
+        ${wbState.offen ? `<div class="log-entry"><div class="meta">Deine Lösung</div><div class="body">${esc(wbState.text)}</div></div>
+          <h3>Prüfe deine Lösung an den Kriterien</h3><ul class="krit">${E.kriterien.map((k, i) => `<li><label><input type="checkbox" class="krit-box"> <span>${esc(k)}</span></label></li>`).join('')}</ul>
+          <details class="muster"><summary>Erst danach: eine Musterlösung ansehen</summary><div class="callout practice">${esc(E.muster)}</div><p class="muted small">Die Musterlösung ist eine von vielen. Deine kann anders klingen und trotzdem alle Kriterien erfüllen. Vergleiche die Struktur, nicht die Worte.</p></details>
+          <div class="btn-row"><button class="btn primary" data-act="wb-next">${st === 2 ? 'Weiter: neuer Kontext' : 'Abschließen'}</button><button class="btn ghost" data-act="wb-retry">Noch einmal</button>${S.apiKey ? `<a class="btn ghost" href="#/coach">Lösung vom Coach prüfen lassen</a>` : ''}</div>`
+        : `<p class="muted">${st === 2 ? 'Jetzt ohne Vorlage. Die Prozedur steht oben, die Kriterien siehst du erst danach.' : 'Anderer Lebensbereich, gleiche Struktur. Wenn du hier hängst, hast du das Beispiel gelernt, nicht die Methode. Das ist normal und genau der Zweck dieser Stufe.'} Mindestens 120 Zeichen.</p>
+          <form class="wb-form" data-min="120"><textarea class="journal" rows="7" placeholder="Alle Schritte, so wie du sie sagen oder aufschreiben würdest…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und an Kriterien prüfen</button></div></form>`}</section>`;
+    }
+    const done = saved.stufe >= 4;
+    return `<div class="breadcrumb"><a href="#/beispiele">Schritt für Schritt</a> › ${esc(x.titel)}</div>
+      <section class="hero small"><div class="eyebrow">Worked Example · ${x.dauer} Minuten</div><h1>${esc(x.titel)}</h1>${fl ? `<p class="muted small">Stoff: <a href="#/lektion/${fl.kurs.id}/${fl.lektion.id}">Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1} ${esc(fl.lektion.titel)}</a></p>` : ''}</section>
+      ${done && st === 3 && !wbState.offen ? `<div class="callout study"><div class="label">Alle vier Stufen abgeschlossen am ${new Date(saved.ts).toLocaleDateString('de-DE')}</div>Wiederhole die Stufen 3 und 4 in einer Woche mit einem eigenen Fall aus deinem Alltag. Die Prozedur sitzt, wenn du sie ohne die Liste oben hinschreiben kannst.</div>` : ''}
+      ${stepper}${body}
+      ${st > 0 ? `<div class="btn-row"><button class="btn small ghost" data-act="wb-back">Eine Stufe zurück</button></div>` : ''}`;
+  });
+
   // ---------- Einwand-Drill: erst selbst antworten, dann Muster, dann Selbstbewertung ----------
   let ewState = null;
   function ewWertung(id) { return (S.drills['ew_' + id] || []); }
@@ -808,7 +884,7 @@
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Wiederholen</h1>
       <p class="lead">${n ? `${n} Karten sind heute fällig.` : f.heute ? 'Für heute erledigt.' : 'Nichts fällig.'} Höchstens ${SRS_MAX_TAG} pro Tag, damit kein Berg entsteht. Richtig beantwortet heißt längerer Abstand, falsch heißt morgen wieder.</p>
       <div class="grid stats"><div class="stat"><div class="big">${karten.length}</div><div class="lbl">Karten</div></div><div class="stat"><div class="big">${sicher}</div><div class="lbl">sicher (Stufe 4+)</div></div><div class="stat"><div class="big">${gesamt}</div><div class="lbl">Wiederholungen</div></div><div class="stat"><div class="big">${gesamt ? Math.round(stats.reduce((a, x) => a + x.richtig, 0) / gesamt * 100) : 0} %</div><div class="lbl">Trefferquote</div></div></div>
-      ${n ? `<div class="btn-row"><button class="btn primary" data-act="srs-start">Jetzt wiederholen</button></div>` : ''}
+      ${n || S.apiKey ? `<div class="btn-row">${n ? `<button class="btn primary" data-act="srs-start">Jetzt wiederholen</button>` : ''}${S.apiKey ? `<a class="btn ghost" href="#/coach?lern=1">Lernsitzung mit dem Coach</a>` : ''}</div>` : ''}
       <div class="callout study"><div class="label">Warum so</div>Abstände statt Pauken: Cepeda et al. (2006) fanden über 254 Studien, dass verteiltes Lernen das massierte schlägt, und zwar umso deutlicher, je länger der Stoff halten soll. Mischen über Module (Interleaving) verbessert die Unterscheidung ähnlicher Konzepte (Rohrer & Taylor 2007). Die Obergrenze von ${SRS_MAX_TAG} verhindert das Anki-Problem, dass ein Rückstand zur Last wird.</div>`;
   });
 
@@ -895,6 +971,7 @@
     else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
+    else if (f.classList.contains('wb-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Schreib alle Schritte aus.`, 'bad'); wbState.text = t; wbState.offen = true; navigate(); }
     else if (f.classList.contains('ew-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 60) return toast(`Zu kurz. ${60 - t.length} Zeichen fehlen. Sag es so, wie du es sagen würdest.`, 'bad'); ewState = { id: f.dataset.id, antwort: t, offen: true }; navigate(); }
     else if (f.classList.contains('leiter-add')) { e.preventDefault(); const v = f.querySelector('input').value.trim(); if (v) { S.leiter.push({ text: v, done: false }); save(); navigate(); } }
     else if (f.id === 'ka-form') { e.preventDefault(); kaProfile(f); }
@@ -915,6 +992,12 @@
     else if (a === 'leiter-toggle') { if (e.target.classList.contains('x')) return; const l = S.leiter[Number(el.dataset.i)]; l.done = !l.done; if (l.done) touch(); save(); navigate(); }
     else if (a === 'leiter-del') { e.stopPropagation(); S.leiter.splice(Number(el.dataset.i), 1); save(); navigate(); }
     else if (a === 'print') window.print();
+    else if (a === 'kt-wahl') { ktState.gewaehlt = Number(el.dataset.i); const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.antworten[ktState.i] = { wahl: ktState.gewaehlt, ok: ktState.gewaehlt === x.faelle[ktState.i].richtig }; navigate(); }
+    else if (a === 'kt-next') { const x = window.KONTRASTE.find(k => k.id === ktState.id); ktState.i++; ktState.gewaehlt = null; if (ktState.i >= x.faelle.length) { (S.drills['kt_' + x.id] = S.drills['kt_' + x.id] || []).push({ ts: Date.now(), score: ktState.antworten.filter(z => z.ok).length, n: x.faelle.length }); touch(); save(); } navigate(); }
+    else if (a === 'kt-restart') { ktState = null; navigate(); }
+    else if (a === 'wb-next') { const x = window.BEISPIELE.find(b => b.id === wbState.id); const reached = wbState.stufe + 1; const saved = S.drills['wb_' + x.id] || { stufe: 0 }; if (reached > saved.stufe) { S.drills['wb_' + x.id] = { stufe: reached, ts: Date.now() }; touch(); save(); } if (reached >= 4) { toast('Alle vier Stufen geschafft. In einer Woche mit eigenem Fall wiederholen.', 'good'); wbState = { id: x.id, stufe: 3, offen: false, text: '' }; location.hash = '#/beispiele'; return; } wbState = { id: x.id, stufe: reached, offen: false, text: '' }; navigate(); window.scrollTo(0, 0); }
+    else if (a === 'wb-retry') { wbState.offen = false; wbState.text = ''; navigate(); }
+    else if (a === 'wb-back') { wbState = { id: wbState.id, stufe: Math.max(0, wbState.stufe - 1), offen: false, text: '' }; navigate(); }
     else if (a === 'show-opts') { const box = el.closest('.quiz-q'); box.querySelector('.opts').hidden = false; el.remove(); }
     else if (a === 'ew-wert') { const id = ewState.id; (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert: Number(el.dataset.wert), antwort: ewState.antwort.slice(0, 400) }); touch(); save(); ewState = null; toast(el.dataset.wert === '2' ? 'Gemerkt. Morgen noch einmal, dann sitzt es.' : 'Gemerkt. Lies das Vorgehen noch einmal und probier es heute in einem echten Gespräch.', el.dataset.wert === '2' ? 'good' : ''); navigate(); }
     else if (a === 'report-vorlage') { const ta = el.closest('form').querySelector('textarea'); const tpl = 'Situation (wann, wo, mit wem):\n\nWas ich konkret gesagt oder getan habe:\n\nWas daraufhin passiert ist (Reaktion, Wortlaut, Ergebnis):\n\nWas ich beim nächsten Mal anders mache und woran ich merke, dass es wirkt:\n'; ta.value = ta.value.trim() ? ta.value + '\n\n' + tpl : tpl; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); }
