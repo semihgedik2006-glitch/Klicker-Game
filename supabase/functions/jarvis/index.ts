@@ -309,11 +309,12 @@ async function anrufen(anlass: string) {
   return antwort.json();
 }
 
-async function chat(text: string) {
-  await speichern("user", text);
+async function chat(text: string, kanal = "telegram") {
+  await speichern("user", text, kanal);
   const antwort = await denken(await letzteNachrichten());
-  await speichern("assistant", antwort);
-  await senden(antwort);
+  await speichern("assistant", antwort, kanal);
+  if (kanal === "telegram") await senden(antwort);
+  return antwort;
 }
 
 async function telegramUpdate(update: Record<string, any>) {
@@ -343,6 +344,12 @@ async function telegramUpdate(update: Record<string, any>) {
     if (!anrufMoeglich()) return senden("Anrufe sind noch nicht eingerichtet.");
     await anrufen("Semih hat um einen Anruf gebeten.");
     return senden("Ich rufe dich gleich an.");
+  }
+  if (text.trim().startsWith("/dashboard")) {
+    const email = text.trim().split(/\s+/)[1]?.toLowerCase() ?? "";
+    if (!email.includes("@")) return senden("Schreib /dashboard gefolgt von der E-Mail deines App-Kontos.");
+    await einstellungSpeichern("dashboard_email", email);
+    return senden(`Dashboard freigegeben für ${email}.`);
   }
   if (text.trim() === "/gedaechtnis") {
     const { data } = await db.from("jarvis_gedaechtnis").select("id, kategorie, inhalt").eq("aktiv", true).order("id");
@@ -400,6 +407,59 @@ async function anrufAuswerten(nachricht: Record<string, any>) {
   await senden(text);
 }
 
+const CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-headers": "authorization, content-type, apikey",
+  "access-control-allow-methods": "GET, POST, OPTIONS",
+};
+
+function json(daten: unknown, status = 200) {
+  return new Response(JSON.stringify(daten), { status, headers: { ...CORS, "content-type": "application/json" } });
+}
+
+async function dashboard(anfrage: Request) {
+  const jwt = (anfrage.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "");
+  const { data: nutzer } = await db.auth.getUser(jwt);
+  const erlaubt = (await einstellung("dashboard_email")).toLowerCase();
+  const email = nutzer?.user?.email?.toLowerCase() ?? "";
+  if (!email) return json({ fehler: "Nicht angemeldet." }, 401);
+  if (!erlaubt || email !== erlaubt) {
+    return json({ fehler: "Dieses Konto ist noch nicht freigegeben. Schreib Jarvis in Telegram: /dashboard " + email }, 403);
+  }
+
+  if (anfrage.method === "POST") {
+    const eingabe = await anfrage.json();
+    if (eingabe.aktion === "auftrag" && typeof eingabe.text === "string" && eingabe.text.trim()) {
+      return json({ antwort: await chat(eingabe.text.trim().slice(0, 4000), "dashboard") });
+    }
+    if (eingabe.aktion === "vergessen" && Number.isInteger(eingabe.id)) {
+      await db.from("jarvis_gedaechtnis").update({ aktiv: false }).eq("id", eingabe.id);
+      return json({ ok: true });
+    }
+    return json({ fehler: "Unbekannte Aktion." }, 400);
+  }
+
+  const [gedaechtnis, verlauf, wochen, erinnerungen] = await Promise.all([
+    db.from("jarvis_gedaechtnis").select("id, kategorie, inhalt, erstellt").eq("aktiv", true).order("id", { ascending: false }).limit(300),
+    db.from("jarvis_verlauf").select("id, rolle, kanal, text, zeit").order("zeit", { ascending: false }).limit(60),
+    db.from("jarvis_wochenzahlen").select("*").order("woche", { ascending: false }).limit(12),
+    db.from("jarvis_erinnerungen").select("id, faellig, text").eq("gesendet", false).order("faellig").limit(20),
+  ]);
+  return json({
+    status: {
+      telegram: Boolean(await einstellung("telegram_chat")),
+      anrufe: anrufMoeglich(),
+      modell: MODELL,
+      morgen: await einstellung("morgen_stunde", "7"),
+      sonntag: await einstellung("sonntag_stunde", "18"),
+    },
+    gedaechtnis: gedaechtnis.data ?? [],
+    verlauf: (verlauf.data ?? []).reverse(),
+    wochen: (wochen.data ?? []).reverse(),
+    erinnerungen: erinnerungen.data ?? [],
+  });
+}
+
 function gleich(a: string | null, b: string) {
   if (!a || !b || a.length !== b.length) return false;
   let unterschied = 0;
@@ -412,6 +472,10 @@ Deno.serve(async (anfrage) => {
   const route = url.pathname.split("/").filter(Boolean).pop();
 
   try {
+    if (route === "dashboard") {
+      if (anfrage.method === "OPTIONS") return new Response(null, { headers: CORS });
+      return await dashboard(anfrage);
+    }
     if (route === "telegram" && anfrage.method === "POST") {
       if (!gleich(anfrage.headers.get("x-telegram-bot-api-secret-token"), await einstellung("telegram_geheim"))) {
         return new Response("nein", { status: 401 });
@@ -457,6 +521,6 @@ Deno.serve(async (anfrage) => {
     return new Response("unbekannt", { status: 404 });
   } catch (fehler) {
     console.error(fehler);
-    return new Response("Fehler", { status: 500 });
+    return json({ fehler: String((fehler as Error)?.message ?? fehler).slice(0, 300) }, 500);
   }
 });

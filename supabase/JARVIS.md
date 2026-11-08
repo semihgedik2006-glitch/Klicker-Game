@@ -19,6 +19,13 @@ Persönlicher Assistent in Telegram, mit Gedächtnis, Morgen-Briefing, Wochenpla
 
 Befehle: `/gedaechtnis` zeigt alles, was er sich gemerkt hat. `/anruf` startet einen Anruf, sobald Teil 2 eingerichtet ist. Uhrzeiten änderst du im Chat, etwa „Morgen-Briefing ab jetzt um 8“.
 
+## Dashboard am PC
+
+1. In Telegram an Jarvis: `/dashboard deine@email.de` (die E-Mail deines App-Kontos).
+2. `https://semihgedik2006-glitch.github.io/Klicker-Game/jarvis/` öffnen und mit dem App-Konto anmelden.
+
+Dort siehst du Gespräch, Wochenzahlen, anstehende Erinnerungen und das Gedächtnis und kannst Aufträge geben.
+
 ## Teil 2: Anrufe (optional, kostet pro Minute)
 
 Telefonie läuft über Vapi. Die kostenlose Vapi-Nummer kann nicht ins deutsche Netz anrufen, deshalb braucht es eine Twilio-Nummer.
