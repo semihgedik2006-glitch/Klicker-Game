@@ -550,3 +550,14 @@ details.muster { margin: 14px 0; }
   .ring svg { width: 96px; height: 96px; }
   .ring-text strong { font-size: 1.5rem; }
 }
+
+.konto-zeile { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.konto-zeile .btn-row { margin: 0; }
+.konto-mail { font-weight: 500; }
+.konto-status { font-size: .88rem; display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.konto-punkt { width: 7px; height: 7px; border-radius: 50%; background: var(--text-3); flex: none; }
+.konto-punkt.an { background: var(--green); }
+.konto-punkt.aus { background: var(--red); }
+.btn.konto-link { border-color: transparent; background: none; }
+.btn.konto-loeschen { margin-top: 14px; padding-left: 0; color: var(--text-3); }
+.btn.konto-loeschen:hover { color: var(--red); }
