@@ -921,7 +921,7 @@
   // Abgrenzung bei einer Verwechslung: die Bedingung des gewählten Begriffs neben der des richtigen. Beide stehen schon in den Karten („Wann“); hier treffen sie am konkreten Fall aufeinander.
   function ktAbgrenzung(x, wahl, richtig) {
     if (wahl === richtig) return '';
-    return `<p class="kt-abgrenzung"><strong>${esc(x.begriffe[wahl].name)}</strong> hätte gepasst, wenn: ${esc(x.begriffe[wahl].wann)}<br><strong>${esc(x.begriffe[richtig].name)}</strong> passt, weil: ${esc(x.begriffe[richtig].wann)}</p>`;
+    return `<p class="kt-abgrenzung"><strong>${esc(x.begriffe[wahl].name)}</strong> hätte gepasst: ${esc(x.begriffe[wahl].wann)}<br><strong>${esc(x.begriffe[richtig].name)}</strong> passt hier: ${esc(x.begriffe[richtig].wann)}</p>`;
   }
   // Häufigste Verwechslung über eine Liste von Fehlern [[wahl, richtig], …]
   function ktTopFehler(x, fehler) {

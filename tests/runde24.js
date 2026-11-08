@@ -15,7 +15,7 @@ const { chromium } = require('playwright'); const path = require('path');
   const falsch0 = (info.richtig[0] + 1) % info.begriffe.length;
   await page.click(`[data-act="kt-wahl"][data-i="${falsch0}"]`); await page.waitForTimeout(300);
   const fb = await page.evaluate(() => ({ abg: (document.querySelector('.kt-drill .kt-abgrenzung') || {}).textContent || '', warn: !!document.querySelector('.kt-drill .callout.warn') }));
-  ok('Falsche Wahl: Abgrenzung nennt beide Bedingungen', fb.warn && fb.abg.includes(info.begriffe[falsch0] + ' hätte gepasst, wenn: ' + info.wann[falsch0]) && fb.abg.includes(info.begriffe[info.richtig[0]] + ' passt, weil: ' + info.wann[info.richtig[0]]), fb.abg.slice(0, 160));
+  ok('Falsche Wahl: Abgrenzung nennt beide Bedingungen', fb.warn && fb.abg.includes(info.begriffe[falsch0] + ' hätte gepasst: ' + info.wann[falsch0]) && fb.abg.includes(info.begriffe[info.richtig[0]] + ' passt hier: ' + info.wann[info.richtig[0]]), fb.abg.slice(0, 160));
   await page.click('[data-act="kt-next"]'); await page.waitForTimeout(300);
   // Zweiter Fall richtig: keine Abgrenzung
   await page.click(`[data-act="kt-wahl"][data-i="${info.richtig[1]}"]`); await page.waitForTimeout(300);
