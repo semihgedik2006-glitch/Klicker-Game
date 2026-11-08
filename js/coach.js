@@ -324,7 +324,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
   function history() { const S = VA.S; return S.chats[chatKey()] = S.chats[chatKey()] || []; }
   function page(parts) {
     const S = VA.S; const qs = new URLSearchParams((location.hash.split('?')[1] || ''));
-    if (qs.get('rp') && window.SZENARIEN.find(s => s.id === qs.get('rp'))) { mode = 'rollenspiel'; scenario = window.SZENARIEN.find(s => s.id === qs.get('rp')); }
+    if (qs.get('rp') && (window.SZENARIEN || []).find(s => s.id === qs.get('rp'))) { mode = 'rollenspiel'; scenario = window.SZENARIEN.find(s => s.id === qs.get('rp')); }
     else if (qs.has('biz')) { mode = 'business'; framework = FRAMEWORKS.find(f => f.id === qs.get('biz')) || null; }
     else if (qs.get('einwand') && (window.EINWAENDE || []).find(x => x.id === qs.get('einwand'))) { mode = 'einwand'; einwand = window.EINWAENDE.find(x => x.id === qs.get('einwand')); }
     else if (qs.has('lern')) { mode = 'lern'; }
