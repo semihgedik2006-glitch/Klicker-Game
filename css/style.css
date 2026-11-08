@@ -258,8 +258,9 @@ label.check { color: var(--text); }
 .ms.done .ms-icon { border-color: var(--gold); color: var(--gold); }
 /* Heute, Fokus, Details */
 .today { margin-bottom: 28px; border-color: rgba(201,165,88,.35); }
-.today-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+.today-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 12px; }
 .today-item { display: flex; gap: 12px; align-items: flex-start; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px; color: var(--text); font-size: .9rem; background: var(--bg-3); }
+.today-item > span:last-child { min-width: 0; }
 .today-item:hover { text-decoration: none; border-color: var(--gold); }
 .today-item.done { border-color: var(--green); opacity: .75; }
 .today-item.done .ms-icon { border-color: var(--green); color: var(--green); }
@@ -454,3 +455,6 @@ label.check:has(input:focus-visible), label.opt:has(input:focus-visible) { borde
 .pruefung-offen { margin: 0 0 18px; }
 .pruefung-offen li { padding: 8px 0; border-bottom: 1px solid var(--line); }
 .pruefung-offen li:last-child { border-bottom: 0; }
+
+/* Statistik-Kacheln auf dem Handy: bei ungerader Anzahl keine verwaiste Kachel, die letzte nimmt die ganze Zeile. */
+@media (max-width: 600px) { .stats .stat:last-child:nth-child(odd) { grid-column: 1 / -1; } }
