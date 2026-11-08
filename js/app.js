@@ -21,14 +21,14 @@
     quiz: {}, lessonsDone: {}, exams: {}, reports: {},
     erfolg: [], beweis: [], nein: [], ablehnung: {}, leiter: null,
     checks: {}, drills: {}, ka: [], chats: {}, activity: {}, streakBest: 0,
-    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, tourWeg: false, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
+    business: [], started: Date.now(), vorfragen: {}, abruf: {}, srs: {}, plan: '', lastExport: 0, textsize: 'normal', onboarded: false, tourWeg: false, rpPlan: {}, srsLog: {}, kalib: { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }, blind: {}
   };
   let S;
   function load() {
     try { S = Object.assign({}, DEFAULT, JSON.parse(localStorage.getItem(KEY) || '{}')); }
     catch (e) { S = Object.assign({}, DEFAULT); }
     if (!S.leiter) S.leiter = window.ERFOLGSLEITER_VORLAGE.map(t => ({ text: t, done: false }));
-    if (!S.kalib) S.kalib = { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }; if (!S.blind) S.blind = {};
+    if (!S.kalib) S.kalib = { sicher: 0, sicherOk: 0, unsicher: 0, unsicherOk: 0 }; if (!S.blind) S.blind = {}; if (!S.rpPlan) S.rpPlan = {};
     if (!S.onboarded && (Object.keys(S.activity).length > 0 || S.name)) S.onboarded = true;
     (window.SZENARIEN || []).forEach(sz => { if (!sz.offline && window.SZENARIEN_OFFLINE && window.SZENARIEN_OFFLINE[sz.id]) sz.offline = window.SZENARIEN_OFFLINE[sz.id]; });
   }
@@ -251,7 +251,7 @@
 
   function onboarding() {
     return `<section class="hero"><div class="eyebrow">Verkaufsakademie</div><h1>Bevor du anfängst</h1>
-      <p class="lead">Das hier ist kein Kurs zum Durchklicken. Es ist ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Zwei Minuten Einrichtung, dann geht es los.</p></section>
+      <p class="lead">Ein persönliches Bootcamp mit zehn Modulen, einer Abschlussprüfung und Aufgaben in der echten Welt. Durchklicken bringt hier nichts, weil jede Lektion mit einem Quiz und einem Bericht über etwas Getanes endet. Zwei Minuten Einrichtung, dann geht es los.</p></section>
       <div class="two-col">
         <div class="card"><div class="eyebrow">So lernst du hier</div>
           <ol class="steps">
@@ -597,7 +597,7 @@
     return `
       <div class="breadcrumb"><a href="#/kurs/${k.id}">Modul ${k.nr}</a> › Prüfung</div>
       <section class="hero small"><div class="eyebrow">Modulprüfung</div><h1>${esc(k.titel)}</h1>
-        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen, zufällig gemischt. Mindestens ${PASS} %. Keine Hilfsmittel, kein Zurückblättern.</p>
+        <p class="lead">${Math.min(12, k.lektionen.reduce((a, l) => a + l.quiz.length, 0))} Fragen aus allen Lektionen, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang.</p>
         ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length}${ex.attempts.some(a => a.abgebrochen) ? ' (davon ' + ex.attempts.filter(a => a.abgebrochen).length + ' abgebrochen)' : ''} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
         ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Du hast dieses Modul mit ${ex.best} % bestanden. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
         ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nicht bestanden. Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten. Nutze die Zeit: Lies die Lektionen, in denen du Fehler hattest.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="${kid}">Prüfung starten</button></div>`}
@@ -658,7 +658,7 @@
     const locked = lastFail && Date.now() - lastFail.ts < EXAM_COOLDOWN && !ex.passed;
     if (examState && examState.kid === 'abschluss') return renderExam(null);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Abschlussprüfung</h1>
-      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, zufällig gemischt. Mindestens ${PASS} %. Keine Hilfsmittel, kein Zurückblättern. Das ist der Nachweis, dass das Wissen auch Monate später noch sitzt.</p>
+      <p class="lead">30 Fragen quer durch alle zehn Module, drei pro Modul, zufällig gemischt. Mindestens ${PASS} %. Du beantwortest sie ohne Unterlagen und in einem Durchgang. Das ist der Nachweis, dass das Wissen auch Monate später noch sitzt.</p>
       ${ex.attempts.length ? `<p class="muted">Versuche: ${ex.attempts.length} · Bestes Ergebnis: ${ex.best} %</p>` : ''}
       ${ex.passed ? `<div class="callout study"><div class="label">Bestanden</div>Mit ${ex.best} %. <a href="#/zertifikat">Zum Zertifikat</a>. Du kannst die Prüfung zur Übung wiederholen.</div>` : ''}
       ${locked ? `<div class="callout warn"><div class="label">Sperre</div>Nächster Versuch in ${Math.ceil((EXAM_COOLDOWN - (Date.now() - lastFail.ts)) / 60000)} Minuten.</div>` : `<div class="btn-row"><button class="btn primary" data-act="exam-start" data-kid="abschluss">Abschlussprüfung starten</button></div>`}
@@ -754,6 +754,7 @@
       <section class="hero small"><div class="eyebrow">${esc(s.level)}</div><h1>${esc(s.titel)}</h1><p class="lead">${esc(s.lage)}</p>
       <div class="callout practice"><div class="label">Dein Ziel</div>${esc(s.ziel)}</div>
       <div class="callout"><div class="label">Pflichtkriterien</div><ul>${s.pflicht.map(p => `<li>${esc(p)}</li>`).join('')}</ul></div>
+      ${rpPlanBox(s)}
       <div class="btn-row">
         ${s.offline ? `<button class="btn primary" data-act="rp-start" data-sid="${s.id}">Offline-Version spielen</button>` : ''}
         <a class="btn ${s.offline ? 'ghost' : 'primary'}" href="#/coach?rp=${s.id}">${S.apiKey ? 'Live mit dem Coach spielen' : 'Live mit Coach (API-Schlüssel nötig)'}</a>
@@ -761,12 +762,27 @@
       <div id="rp-box">${rpState && rpState.sid === sid ? renderRp(s) : ''}</div>
       ${runs.length ? `<h2 class="section-title">Deine Durchläufe</h2>${runs.slice().reverse().map(r => `<div class="log-entry"><div class="meta">${fmtTime(r.ts)} · ${r.art}</div><div class="body">${esc(r.fazit)}</div></div>`).join('')}` : ''}`;
   });
+  // Vorbereitung vor dem Rollenspiel: drei Zeilen, die ein Profi vor jedem Gespräch aufschreibt (Ziel, Eröffnung, Grenze).
+  function rpPlanBox(s) {
+    const p = S.rpPlan[s.id];
+    if (p && !(rpPlanEdit === s.id)) return `<div class="card rp-plan"><div class="eyebrow">Deine Vorbereitung · ${fmtDate(p.ts)}</div>
+      <div class="sb-row"><div class="lbl">Ziel</div><div>${esc(p.ziel)}</div></div><div class="sb-row"><div class="lbl">Erster Satz</div><div>${esc(p.erste)}</div></div><div class="sb-row"><div class="lbl">Grenze</div><div>${esc(p.grenze)}</div></div>
+      <div class="btn-row"><button class="btn small ghost" data-act="rp-plan-edit" data-sid="${s.id}">Ändern</button></div></div>`;
+    return `<form class="card rp-plan rp-plan-form" data-sid="${s.id}"><div class="eyebrow">Vorbereitung · 2 Minuten</div>
+      <p class="muted small">Profis gehen mit drei Zeilen ins Gespräch. Schreib sie, bevor du spielst, dann kannst du danach prüfen, ob du deinem Plan gefolgt bist oder dem Kunden hinterhergelaufen bist.</p>
+      <label>Was will ich am Ende dieses Gesprächs erreicht haben? <input name="ziel" required minlength="10" value="${esc(p ? p.ziel : '')}" placeholder="Ein konkreter nächster Schritt mit Datum, kein Abschluss um jeden Preis"></label>
+      <label>Mein erster Satz nach dem Einwand <input name="erste" required minlength="10" value="${esc(p ? p.erste : '')}" placeholder="Ein Label oder eine Frage, kein Gegenargument"></label>
+      <label>Was tue ich nicht, egal was passiert? <input name="grenze" required minlength="5" value="${esc(p ? p.grenze : '')}" placeholder="Zum Beispiel: kein Rabatt ohne Gegenleistung"></label>
+      <div class="btn-row"><button class="btn small primary" type="submit">Plan festhalten</button>${p ? `<button class="btn small ghost" type="button" data-act="rp-plan-cancel">Abbrechen</button>` : ''}</div></form>`;
+  }
+  let rpPlanEdit = null;
   function renderRp(s) {
     const st = rpState; const node = s.offline.knoten[st.node];
     const hist = st.hist.map(h => `<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(h.npc)}</div><div class="you"><span class="who">Du</span> ${esc(h.you)}</div><div class="feedback ${h.bewertung}">${esc(h.feedback)}</div></div>`).join('');
     if (node.ende) {
       return `${hist}<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(node.npc)}</div></div>
         <div class="callout ${/^Bestanden/.test(node.fazit) ? 'study' : 'warn'}"><div class="label">Fazit</div>${esc(node.fazit)}</div>
+        ${S.rpPlan[s.id] ? `<div class="callout practice"><div class="label">Plan gegen Verlauf</div>Dein Ziel war: „${esc(S.rpPlan[s.id].ziel)}“. Deine Grenze: „${esc(S.rpPlan[s.id].grenze)}“. Lies den Verlauf oben noch einmal und entscheide ehrlich, ob du beides gehalten hast. Wer seinen Plan im Gespräch verliert, verliert meist das Gespräch.</div>` : ''}
         <div class="btn-row"><button class="btn primary" data-act="rp-start" data-sid="${s.id}">Nochmal</button><a class="btn ghost" href="#/rollenspiel">Alle Szenarien</a></div>`;
     }
     return `${hist}<div class="scene"><div class="npc"><span class="who">${esc(s.persona.split(',')[0])}</span> ${esc(node.npc)}</div>
@@ -787,7 +803,7 @@
     const F = window.FAELLE, R = window.FAELLE_RUBRIK;
     if (!fid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Fälle</h1>
-        <p class="lead">Zehn Situationen, wie sie im Beruf ankommen: ohne Überschrift, ohne Hinweis, welche Lektion gemeint ist. Du schreibst eine begründete Einschätzung, dann bewertest du sie an einer Rubrik mit sechs Dimensionen, erst danach siehst du, was eine starke Antwort enthält. Bewertet wird die Qualität des Denkwegs, nicht die Übereinstimmung mit einer Musterlösung. Mit API-Schlüssel bewertet der Coach zusätzlich, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen.</p></section>
+        <p class="lead">Zehn Situationen, wie sie im Beruf ankommen, ohne den Hinweis, welche Lektion gemeint ist. Du schreibst eine begründete Einschätzung, dann bewertest du sie an einer Rubrik mit sechs Dimensionen, erst danach siehst du, was eine starke Antwort enthält. Bewertet wird die Qualität des Denkwegs, nicht die Übereinstimmung mit einer Musterlösung. Mit API-Schlüssel bewertet der Coach zusätzlich, zitiert deine Stellen und trennt Fehler von vertretbaren Entscheidungen.</p></section>
         <div class="grid">${F.map(f => { const k = KURSE.find(x => x.id === f.modul); const r = fallRuns(f.id); const last = r[r.length - 1]; const locked = k && !examPassed(k.id) && !lessonDone(k.lektionen[0].id); return `<div class="card ${locked ? 'locked' : 'clickable'}" ${locked ? '' : `data-route="#/faelle/${f.id}"`}><div class="meta"><span class="tag">Modul ${k ? k.nr : '?'}</span>${wvTag('fall_', f.id)}${last ? `<span class="tag ${last.selbst >= 14 ? 'green' : 'gold'}">${last.coach != null ? 'Coach ' + last.coach : 'selbst ' + last.selbst}/18 · ${r.length}×</span>` : ''}${locked ? lock('Modul noch nicht begonnen') : ''}</div><h3>${esc(f.titel)}</h3></div>`; }).join('')}</div>
         <div class="callout study"><div class="label">Warum Fälle</div>Im Verkauf kommt kein Problem mit dem Kapitelnamen. Wer nur Fragen beantwortet, bei denen die Methode schon im Titel steht, lernt Wiedererkennen, nicht Entscheiden. Offene Fälle mit Rubrik trainieren das, was später zählt: Problem erfassen, Informationen nutzen, Alternativen abwägen, entscheiden, prüfen, erklären.</div>`;
     }
@@ -826,7 +842,7 @@
     const K = window.KONTRASTE || [];
     if (!kid) {
       return `<section class="hero small"><div class="eyebrow">Training</div><h1>Konzept-Kontraste</h1>
-        <p class="lead">Die meisten Fehler im Verkauf sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
+        <p class="lead">Viele Fehler im Gespräch sind Verwechslungen: Label statt Spiegeln, Anker statt BATNA, Abschlussfrage statt Trial Close. Hier stehen die Nachbarbegriffe nebeneinander, mit dem einen Unterschied, auf den es ankommt. Danach kommen Fälle, in denen niemand sagt, welche Methode gefragt ist. Genau so kommt es im Gespräch.</p></section>
         <div class="grid">${K.map(x => { const r = S.drills['kt_' + x.id] || []; const last = r[r.length - 1]; const fl = findLesson(x.lektion); return `<div class="card clickable" data-route="#/kontraste/${x.id}"><div class="meta"><span class="tag">${x.begriffe.length} Begriffe · ${x.faelle.length} Fälle</span>${wvTag('kt_', x.id)}${last ? `<span class="tag ${last.score === last.n ? 'green' : 'gold'}">${last.score}/${last.n} · ${r.length}×</span>` : ''}</div><h3>${esc(x.titel)}</h3><p class="muted small">${fl ? `Lektion ${fl.kurs.nr}.${lessonIndex(fl.kurs, fl.lektion.id) + 1}` : ''}</p></div>`; }).join('')}</div>`;
     }
     const x = K.find(k => k.id === kid); if (!x) return routes.kontraste([]);
@@ -962,7 +978,7 @@
           <button class="opt btn-opt muted" data-act="es-answer" data-oi="-1">Weiß ich nicht</button></section>`;
     }
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Einstufung</h1>
-      <p class="lead">Zwanzig Fragen, zwei je Modul, zehn Minuten. Das Ergebnis zeigt dir, wo du Vorwissen mitbringst und wo du besonders gründlich sein solltest. Es schaltet nichts frei: Die Reihenfolge der Module bleibt, weil jedes auf dem vorherigen aufbaut. Aber du weißt danach, wo das Quiz schnell geht und wo du langsamer lesen solltest. Der Coach kennt dein Ergebnis.</p>
+      <p class="lead">Zwanzig Fragen, zwei je Modul, zehn Minuten. Das Ergebnis zeigt dir, wo du Vorwissen mitbringst und wo du besonders gründlich sein solltest. Es schaltet nichts frei, weil jedes Modul auf dem vorherigen aufbaut. Du weißt danach, wo das Quiz schnell geht und wo du langsamer lesen solltest. Der Coach kennt dein Ergebnis.</p>
       ${E ? `<p class="muted">Zuletzt am ${new Date(E.ts).toLocaleDateString('de-DE')}: ${E.gesamt} von ${E.n} richtig.</p>` : ''}
       <div class="btn-row"><button class="btn primary" data-act="es-start">${E ? 'Noch einmal einstufen' : 'Einstufung starten'}</button></div></section>
       ${E ? `<div class="card"><div class="eyebrow">Dein Profil</div><table class="week-table"><tbody>${KURSE.map(k => { const r = E.module[k.id] || { ok: 0, n: 2 }; return `<tr><td><a href="#/kurs/${k.id}">${k.nr} ${esc(k.titel)}</a></td><td class="wk">${r.ok}/${r.n}</td><td>${r.ok === r.n ? '<span class="tag green">Vorwissen</span>' : r.ok === 0 ? '<span class="tag red">gründlich lesen</span>' : '<span class="tag gold">teilweise</span>'}</td></tr>`; }).join('')}</tbody></table>
@@ -1007,10 +1023,12 @@
   }
 
   // ---------- Checklisten ----------
-  route('checklisten', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Checklisten</h1><p class="lead">Vor, während und nach jedem Gespräch. Abhaken, zurücksetzen, wieder abhaken. Die Haken werden pro Liste gespeichert.</p></section>
+  route('checklisten', () => `<section class="hero small"><div class="eyebrow">Training</div><h1>Checklisten</h1><p class="lead">Drei Listen für die Zeit vor, während und nach dem Gespräch. Die Haken bleiben pro Liste gespeichert, bis du sie zurücksetzt. Gedruckt passen sie auf eine Seite neben das Telefon.</p>
+    <div class="btn-row no-print"><button class="btn ghost" data-act="print">Drucken oder als PDF sichern</button></div></section>
+    <div class="checklisten">
     ${window.CHECKLISTEN.map(c => { const st = S.checks[c.id] || {}; const n = c.punkte.filter((_, i) => st[i]).length;
-      return `<div class="card"><div class="meta">${n}/${c.punkte.length} <button class="btn small ghost" data-act="check-reset" data-id="${c.id}">Zurücksetzen</button></div><h3>${esc(c.titel)}</h3><p class="muted">${esc(c.beschreibung)}</p>
-        ${c.punkte.map((p, i) => `<label class="check ${st[i] ? 'done' : ''}"><input type="checkbox" data-act="check-toggle" data-id="${c.id}" data-i="${i}" ${st[i] ? 'checked' : ''}> ${esc(p)}</label>`).join('')}</div>`; }).join('')}`);
+      return `<div class="card"><div class="meta">${n}/${c.punkte.length} <button class="btn small ghost no-print" data-act="check-reset" data-id="${c.id}">Zurücksetzen</button></div><h3>${esc(c.titel)}</h3><p class="muted">${esc(c.beschreibung)}</p>
+        ${c.punkte.map((p, i) => `<label class="check ${st[i] ? 'done' : ''}"><input type="checkbox" data-act="check-toggle" data-id="${c.id}" data-i="${i}" ${st[i] ? 'checked' : ''}> ${esc(p)}</label>`).join('')}</div>`; }).join('')}</div>`);
 
   // ---------- Kundenanalyse ----------
   route('kundenanalyse', () => {
@@ -1145,7 +1163,7 @@
     const alle = rueckschauListe(); const offen = alle.filter(x => !x.erledigt), fertig = alle.filter(x => x.erledigt);
     const gruppen = KURSE.map(k => ({ k, items: offen.filter(x => x.kid === k.id) })).filter(g => g.items.length);
     return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Prüfungs-Rückschau</h1>
-      <p class="lead">Jede Frage, die du in einer Modul- oder Abschlussprüfung falsch hattest, bleibt hier stehen, bis du sie in der Wiederholung richtig beantwortet hast. Prüfungsfehler sind die beste Lernliste, die es gibt: Sie zeigen, was du unter Druck nicht abrufen konntest.</p></section>
+      <p class="lead">Jede Frage, die du in einer Modul- oder Abschlussprüfung falsch hattest, bleibt hier stehen, bis du sie in der Wiederholung richtig beantwortet hast. Prüfungsfehler zeigen, was du unter Druck nicht abrufen konntest, und genau das lohnt die Wiederholung am meisten.</p></section>
       ${!alle.length ? `<div class="card empty"><p>Noch keine Prüfungsfehler gespeichert. Die Liste füllt sich ab deiner nächsten <a href="#/kurs/${currentKurs().id}">Modulprüfung</a>.</p></div>` : ''}
       ${offen.length ? `<div class="btn-row"><button class="btn primary" data-act="rs-vorziehen">Alle ${offen.length} offenen in die heutige Wiederholung</button></div>` : alle.length ? '<div class="callout practice"><div class="label">Alles erledigt</div>Jeden Prüfungsfehler hast du seitdem in der Wiederholung richtig beantwortet.</div>' : ''}
       ${gruppen.map(g => `<h2 class="section-title">Modul ${g.k.nr} · ${esc(g.k.titel)}</h2>${g.items.map(x => `<div class="card quiz-q rs"><div class="meta"><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · ${x.n > 1 ? x.n + '× falsch' : 'einmal falsch'} · ${fmtDate(x.ts)}</div>
@@ -1192,6 +1210,7 @@
     else if (f.classList.contains('vorfrage-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 15) return toast('Ein ganzer Satz, bitte. Raten ist erlaubt.', 'bad'); S.vorfragen[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.querySelector('.lesson h1'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.classList.contains('abruf-form')) { e.preventDefault(); const t = f.querySelector('textarea').value.trim(); if (t.length < 120) return toast(`Zu kurz. ${120 - t.length} Zeichen fehlen. Schreib, was du wirklich behalten hast.`, 'bad'); S.abruf[f.dataset.lid] = { text: t, ts: Date.now() }; touch(); save(); navigate(); setTimeout(() => { const a = document.getElementById('abruf-box'); if (a) a.scrollIntoView({ behavior: 'smooth' }); }, 50); }
     else if (f.id === 'onboarding') { e.preventDefault(); const fd = new FormData(f); S.name = (fd.get('name') || '').trim(); S.plan = (fd.get('plan') || '').trim(); S.textsize = fd.get('textsize') || 'normal'; S.onboarded = true; applyTextsize(); save(); renderNav(); navigate(); toast(`Willkommen, ${S.name}. Lektion 1.1 wartet.`, 'good'); }
+    else if (f.classList.contains('rp-plan-form')) { e.preventDefault(); const fd = new FormData(f); S.rpPlan[f.dataset.sid] = { ziel: (fd.get('ziel') || '').trim().slice(0, 300), erste: (fd.get('erste') || '').trim().slice(0, 300), grenze: (fd.get('grenze') || '').trim().slice(0, 300), ts: Date.now() }; rpPlanEdit = null; touch(); save(); navigate(); toast('Plan festgehalten. Jetzt spielen.', 'good'); }
     else if (f.classList.contains('ablehnung')) { e.preventDefault(); const note = f.querySelector('textarea').value.trim(); if (note.length < 20) return toast('Schreib mindestens zwei Sätze.', 'bad'); S.ablehnung[f.dataset.tag] = { note, ts: Date.now() }; touch(); save(); toast('Tag abgeschlossen. Morgen geht es weiter.', 'good'); navigate(); }
     else if (f.classList.contains('fall-form')) { e.preventDefault(); const min = Number(f.dataset.min); const t = f.querySelector('textarea').value.trim(); if (t.length < min) return toast(`Zu kurz. ${min - t.length} Zeichen fehlen. Befund, Empfehlung, Prüfung, Risiko: alles vier gehört hinein.`, 'bad'); faState.text = t; faState.stufe = 1; navigate(); window.scrollTo(0, 0); }
     else if (f.classList.contains('fall-rubrik')) { e.preventDefault(); const w = {}; window.FAELLE_RUBRIK.forEach(d => { const r = f.querySelector(`input[name="r-${d.id}"]:checked`); w[d.id] = r ? Number(r.value) : 1; }); faState.wertung = w; faState.stufe = 2; const sum = Object.values(w).reduce((a, b) => a + b, 0); (S.drills['fall_' + faState.id] = S.drills['fall_' + faState.id] || []).push({ ts: Date.now(), selbst: sum, wertung: w, text: faState.text.slice(0, 4000) }); touch(); save(); navigate(); window.scrollTo(0, 0); }
@@ -1230,6 +1249,8 @@
     else if (a === 'ew-wert') { const id = ewState.id; (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert: Number(el.dataset.wert), antwort: ewState.antwort.slice(0, 400) }); touch(); save(); ewState = null; toast(el.dataset.wert === '2' ? 'Gemerkt. Morgen noch einmal, dann sitzt es.' : 'Gemerkt. Lies das Vorgehen noch einmal und probier es heute in einem echten Gespräch.', el.dataset.wert === '2' ? 'good' : ''); navigate(); }
     else if (a === 'report-vorlage') { const ta = el.closest('form').querySelector('textarea'); const tpl = 'Situation (wann, wo, mit wem):\n\nWas ich konkret gesagt oder getan habe:\n\nWas daraufhin passiert ist (Reaktion, Wortlaut, Ergebnis):\n\nWas ich beim nächsten Mal anders mache und woran ich merke, dass es wirkt:\n'; ta.value = ta.value.trim() ? ta.value + '\n\n' + tpl : tpl; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); }
     else if (a === 'print') { window.print(); }
+    else if (a === 'rp-plan-edit') { rpPlanEdit = el.dataset.sid; navigate(); }
+    else if (a === 'rp-plan-cancel') { rpPlanEdit = null; navigate(); }
     else if (a === 'rs-vorziehen') { const t = today(); let n = 0; for (const x of rueckschauListe()) { if (x.erledigt) continue; S.srs[x.key] = Object.assign(S.srs[x.key] || { n: 0, richtig: 0 }, { box: 0, due: t }); n++; } save(); toast(`${n} Fragen stehen heute in der Wiederholung.`, 'good'); location.hash = '#/wiederholen'; }
     else if (a === 'tour-weg') { S.tourWeg = true; save(); navigate(); toast('Die Liste ist ausgeblendet. Die Schritte zählen weiter.', 'good'); }
     else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
