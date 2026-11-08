@@ -515,7 +515,7 @@
         ${done && l.kernpunkte ? `<div class="callout study mitnehmen"><div class="label">Abgeschlossen am ${new Date(S.lessonsDone[lid]).toLocaleDateString('de-DE')}</div><strong>Mitnehmen:</strong> ${esc(l.kernpunkte[0])} ${next ? `<a href="#/lektion/${k.id}/${next.id}">Weiter mit ${k.nr}.${i + 2} ${esc(next.titel)}</a>` : `<a href="#/pruefung/${k.id}">Zur Modulprüfung</a>`}</div>` : ''}
         ${l.lernziele ? `<div class="callout ziele"><div class="label">Nach dieser Lektion kannst du</div><ul>${l.lernziele.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}
         ${l.vorfrage ? `<section class="card vorfrage ${vf ? 'done' : ''}"><div class="eyebrow">Bevor du liest</div><p class="q">${esc(l.vorfrage)}</p>
-          ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" placeholder="Rate aus dem Bauch. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009)."></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
+          ${vf ? `<div class="log-entry"><div class="meta">Deine Antwort vor dem Lesen</div><div class="body">${esc(vf.text)}</div></div>` : `<form class="vorfrage-form" data-lid="${lid}"><textarea class="journal" rows="3" aria-label="Deine Antwort auf die Vorab-Frage" placeholder="Rate aus dem Bauch. Falsch liegen ist hier erwünscht: Wer vorher rät, behält die richtige Antwort besser (Pretesting-Effekt, Richland et al. 2009)."></textarea><div class="btn-row"><button class="btn primary small" type="submit">Antwort festhalten und lesen</button></div></form>`}</section>` : ''}
         ${brauchtVorfrage ? `<div class="muted locked-note">${lock('')} Der Text erscheint, sobald du deine Vorab-Antwort festgehalten hast.</div>` : `${l.inhalt}
         ${(() => { const kt = (window.KONTRASTE || []).filter(x => x.lektion === lid); const wb = (window.BEISPIELE || []).filter(x => x.lektion === lid); if (!kt.length && !wb.length) return ''; return `<div class="callout practice vertiefen"><div class="label">Vertiefen</div>${kt.map(x => `<div><strong>Nicht verwechseln:</strong> <a href="#/kontraste/${x.id}">${esc(x.titel)}</a> · Vergleichstabelle und Fälle ohne Nennung der Methode</div>`).join('')}${wb.map(x => `<div><strong>Schritt für Schritt:</strong> <a href="#/beispiele/${x.id}">${esc(x.titel)}</a> · Beispiel mit Begründung, dann Lücke, dann allein, dann neuer Kontext</div>`).join('')}</div>`; })()}
         <div class="sources"><strong>Quellen</strong><ol>${(l.quellen || []).map(q => `<li>${q}</li>`).join('')}</ol></div>`}
@@ -523,7 +523,7 @@
       ${l.kernpunkte && !brauchtVorfrage ? `<section class="card abruf" id="abruf-box"><h2>Abruf</h2>
         ${ab ? `<div class="two-col"><div><div class="eyebrow">Deine Zusammenfassung</div><p>${esc(ab.text)}</p></div><div><div class="eyebrow">Kernpunkte der Lektion</div><ul class="kern">${l.kernpunkte.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div></div>${l.selbsterklaerung ? `<div class="callout ziele selbst"><div class="label">Erklär es dir selbst</div><p class="muted small-note">Beantworte die Fragen laut oder im Kopf, bevor du zum Quiz gehst. Wer das Warum selbst erklärt, behält den Stoff länger als wer eine fertige Erklärung liest (Chi et al. 1994).</p><ul>${l.selbsterklaerung.map(z => `<li>${esc(z)}</li>`).join('')}</ul></div>` : ''}${vf ? `<p class="muted small-note">Vorab hattest du geantwortet: „${esc(vf.text)}“. Was stimmte, was nicht?</p>` : ''}${ab.coach ? `<div class="callout study"><div class="label">Coach zum Abruf</div>${md(ab.coach)}</div>` : S.apiKey ? `<div class="btn-row"><button class="btn small ghost" data-act="abruf-coach" data-lid="${lid}">Coach: Was fehlt in meiner Zusammenfassung?</button></div>` : ''}`
         : `<p class="muted">Schließ die Augen und schreib aus dem Kopf auf, was du behalten hast: drei bis fünf Sätze, ohne nach oben zu scrollen. Das Abrufen selbst festigt stärker als nochmal lesen (Karpicke & Blunt 2011; Dunlosky et al. 2013). Danach siehst du die Kernpunkte zum Vergleich.</p>
-          <form class="abruf-form" data-lid="${lid}"><textarea class="journal" rows="5" placeholder="Was war der Kern? Welche Zahl, welcher Name, welche Regel?"></textarea><div class="count muted"><span class="n">0</span> / 120 Zeichen</div><div class="btn-row"><button class="btn primary small" type="submit">Mit Kernpunkten vergleichen</button></div></form>`}
+          <form class="abruf-form" data-lid="${lid}"><textarea class="journal" rows="5" aria-label="Abruf: Was ist aus der Lektion hängen geblieben?" placeholder="Was war der Kern? Welche Zahl, welcher Name, welche Regel?"></textarea><div class="count muted"><span class="n">0</span> / 120 Zeichen</div><div class="btn-row"><button class="btn primary small" type="submit">Mit Kernpunkten vergleichen</button></div></form>`}
       </section>` : ''}
       <section class="card ${brauchtAbruf || brauchtVorfrage ? 'locked' : ''}" id="quiz-box">
         <h2>Wissensprüfung</h2>
@@ -598,7 +598,7 @@
     return `${reps.map(r => `<div class="log-entry ${r.bestanden ? 'ok' : 'fail'}"><div class="meta">${fmtTime(r.ts)} · ${r.bestanden ? '<span class="tag green">bestanden</span>' : '<span class="tag red">nicht bestanden</span>'} ${r.note ? '· Note ' + r.note + '/10' : ''} · ${r.von}</div><div class="body">${esc(r.text).slice(0, 400)}${r.text.length > 400 ? '…' : ''}</div>${r.feedback ? `<div class="feedback">${md(r.feedback)}</div>` : ''}</div>`).join('')}
       ${reportDone(lid) ? '' : `<form class="report" data-lid="${lid}">
         <p class="muted">Schreibe, was du konkret getan hast, was passiert ist und was du daraus lernst. Hypothetische Aussagen („ich würde…“) zählen nicht. Mindestens ${REPORT_MIN} Zeichen.</p>
-        <textarea class="journal" rows="8" placeholder="Was habe ich getan? Was ist passiert? Was ändere ich beim nächsten Mal?">${last && !last.bestanden ? esc(last.text) : ''}</textarea>
+        <textarea class="journal" rows="8" aria-label="Bericht über ein echtes Gespräch" placeholder="Was habe ich getan? Was ist passiert? Was ändere ich beim nächsten Mal?">${last && !last.bestanden ? esc(last.text) : ''}</textarea>
         <div class="count muted"><span class="n">0</span> / ${REPORT_MIN} Zeichen</div>
         <div class="btn-row">
           <button class="btn small ghost" type="button" data-act="report-vorlage">Vorlage einfügen</button>
@@ -759,7 +759,7 @@
     const quotes = M.flatMap(p => p.zitate.map(z => ({ ...z, person: p }))).filter(z => (f.thema === 'alle' || z.thema === f.thema) && (f.kat === 'alle' || z.person.kategorie === f.kat) && (!f.q || (z.en + z.de + z.person.name + (z.lektion || '')).toLowerCase().includes(f.q.toLowerCase())));
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Milliardärs-Bibliothek</h1>
       <p class="lead">${M.length} Personen, ${M.reduce((a, p) => a + p.zitate.length, 0)} Zitate über Verkaufen, Kunden, Pitch, Preis und Mindset. Jedes Zitat ist nach Quellenlage markiert. Erst lesen, dann im <a href="#/mythen">Mythen-Check</a> prüfen, ob du echt von erfunden unterscheiden kannst.</p><div class="callout warn"><div class="label">Lies das richtig</div>Milliardärs-Aussagen sind Erfahrungswissen von Gewinnern, kein Beweis. Wer nur Erfolgreiche studiert, lernt aus einer verzerrten Stichprobe (Denrell 2003, Rosenzweig 2007). Darum steht in jeder Lektion zuerst die Studie und dann das Zitat.</div></section>
-      <input class="search" id="lib-q" placeholder="Suche in Zitaten und Namen…" value="${esc(f.q)}">
+      <input class="search" id="lib-q" aria-label="Suche in Zitaten und Namen" placeholder="Suche in Zitaten und Namen…" value="${esc(f.q)}">
       <div class="filters" id="lib-kat">${[['alle', 'Alle'], ['tech', 'Tech'], ['investor', 'Investoren'], ['unternehmer', 'Unternehmer']].map(([v, t]) => `<button class="${f.kat === v ? 'active' : ''}" data-kat="${v}">${t}</button>`).join('')}</div>
       <div class="filters" id="lib-thema"><button class="${f.thema === 'alle' ? 'active' : ''}" data-thema="alle">Alle Themen</button>${Object.entries(themen).map(([k, v]) => `<button class="${f.thema === k ? 'active' : ''}" data-thema="${k}">${esc(v)}</button>`).join('')}</div>
       <div class="pill-row">${persons.map(p => `<a class="pill" href="#/milliardaere/${p.id}">${esc(p.name)}</a>`).join('')}</div>
@@ -895,7 +895,7 @@
       <section class="card"><div class="eyebrow">Die Lage</div><p class="kontext">${esc(f.lage)}</p><div class="eyebrow">Dein Auftrag</div><p>${esc(f.auftrag)}</p></section>`;
     if (faState.stufe === 0) {
       return `${head}<section class="card"><h2>Deine Einschätzung</h2><p class="muted">Schreib so, wie du es der Person in der Lage schicken würdest: Befund, Begründung, Empfehlung, Prüfung, Risiko. Mindestens ${f.min} Zeichen. Keine Methode muss beim Namen genannt werden; es zählt, ob du sie anwendest.</p>
-        <form class="fall-form" data-min="${f.min}"><textarea class="journal" rows="12" placeholder="Was ist hier los, was empfiehlst du, woran prüft ihr es…">${esc(faState.text)}</textarea><div class="count muted"><span class="n">${faState.text.length}</span> / ${f.min} Zeichen</div><div class="btn-row"><button class="btn primary" type="submit">Einschätzung festhalten und an der Rubrik prüfen</button></div></form>
+        <form class="fall-form" data-min="${f.min}"><textarea class="journal" rows="12" aria-label="Deine Einschätzung zum Fall" placeholder="Was ist hier los, was empfiehlst du, woran prüft ihr es…">${esc(faState.text)}</textarea><div class="count muted"><span class="n">${faState.text.length}</span> / ${f.min} Zeichen</div><div class="btn-row"><button class="btn primary" type="submit">Einschätzung festhalten und an der Rubrik prüfen</button></div></form>
         ${runs.length ? `<p class="muted small">Bisher ${runs.length} Durchgänge, zuletzt ${fmtTime(runs[runs.length - 1].ts)} mit ${runs[runs.length - 1].selbst}/18 (Selbstbewertung)${runs[runs.length - 1].coach != null ? `, Coach ${runs[runs.length - 1].coach}/18` : ''}.</p>` : ''}</section>`;
     }
     if (faState.stufe === 1) {
@@ -982,7 +982,7 @@
       body = `<section class="card"><div class="eyebrow">Stufe 2 · Lückenaufgabe</div><p class="kontext">${esc(L.kontext)}</p>
         <ol class="steps wb">${L.schritte.map((sch, i) => `<li class="${sch === null ? 'gap' : ''}"><div class="eyebrow">${esc(x.prozedur[i].split(':')[0])}</div>${sch === null ? (wbState.offen ? `<div class="log-entry"><div class="meta">Deine Lösung</div><div class="body">${esc(wbState.text)}</div></div><div class="callout practice"><div class="label">Eine mögliche Lösung</div>${esc(L.loesung)}</div>` : `<p class="muted">${esc(L.frage)}</p>`) : `<p>${esc(sch)}</p>`}</li>`).join('')}</ol>
         ${wbState.offen ? `<p class="muted"><strong>Vergleich:</strong> ${esc(L.hinweis)} Erfüllt deine Lösung das? Dann weiter. Wenn nicht, formuliere sie noch einmal, bevor du weitergehst.</p><div class="btn-row"><button class="btn primary" data-act="wb-next">Weiter: allein</button><button class="btn ghost" data-act="wb-retry">Noch einmal versuchen</button></div>`
-        : `<form class="wb-form" data-min="40"><div class="callout warn"><div class="label">Hinweis</div>${esc(L.hinweis)}</div><textarea class="journal" rows="3" placeholder="Schritt ${gap + 1} in direkter Rede…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und vergleichen</button></div></form>`}</section>`;
+        : `<form class="wb-form" data-min="40"><div class="callout warn"><div class="label">Hinweis</div>${esc(L.hinweis)}</div><textarea class="journal" rows="3" aria-label="Schritt ${gap + 1} in direkter Rede" placeholder="Schritt ${gap + 1} in direkter Rede…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und vergleichen</button></div></form>`}</section>`;
     } else {
       const E = st === 2 ? x.eigen : x.fern;
       body = `${st === 2 ? proz : ''}<section class="card"><div class="eyebrow">Stufe ${st + 1} · ${WB_STUFEN[st]}</div><p class="kontext">${esc(E.kontext)}</p>
@@ -991,7 +991,7 @@
           <details class="muster"><summary>Erst danach: eine Musterlösung ansehen</summary><div class="callout practice">${esc(E.muster)}</div><p class="muted small">Die Musterlösung ist eine von vielen. Deine kann anders klingen und trotzdem alle Kriterien erfüllen. Vergleiche die Struktur, nicht die Worte.</p></details>
           <div class="btn-row"><button class="btn primary" data-act="wb-next">${st === 2 ? 'Weiter: neuer Kontext' : 'Abschließen'}</button><button class="btn ghost" data-act="wb-retry">Noch einmal</button>${S.apiKey ? `<a class="btn ghost" href="#/coach">Lösung vom Coach prüfen lassen</a>` : ''}</div>`
         : `<p class="muted">${st === 2 ? 'Jetzt ohne Vorlage. Die Prozedur steht oben, die Kriterien siehst du erst danach.' : 'Anderer Lebensbereich, gleiche Struktur. Wenn du hier hängst, hast du das Beispiel gelernt, nicht die Methode. Das ist normal und genau der Zweck dieser Stufe.'} Mindestens 120 Zeichen.</p>
-          <form class="wb-form" data-min="120"><textarea class="journal" rows="7" placeholder="Alle Schritte, so wie du sie sagen oder aufschreiben würdest…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und an Kriterien prüfen</button></div></form>`}</section>`;
+          <form class="wb-form" data-min="120"><textarea class="journal" rows="7" aria-label="Alle Schritte in eigenen Worten" placeholder="Alle Schritte, so wie du sie sagen oder aufschreiben würdest…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Lösung festhalten und an Kriterien prüfen</button></div></form>`}</section>`;
     }
     const done = saved.stufe >= 4;
     return `<div class="breadcrumb"><a href="#/beispiele">Schritt für Schritt</a> › ${esc(x.titel)}</div>
@@ -1062,7 +1062,7 @@
             <div class="btn-row"><button class="btn primary" type="submit">Bewertung speichern</button></div>
           </form>`
         : `<p class="muted">Antworte so, wie du es dem Kunden sagen würdest, in ganzen Sätzen. Mindestens 60 Zeichen. Noch besser: erst laut sprechen, dann tippen.</p>
-          <form class="ew-form" data-id="${e.id}"><textarea class="journal" rows="4" placeholder="Deine Antwort an den Kunden…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Antwort festhalten und Muster sehen</button>${S.apiKey ? `<a class="btn ghost" href="#/coach?einwand=${e.id}">Mit dem Coach live üben</a>` : ''}</div></form>`}
+          <form class="ew-form" data-id="${e.id}"><textarea class="journal" rows="4" aria-label="Deine Antwort an den Kunden" placeholder="Deine Antwort an den Kunden…"></textarea><div class="btn-row"><button class="btn primary" type="submit">Antwort festhalten und Muster sehen</button>${S.apiKey ? `<a class="btn ghost" href="#/coach?einwand=${e.id}">Mit dem Coach live üben</a>` : ''}</div></form>`}
       </section>
       ${w.length ? `<p class="muted small">Bisher ${w.length} Durchgänge, zuletzt ${fmtTime(w[w.length - 1].ts)}.</p>` : ''}
       <div class="btn-row"><a class="btn ghost" href="#/einwaende">Alle Einwände</a></div>`;
@@ -1119,11 +1119,11 @@
       <p class="muted">Ein Tag pro Tag. Ziel ist nicht das Ja, sondern die Erfahrung, dass das Nein dich nicht umbringt. Jede Aufgabe braucht eine kurze Notiz, was passiert ist.</p>
       <div class="days">${window.ABLEHNUNGSTRAINING.map(a => { const d = S.ablehnung[a.tag]; const active = a.tag === day + 1; const locked = a.tag > day + 1;
         return `<div class="card day ${d ? 'done' : active ? 'active' : 'locked'}"><div class="meta">Tag ${a.tag} · ${stufen[a.stufe]}${d ? ' · ✓ ' + fmtDate(d.ts) : ''}</div><p>${esc(a.aufgabe)}</p>
-          ${d ? `<div class="body muted">${esc(d.note)}</div>` : active ? `<form class="ablehnung" data-tag="${a.tag}"><textarea class="journal" rows="3" placeholder="Was hast du gefragt, was war die Antwort, wie hat es sich angefühlt?"></textarea><div class="btn-row"><button class="btn small primary">Tag abschließen</button></div></form>` : ''}</div>`; }).join('')}</div>
+          ${d ? `<div class="body muted">${esc(d.note)}</div>` : active ? `<form class="ablehnung" data-tag="${a.tag}"><textarea class="journal" rows="3" aria-label="Ergebnis der heutigen Ablehnungsaufgabe" placeholder="Was hast du gefragt, was war die Antwort, wie hat es sich angefühlt?"></textarea><div class="btn-row"><button class="btn small primary">Tag abschließen</button></div></form>` : ''}</div>`; }).join('')}</div>
       <h2 class="section-title">Erfolgsleiter</h2>
       <p class="muted">Von leicht nach schwer. Jede Stufe erst abhaken, wenn du sie wirklich gemacht hast. Du kannst die Stufen auf dein Ziel anpassen.</p>
       <div class="card"><ol class="leiter">${S.leiter.map((l, i) => `<li class="check ${l.done ? 'done' : ''}" data-act="leiter-toggle" data-i="${i}"><span class="box"></span><span class="txt">${esc(l.text)}</span><button class="x" data-act="leiter-del" data-i="${i}" title="Entfernen">×</button></li>`).join('')}</ol>
-        <form class="leiter-add inline"><input placeholder="Eigene Stufe hinzufügen…"><button class="btn small">Hinzufügen</button></form></div>`;
+        <form class="leiter-add inline"><input aria-label="Eigene Stufe hinzufügen" placeholder="Eigene Stufe hinzufügen…"><button class="btn small">Hinzufügen</button></form></div>`;
   });
 
   // ---------- Körpersprache-Trainer ----------
@@ -1250,7 +1250,7 @@
     const buchstaben = [...new Set(list.map(g => g.b[0].toUpperCase()))];
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Glossar</h1>
       <p class="lead">${window.GLOSSAR.length} Fachbegriffe aus allen zehn Modulen, jeder mit der Lektion, in der er eingeführt wird. Ein Begriff, der hier steht, darf in Quiz, Prüfung und Rollenspiel vorausgesetzt werden.</p></section>
-      <input id="g-q" class="search" type="search" placeholder="Begriff suchen, zum Beispiel BATNA oder Reziprozität" value="${esc(gFilter.q)}" aria-label="Glossar durchsuchen">
+      <input id="g-q" class="search" type="search" aria-label="Begriff im Glossar suchen" placeholder="Begriff suchen, zum Beispiel BATNA oder Reziprozität" value="${esc(gFilter.q)}" aria-label="Glossar durchsuchen">
       ${list.length ? buchstaben.map(B => `<h2 class="section-title">${B}</h2><div class="glossar">${list.filter(g => g.b[0].toUpperCase() === B).map(g => { const k = kursById(g.k); const i = k ? lessonIndex(k, g.l) : -1; const l = i >= 0 ? k.lektionen[i] : null; const frei = l && lessonUnlocked(k, i); return `<div class="card glos"><h3>${esc(g.b)}${g.syn && g.syn.length ? ` <span class="muted syn">${esc(g.syn.join(', '))}</span>` : ''}</h3><p>${esc(g.d)}</p>${l ? `<div class="meta">${frei ? `<a href="#/lektion/${k.id}/${l.id}">Lektion ${k.nr}.${i + 1} · ${esc(l.titel)}</a>` : `<span class="muted">${lock('')} Lektion ${k.nr}.${i + 1} · ${esc(l.titel)}</span>`}</div>` : ''}</div>`; }).join('')}</div>`).join('') : '<p class="muted">Kein Begriff passt zu dieser Suche.</p>'}`;
   });
   route('quellen', () => {
@@ -1264,7 +1264,7 @@
     return `<section class="hero small"><div class="eyebrow">Wissen</div><h1>Quellenverzeichnis</h1>
       <p class="lead">${Q.length} geprüfte Quellen aus der Recherche: Meta-Analysen, Studien, Felddaten, Bücher, Reden, Briefe, Filme. Jede mit Kernaussage und Beweisstärke. Das ist die Grundlage jeder Lektion, und es ist die Antwort auf die Frage „Woher weißt du das?“.</p>
       <div class="legend">${Object.entries(ST_LABEL).filter(([k]) => counts[k]).map(([k, v]) => `<span class="tag st-${k}">${v} (${counts[k]})</span>`).join(' ')}</div></section>
-      <input class="search" id="q-q" placeholder="Suche: Autor, Thema, Begriff (z. B. Anker, Cialdini, Lächeln)…" value="${esc(f.q)}">
+      <input class="search" id="q-q" aria-label="Quellen durchsuchen" placeholder="Suche: Autor, Thema, Begriff (z. B. Anker, Cialdini, Lächeln)…" value="${esc(f.q)}">
       <div class="filters" id="q-b"><button class="${f.b === 'alle' ? 'active' : ''}" data-b="alle">Alle Bereiche</button>${Object.entries(B).filter(([k]) => Q.some(x => x.b === k)).map(([k, v]) => `<button class="${f.b === k ? 'active' : ''}" data-b="${k}">${esc(v)}</button>`).join('')}</div>
       <div class="filters" id="q-st"><button class="${f.st === 'alle' ? 'active' : ''}" data-st="alle">Alle Stärken</button>${['A', 'B', 'C', 'D'].map(k => `<button class="${f.st === k ? 'active' : ''}" data-st="${k}">${k}</button>`).join('')}</div>
       <p class="muted">${list.length} Treffer</p>
@@ -1274,8 +1274,8 @@
   // ---------- Journal & Beweisbuch ----------
   route('journal', () => `<section class="hero small"><div class="eyebrow">Ich</div><h1>Journal & Beweisbuch</h1><p class="lead">Drei Bücher. Das <strong>Erfolgsprotokoll</strong> (jeden Abend drei Dinge, die du geschafft hast). Das <strong>Beweisbuch</strong> (Belege, dass du kannst, was du behauptest: Zahlen, Feedback, Abschlüsse). Das <strong>Ablehnungstagebuch</strong> mit ABCDE-Analyse nach Seligman.</p></section>
     <div class="two-col">
-      <div class="card"><h3>Erfolgsprotokoll</h3><form class="j-add" data-book="erfolg"><textarea class="journal" rows="2" placeholder="Was habe ich heute geschafft? (drei Einträge pro Abend)"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('erfolg')}</div>
-      <div class="card"><h3>Beweisbuch</h3><form class="j-add" data-book="beweis"><textarea class="journal" rows="2" placeholder="Beleg: Zahl, Zitat eines Kunden, Abschluss, Feedback…"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('beweis')}</div>
+      <div class="card"><h3>Erfolgsprotokoll</h3><form class="j-add" data-book="erfolg"><textarea class="journal" rows="2" aria-label="Neuer Eintrag im Erfolgsprotokoll" placeholder="Was habe ich heute geschafft? (drei Einträge pro Abend)"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('erfolg')}</div>
+      <div class="card"><h3>Beweisbuch</h3><form class="j-add" data-book="beweis"><textarea class="journal" rows="2" aria-label="Neuer Eintrag im Beweisbuch" placeholder="Beleg: Zahl, Zitat eines Kunden, Abschluss, Feedback…"></textarea><div class="btn-row"><button class="btn small primary">Eintragen</button></div></form>${jList('beweis')}</div>
     </div>
     <div class="card"><h3>Ablehnungstagebuch (ABCDE)</h3><form class="j-nein">
       <label>A · Auslöser: Was ist passiert?<textarea class="journal" name="a" rows="2" required></textarea></label>
