@@ -153,6 +153,7 @@
       ${(() => { const f = srsFaellig(); const n = Math.min(f.due.length, f.rest); return item('#/wiederholen', 'Wiederholen', n ? ` <span class="nav-badge">${n}</span>` : ''); })()}
       ${KURSE.map(k => item('#/kurs/' + k.id, `<span class="nav-num">${k.nr}</span> ${k.titel}`, moduleUnlocked(k) ? (examPassed(k.id) ? ' <span class="nav-ok">✓</span>' : (k === cur ? ' <span class="nav-cur"></span>' : '')) : ` <span class="nav-lock" title="Erst das vorherige Modul bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)).join('')}
       ${item('#/einstufung', 'Einstufung')}
+      ${item('#/rueckschau', 'Prüfungs-Rückschau', (() => { const n = rueckschauListe().filter(x => !x.erledigt).length; return n ? ` <span class="nav-count">${n}</span>` : ''; })())}
       ${item('#/abschluss', 'Abschlussprüfung', abschlussPassed() ? ' <span class="nav-ok">✓</span>' : allExamsPassed() ? '' : ` <span class="nav-lock" title="Erst alle Module bestehen" aria-label="gesperrt">${ICON_LOCK}</span>`)}
       <div class="nav-section">Training</div>
       ${item('#/rollenspiel', 'Rollenspiele')}
@@ -160,6 +161,7 @@
       ${item('#/kontraste', 'Konzept-Kontraste')}
       ${item('#/faelle', 'Fälle')}
       ${item('#/beispiele', 'Schritt für Schritt')}
+      ${item('#/spielbuch', 'Einwand-Spielbuch')}
       ${item('#/training', 'Drills & Programm')}
       ${item('#/koerper', 'Körpersprache-Trainer')}
       ${item('#/checklisten', 'Checklisten')}
@@ -603,9 +605,9 @@
   });
   function startExam(kid) {
     const k = kursById(kid);
-    if (kid === 'abschluss') { const pool = KURSE.flatMap(k2 => shuffle(k2.lektionen.flatMap(l => l.quiz.map(q => ({ ...q, lektion: `${k2.nr}.${lessonIndex(k2, l.id) + 1} ${l.titel}` })))).slice(0, 3)); examState = { kid, fragen: shuffle(pool), i: 0, antworten: [], start: Date.now() }; navigate(); return; }
-    const pool = k.lektionen.flatMap(l => l.quiz.map(q => ({ ...q, lektion: l.titel })));
-    const frueher = KURSE.slice(0, KURSE.indexOf(k)).flatMap(k2 => k2.lektionen.flatMap(l => l.quiz.map(q => ({ ...q, lektion: `Rückblick Modul ${k2.nr} · ${l.titel}` }))));
+    if (kid === 'abschluss') { const pool = KURSE.flatMap(k2 => shuffle(k2.lektionen.flatMap(l => l.quiz.map((q, qi) => ({ ...q, lid: l.id, qi, kid: k2.id, lektion: `${k2.nr}.${lessonIndex(k2, l.id) + 1} ${l.titel}` })))).slice(0, 3)); examState = { kid, fragen: shuffle(pool), i: 0, antworten: [], start: Date.now() }; navigate(); return; }
+    const pool = k.lektionen.flatMap(l => l.quiz.map((q, qi) => ({ ...q, lid: l.id, qi, kid: k.id, lektion: l.titel })));
+    const frueher = KURSE.slice(0, KURSE.indexOf(k)).flatMap(k2 => k2.lektionen.flatMap(l => l.quiz.map((q, qi) => ({ ...q, lid: l.id, qi, kid: k2.id, lektion: `Rückblick Modul ${k2.nr} · ${l.titel}` }))));
     examState = { kid, fragen: shuffle(examAuswahl(pool, 12).concat(shuffle(frueher).slice(0, 3))), i: 0, antworten: [], start: Date.now() };
     navigate();
   }
@@ -633,14 +635,14 @@
     const score = e.fragen.reduce((a, q, i) => a + (q.richtig === e.antworten[i] ? 1 : 0), 0);
     const pct = Math.round(score / e.fragen.length * 100); const passed = pct >= PASS;
     const ex = S.exams[e.kid] = S.exams[e.kid] || { attempts: [], passed: false, best: 0 };
-    ex.attempts.push({ ts: Date.now(), pct, passed }); ex.best = Math.max(ex.best, pct); if (passed) ex.passed = true;
-    touch(); save();
     const wrong = e.fragen.map((q, i) => ({ q, a: e.antworten[i] })).filter(x => x.q.richtig !== x.a);
+    ex.attempts.push({ ts: Date.now(), pct, passed, falsch: wrong.filter(w => w.q.lid).map(w => ({ lid: w.q.lid, qi: w.q.qi, a: w.a })) }); ex.best = Math.max(ex.best, pct); if (passed) ex.passed = true;
+    touch(); save();
     examState = null;
     $('#main').innerHTML = `<section class="hero small ${passed ? 'passed' : ''}"><div class="eyebrow">Ergebnis</div>
       <h1>${score} von ${e.fragen.length} · ${pct} %</h1>
       <p class="lead">${abschluss ? (passed ? `Bestanden. Du hast das gesamte Curriculum nachgewiesen. Rang: ${rang()}. Dein Zertifikat wartet.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Die Fehler unten zeigen, welche Module du wiederholst.`) : passed ? `Bestanden. Modul ${k.nr} ist abgeschlossen${k.nr < KURSE.length ? ', Modul ' + (k.nr + 1) + ' ist frei' : ''}. Rang: ${rang()}.` : `Nicht bestanden. Mindestens ${PASS} % nötig. 20 Minuten Sperre. Lies die Lektionen zu den Fehlern.`}</p>
-      ${wrong.length ? `<h3>Fehler</h3>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
+      ${wrong.length ? `<h3>Fehler</h3><p class="muted small">Alle Prüfungsfehler sammeln sich in der <a href="#/rueckschau">Prüfungs-Rückschau</a>, bis du sie in der Wiederholung richtig beantwortet hast.</p>${wrong.map(w => `<div class="quiz-q"><div class="q">${esc(w.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(w.q.optionen[w.a])}</div><div class="opt correct">Richtig: ${esc(w.q.optionen[w.q.richtig])}</div><div class="explain">${w.q.warumFalsch && w.q.warumFalsch[w.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(w.q.warumFalsch[w.a])}</span> ` : ''}${esc(w.q.erklaerung)} <em>(${esc(w.q.lektion)})</em></div></div>`).join('')}` : '<p>Fehlerfrei.</p>'}
       <div class="btn-row">${abschluss ? (passed ? '<a class="btn primary" href="#/zertifikat">Zertifikat ansehen →</a>' : '<a class="btn primary" href="#/abschluss">Zurück</a>') : passed ? (k.nr < KURSE.length ? `<a class="btn primary" href="#/kurs/${KURSE[KURSE.indexOf(k) + 1].id}">Nächstes Modul →</a>` : '<a class="btn primary" href="#/training">Zum Training →</a>') : `<a class="btn primary" href="#/kurs/${k.id}">Zurück zum Modul</a>`}</div></section>`;
     renderNav();
   }
@@ -1127,6 +1129,53 @@
     <div class="card gefahr"><div class="eyebrow">Gefahrenzone</div><p class="muted">Löscht Fortschritt, Berichte, Journal und Schlüssel in diesem Browser. Vorher exportieren.</p>
       <div class="btn-row"><button class="btn ghost danger" data-act="reset">Alles zurücksetzen</button></div></div>`);
 
+
+  // ---------- Prüfungs-Rückschau: alle falsch beantworteten Prüfungsfragen, bis sie in der Wiederholung sitzen ----------
+  function rueckschauListe() {
+    const seen = new Map();
+    for (const [kid, ex] of Object.entries(S.exams)) for (const at of (ex.attempts || [])) for (const f of (at.falsch || [])) {
+      const key = f.lid + ':' + f.qi; const fl = findLesson(f.lid); const q = fl && fl.lektion.quiz[f.qi]; if (!q) continue;
+      const prev = seen.get(key); if (prev) { prev.n++; prev.ts = Math.max(prev.ts, at.ts); prev.a = f.a; continue; }
+      seen.set(key, { key, kid: fl.kurs.id, kurs: fl.kurs, lid: f.lid, qi: f.qi, lektion: fl.lektion, q, a: f.a, n: 1, ts: at.ts, pruefung: kid });
+    }
+    // erledigt, wenn die Karte seit dem letzten Fehler in der Wiederholung richtig war
+    return [...seen.values()].map(x => { const sr = S.srs[x.key]; x.erledigt = !!(sr && sr.lastOk && sr.lastOk > x.ts); return x; }).sort((a, b) => b.ts - a.ts);
+  }
+  route('rueckschau', () => {
+    const alle = rueckschauListe(); const offen = alle.filter(x => !x.erledigt), fertig = alle.filter(x => x.erledigt);
+    const gruppen = KURSE.map(k => ({ k, items: offen.filter(x => x.kid === k.id) })).filter(g => g.items.length);
+    return `<section class="hero small"><div class="eyebrow">Curriculum</div><h1>Prüfungs-Rückschau</h1>
+      <p class="lead">Jede Frage, die du in einer Modul- oder Abschlussprüfung falsch hattest, bleibt hier stehen, bis du sie in der Wiederholung richtig beantwortet hast. Prüfungsfehler sind die beste Lernliste, die es gibt: Sie zeigen, was du unter Druck nicht abrufen konntest.</p></section>
+      ${!alle.length ? `<div class="card empty"><p>Noch keine Prüfungsfehler gespeichert. Die Liste füllt sich ab deiner nächsten <a href="#/kurs/${currentKurs().id}">Modulprüfung</a>.</p></div>` : ''}
+      ${offen.length ? `<div class="btn-row"><button class="btn primary" data-act="rs-vorziehen">Alle ${offen.length} offenen in die heutige Wiederholung</button></div>` : alle.length ? '<div class="callout practice"><div class="label">Alles erledigt</div>Jeden Prüfungsfehler hast du seitdem in der Wiederholung richtig beantwortet.</div>' : ''}
+      ${gruppen.map(g => `<h2 class="section-title">Modul ${g.k.nr} · ${esc(g.k.titel)}</h2>${g.items.map(x => `<div class="card quiz-q rs"><div class="meta"><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · ${x.n > 1 ? x.n + '× falsch' : 'einmal falsch'} · ${fmtDate(x.ts)}</div>
+        <div class="q">${esc(x.q.frage)}</div><div class="opt wrong">Deine Antwort: ${esc(x.q.optionen[x.a])}</div><div class="opt correct">Richtig: ${esc(x.q.optionen[x.q.richtig])}</div>
+        <div class="explain">${x.q.warumFalsch && x.q.warumFalsch[x.a] ? `<span class="wf"><strong>Warum deine Antwort nicht stimmt:</strong> ${esc(x.q.warumFalsch[x.a])}</span> ` : ''}${esc(x.q.erklaerung || '')}</div></div>`).join('')}`).join('')}
+      ${fertig.length ? `<details class="card"><summary>${fertig.length} erledigt</summary><ul class="wv-list">${fertig.map(x => `<li><a href="#/lektion/${x.kid}/${x.lid}">${esc(x.lektion.titel)}</a> · <span class="muted">${esc(x.q.frage)}</span></li>`).join('')}</ul></details>` : ''}`;
+  });
+
+  // ---------- Einwand-Spielbuch: die eigenen besten Antworten je Einwand, zum Mitnehmen ----------
+  route('spielbuch', () => {
+    if (!ensureEinwaende()) return '<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1><p class="muted">Lade Einwände…</p></section>';
+    const E = window.EINWAENDE;
+    const eintrag = (e) => { const runs = ewWertung(e.id); if (!runs.length) return null; return runs.reduce((best, r) => (!best || r.wert > best.wert || (r.wert === best.wert && r.ts > best.ts)) ? r : best, null); };
+    const mit = E.filter(e => eintrag(e)); const ohne = E.filter(e => !eintrag(e));
+    const WERT = ['noch unsicher', 'brauchbar', 'sitzt'];
+    return `<section class="hero small"><div class="eyebrow">Training</div><h1>Einwand-Spielbuch</h1>
+      <p class="lead">Dein eigenes Nachschlagewerk für das nächste Gespräch: je Einwand, was dahintersteckt, deine beste eigene Antwort aus dem Drill, die häufigste Falle und der Beleg, der die Antwort trägt. Eigene Worte bleiben besser hängen als fremde Muster (Slamecka & Graf 1978), deshalb steht deine Antwort oben und das Muster darunter.</p>
+      <div class="btn-row no-print"><button class="btn" data-act="print">Drucken oder als PDF sichern</button><a class="btn ghost" href="#/einwaende">Zum Einwand-Drill</a></div></section>
+      ${!mit.length ? `<div class="card empty"><p>Noch leer. Das Spielbuch füllt sich mit jeder Antwort aus dem <a href="#/einwaende">Einwand-Drill</a>: Du schreibst deine Antwort, vergleichst sie mit dem Muster und bewertest sie. Die beste Antwort je Einwand landet hier.</p><div class="btn-row"><a class="btn small primary" href="#/einwaende">Ersten Einwand üben →</a></div></div>` : `<p class="muted small">${S.name ? esc(S.name) + ' · ' : ''}Stand ${new Date().toLocaleDateString('de-DE')} · ${mit.length} von ${E.length} Einwänden mit eigener Antwort${mit.filter(e => eintrag(e).wert === 2).length ? `, ${mit.filter(e => eintrag(e).wert === 2).length} davon sitzen` : ''}.</p>`}
+      <div class="spielbuch">${mit.map(e => { const r = eintrag(e); return `<article class="card sb"><div class="meta"><span class="tag ${r.wert === 2 ? 'green' : r.wert === 1 ? 'gold' : ''}">${WERT[r.wert]}</span><span class="muted">${esc(e.kontext)}</span></div>
+        <h3>„${esc(e.einwand)}“</h3>
+        <div class="sb-row"><div class="lbl">Dahinter steckt meist</div><div>${esc(e.warum)}</div></div>
+        <div class="sb-row mine"><div class="lbl">Meine Antwort</div><div>${esc(r.antwort)}${r.coach != null ? ` <span class="muted small">(Coach: ${r.coach}/40)</span>` : ''}</div></div>
+        <details class="muster"><summary>Muster nach LAER</summary><p>${esc(e.muster)}</p><ol class="steps">${e.schritte.map(x => `<li>${esc(x)}</li>`).join('')}</ol></details>
+        <div class="sb-row falle"><div class="lbl">Falle</div><div>${esc(e.falle)}</div></div>
+        ${e.beweis ? `<div class="sb-row"><div class="lbl">Beleg</div><div>${esc(e.beweis)}</div></div>` : ''}
+        <div class="btn-row no-print"><a class="btn small ghost" href="#/einwaende/${e.id}">Noch einmal üben</a></div></article>`; }).join('')}</div>
+      ${ohne.length && mit.length ? `<h2 class="section-title">Noch ohne eigene Antwort</h2><div class="wv-list-wrap card"><ul class="wv-list">${ohne.map(e => `<li><a href="#/einwaende/${e.id}">„${esc(e.einwand)}“</a> <span class="muted small">· ${esc(e.kontext)}</span></li>`).join('')}</ul></div>` : ''}`;
+  });
+
   // ---------- Business-Planer und Coach-Seite werden von coach.js geliefert ----------
   route('coach', (p) => {
     if (/[?&]einwand=/.test(location.hash) && !ensureEinwaende()) return '<p class="muted">Lade Einwand…</p>';
@@ -1180,10 +1229,12 @@
     else if (a === 'show-opts') { const box = el.closest('.quiz-q'); box.querySelector('.opts').hidden = false; el.remove(); }
     else if (a === 'ew-wert') { const id = ewState.id; (S.drills['ew_' + id] = S.drills['ew_' + id] || []).push({ ts: Date.now(), wert: Number(el.dataset.wert), antwort: ewState.antwort.slice(0, 400) }); touch(); save(); ewState = null; toast(el.dataset.wert === '2' ? 'Gemerkt. Morgen noch einmal, dann sitzt es.' : 'Gemerkt. Lies das Vorgehen noch einmal und probier es heute in einem echten Gespräch.', el.dataset.wert === '2' ? 'good' : ''); navigate(); }
     else if (a === 'report-vorlage') { const ta = el.closest('form').querySelector('textarea'); const tpl = 'Situation (wann, wo, mit wem):\n\nWas ich konkret gesagt oder getan habe:\n\nWas daraufhin passiert ist (Reaktion, Wortlaut, Ergebnis):\n\nWas ich beim nächsten Mal anders mache und woran ich merke, dass es wirkt:\n'; ta.value = ta.value.trim() ? ta.value + '\n\n' + tpl : tpl; ta.focus(); ta.dispatchEvent(new Event('input', { bubbles: true })); }
+    else if (a === 'print') { window.print(); }
+    else if (a === 'rs-vorziehen') { const t = today(); let n = 0; for (const x of rueckschauListe()) { if (x.erledigt) continue; S.srs[x.key] = Object.assign(S.srs[x.key] || { n: 0, richtig: 0 }, { box: 0, due: t }); n++; } save(); toast(`${n} Fragen stehen heute in der Wiederholung.`, 'good'); location.hash = '#/wiederholen'; }
     else if (a === 'tour-weg') { S.tourWeg = true; save(); navigate(); toast('Die Liste ist ausgeblendet. Die Schritte zählen weiter.', 'good'); }
     else if (a === 'abruf-coach') { if (!window.Coach) return; el.disabled = true; el.textContent = 'Coach liest…'; const lid = el.dataset.lid; const fl = findLesson(lid); window.Coach.abrufFeedback(fl, S.abruf[lid].text).then(t => { S.abruf[lid].coach = t; save(); navigate(); setTimeout(() => { const b = document.getElementById('abruf-box'); if (b) b.scrollIntoView(); }, 50); }).catch(err => { toast(err.message, 'bad'); el.disabled = false; el.textContent = 'Coach: Was fehlt in meiner Zusammenfassung?'; }); }
     else if (a === 'srs-start') { const f = srsFaellig(); srsState = { queue: f.due.slice(0, f.rest), rest: 0 }; srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; navigate(); }
-    else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); const ok = srsState.antwort === c.q.richtig; if (ok && S.blind[c.id]) { delete S.blind[c.id]; save(); } srsAntwort(c.id, ok); navigate(); }
+    else if (a === 'srs-answer') { const c = srsState.karte; srsState.antwort = Number(el.dataset.oi); const ok = srsState.antwort === c.q.richtig; if (ok && S.blind[c.id]) { delete S.blind[c.id]; } srsAntwort(c.id, ok); if (ok && S.srs[c.id]) { S.srs[c.id].lastOk = Date.now(); } save(); navigate(); }
     else if (a === 'srs-next') { if (!srsState.queue.length) { srsState = null; toast('Wiederholung für heute abgeschlossen.', 'good'); } else { srsState.karte = srsState.queue.shift(); srsState.rest = srsState.queue.length; srsState.antwort = undefined; srsState.order = null; } navigate(); }
     else if (a === 'kd-start') startKd(el.dataset.id);
     else if (a === 'check-toggle') { const st = S.checks[el.dataset.id] = S.checks[el.dataset.id] || {}; st[el.dataset.i] = el.checked; el.closest('label').classList.toggle('done', el.checked); save(); }
