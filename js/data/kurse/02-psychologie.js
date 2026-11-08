@@ -15,6 +15,7 @@ KURSE.push({
         "Anwenden kleiner Zustimmungen im Gespräch, ohne den Kunden zu manipulieren."
       ],
       vorfrage: "Warum bringt ein Kellner, der ein Bonbon gibt, kurz weggeht und dann „für Sie noch eins“ sagt, deutlich mehr Trinkgeld als einer, der gleich zwei Bonbons hinlegt?",
+      vorfrageAntwort: "Strohmetz et al. (2002): Ein Bonbon plus 3 %, zwei Bonbons plus 14 %, ein Bonbon und dann „für Sie noch eins“ plus 23 %. Das zweite Bonbon wirkt als persönliches, unerwartetes Geschenk und löst Reziprozität stärker aus.",
       kernpunkte: [
         "Regan (1971): Beschenkte kauften doppelt so viele Lose, unabhängig davon, ob sie den Schenker mochten.",
         "Strohmetz et al. (2002): Ein Bonbon plus 3 %, zwei Bonbons plus 14 %, ein Bonbon und dann „noch eins“ plus 23 % Trinkgeld.",
@@ -72,6 +73,7 @@ KURSE.push({
         "Anwenden von Autoritätssignalen, die von Dritten eingeführt werden, statt sich selbst zu loben."
       ],
       vorfrage: "Warum wirkt „Die meisten Gäste in diesem Zimmer haben ihr Handtuch wiederverwendet“ stärker als „Helfen Sie der Umwelt“?",
+      vorfrageAntwort: "Goldstein, Cialdini und Griskevicius (2008): Umwelt-Appell 35 %, „die meisten Gäste“ 44 %, „die meisten Gäste in diesem Zimmer“ 49 %. Soziale Bewährtheit wirkt umso stärker, je ähnlicher die Referenzgruppe ist.",
       kernpunkte: [
         "Goldstein, Cialdini und Griskevicius (2008): Umwelt-Appell 35 %, „die meisten Gäste“ 44 %, „die meisten Gäste in diesem Zimmer“ 49 % Handtuch-Wiederverwendung.",
         "Negative soziale Bewährtheit („viele zahlen zu spät“) normalisiert das unerwünschte Verhalten.",
@@ -129,6 +131,7 @@ KURSE.push({
         "Anwenden des Prinzips Einheit, indem du eine echte gemeinsame Gruppe mit dem Kunden benennst."
       ],
       vorfrage: "Warum ist ein Keks aus einem Glas, das gerade von zehn auf zwei Kekse geleert wurde, mehr wert als derselbe Keks aus einem Glas, in dem immer nur zwei lagen?",
+      vorfrageAntwort: "Worchel, Lee und Adewole (1975): Der Keks aus dem geleerten Glas wurde am höchsten bewertet, besonders wenn andere die Kekse genommen hatten. Erlebter Verlust an Verfügbarkeit plus Nachfrage anderer wirkt stärker als bloße Seltenheit.",
       kernpunkte: [
         "Worchel, Lee und Adewole (1975): Zwei Kekse schlagen zehn; von zehn auf zwei reduziert schlägt beides, am stärksten, wenn andere die Kekse genommen haben.",
         "Cialdini führt Knappheit auf Verlustaversion zurück: Ein drohender Verlust motiviert stärker als ein gleich großer Gewinn.",
@@ -184,6 +187,7 @@ KURSE.push({
         "Einordnen, welche Befunde Kahnemans robust repliziert sind und welche nicht."
       ],
       vorfrage: "Warum wählen 84 % der Leser ein Kombi-Abo, sobald eine offensichtlich sinnlose dritte Option daneben steht, aber nur 32 % ohne sie?",
+      vorfrageAntwort: "Ariely (2008): Mit der Print-Option (Decoy) wählten 84 % das Kombi-Abo, ohne sie 32 %. Die sinnlose Option macht das Kombi-Paket zum offensichtlichen Gewinner im Vergleich, obwohl sich am Angebot nichts ändert.",
       kernpunkte: [
         "Tversky und Kahneman (1974): Nach Glücksrad-Anker 10 schätzten Probanden 25 % afrikanische UN-Staaten, nach Anker 65 schätzten sie 45 %.",
         "Prospect Theory (1979): Ein Verlust wiegt etwa doppelt so schwer wie ein gleich großer Gewinn; Ruggeri et al. (2020) bestätigten das in 19 Ländern.",
@@ -252,6 +256,7 @@ KURSE.push({
         "Anwenden der Inversion: ein Verkaufsziel über die sicheren Wege zum Scheitern planen."
       ],
       vorfrage: "Warum kauft ein Einkäufer oft nicht das beste Produkt, und welche Frage musst du dir vor jedem Gespräch über ihn stellen?",
+      vorfrageAntwort: "Weil er auf Anreize reagiert, nicht auf Produktqualität (Munger: Reward and Punishment Superresponse). Die Frage vor jedem Gespräch: Wofür wird mein Gegenüber belohnt, und wofür bestraft?",
       kernpunkte: [
         "Munger (1995, überarbeitet 2005): 25 psychologische Tendenzen, die zu Fehlurteilen führen; die stärkste ist die Reaktion auf Anreize.",
         "„Show me the incentive and I will show you the outcome“: Frag immer, wofür dein Gegenüber belohnt wird.",

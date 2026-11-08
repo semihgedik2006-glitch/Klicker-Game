@@ -15,6 +15,7 @@ KURSE.push({
         "Beschreiben, warum Ambiverts in Grants Studie mehr verkauften als stark Extrovertierte."
       ],
       vorfrage: "Warum verkaufen Ambiverts besser als stark Extrovertierte, obwohl Extrovertierte redegewandter sind?",
+      vorfrageAntwort: "Grant (2013): Bei 340 Callcenter-Verkäufern verkauften Ambiverte am meisten. Stark Extrovertierte reden zu viel und hören zu wenig zu; die Kurve von Extraversion zu Umsatz ist ein umgekehrtes U.",
       kernpunkte: [
         "Pink (2012): Berufstätige verbringen rund 40 % ihrer Arbeitszeit mit „Non-Sales Selling“, also Überzeugen ohne Geldfluss.",
         "Verkaufen heißt, jemanden von Zustand A nach Zustand B zu führen, so dass er die Entscheidung als seine eigene empfindet.",
@@ -71,6 +72,7 @@ KURSE.push({
         "Umdeuten eines Neins in eine Information und die eine passende Nachfrage stellen."
       ],
       vorfrage: "Warum tut ein „Nein“ körperlich weh, und was folgt daraus für das Training gegen die Angst davor?",
+      vorfrageAntwort: "Eisenberger et al. (2003): Soziale Ablehnung aktiviert den anterioren cingulären Cortex, der auch körperlichen Schmerz verarbeitet. Daraus folgt Exposition: wiederholte, dosierte Konfrontation mit Neins, denn Vermeidung verstärkt die Angst.",
       kernpunkte: [
         "Eisenberger et al. (2003): Soziale Ablehnung aktiviert im fMRT den anterioren cingulären Cortex, der auch bei körperlichem Schmerz aktiv ist.",
         "Exposition, also wiederholte kontrollierte Konfrontation, ist die am besten belegte Methode gegen Angst; Vermeidung verstärkt sie.",
@@ -125,6 +127,7 @@ KURSE.push({
         "Anwenden der drei Prüffragen (Muster, Umstände, Überprüfbarkeit) auf ein beliebiges Zitat."
       ],
       vorfrage: "Warum ist „Ich habe nie aufgegeben“ als Erfolgsrezept eines Milliardärs wertlos, obwohl der Satz wahr ist?",
+      vorfrageAntwort: "Weil nur die Überlebenden davon erzählen: Die vielen, die genauso nie aufgaben und scheiterten, haben keine Biografie (Survivorship Bias). Ein Muster zählt erst, wenn es unabhängig genannt, überprüfbar und kopierbar ist.",
       kernpunkte: [
         "Wald (1943): Zurückgekehrte Bomber zeigen nur die Treffer, die man überlebt; gepanzert werden müssen die Stellen ohne Löcher.",
         "Survivorship Bias: Wir sehen die Gewinner, die Verlierer mit derselben Strategie haben keine Biografie.",
@@ -182,6 +185,7 @@ KURSE.push({
         "Formulieren eines Wenn-Dann-Plans für ein eigenes Verkaufsziel."
       ],
       vorfrage: "Warum macht es einen messbaren Unterschied, ob man sich vor einem Auftritt „Ich bin ruhig“ oder „Ich bin aufgeregt“ sagt?",
+      vorfrageAntwort: "Brooks (2014): „Ich bin aufgeregt“ verbesserte Singen, Reden und Rechnen, „Ich bin ruhig“ nicht. Erregung lässt sich nicht abschalten, nur umdeuten; der hohe Puls wird zur Bereitschaft statt zur Bedrohung.",
       kernpunkte: [
         "Bandura (1977): Die stärkste Quelle von Selbstwirksamkeit sind eigene Erfolgserlebnisse, nicht Zuspruch.",
         "Brooks (2014): „Ich bin aufgeregt“ verbesserte die Leistung beim Singen, Reden und Rechnen, „Ich bin ruhig“ nicht.",

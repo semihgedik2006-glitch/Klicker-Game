@@ -15,6 +15,7 @@ KURSE.push({
         "Anwenden, wie du die Aktionsschwelle eines Kunden senkst und seine Schmerzschwelle erhöhst, ohne Druck auszuüben."
       ],
       vorfrage: "Was muss ein Kunde laut Belfort auf drei Skalen jeweils mindestens empfinden, bevor er kauft, und was passiert, wenn er nur mit dem Kopf, aber nicht mit dem Bauch überzeugt ist?",
+      vorfrageAntwort: "Auf den Skalen Produkt, Verkäufer und Firma jeweils nahe der 10, und zwar logisch und emotional. Nur logische Gewissheit führt zu „Ich denke darüber nach“, nur emotionale zu Kaufreue.",
       kernpunkte: [
         "Belfort (Way of the Wolf, 2017): Jedes Gespräch ist eine Linie von Punkt A (Eröffnung) zu Punkt B (Abschluss); der Kunde darf nur innerhalb enger Grenzen abweichen.",
         "Die drei Zehnen: Produkt, Verkäufer und Firma müssen auf einer Skala von 1 bis 10 jeweils nahe der 10 stehen, und zwar logisch und emotional.",
@@ -77,6 +78,7 @@ KURSE.push({
         "Anwenden, wie du dich vor einem Gespräch mit belegten Techniken in einen Zustand von Gewissheit bringst, statt dich auf NLP-Anker zu verlassen."
       ],
       vorfrage: "Wie schnell bildet sich ein Mensch ein erstes Urteil über dein Gesicht, und welche drei Eigenschaften sollte dein Kunde laut Belfort in den ersten Sekunden an dir wahrnehmen?",
+      vorfrageAntwort: "Nach etwa 100 Millisekunden (Willis und Todorov 2006). Belfort verlangt in den ersten vier Sekunden drei Eindrücke: messerscharf, begeistert und Experte im Fach.",
       kernpunkte: [
         "Belfort: In den ersten vier Sekunden muss der Kunde dich als messerscharf, begeistert und als Experten wahrnehmen (sharp as a tack, enthusiastic as hell, expert in your field).",
         "Willis und Todorov (2006): Ein Urteil über Vertrauenswürdigkeit entsteht schon nach 100 Millisekunden; Ambady und Rosenthal (1992) zeigten, dass Sekundenbruchteile Verhalten erstaunlich gut vorhersagen.",
@@ -147,6 +149,7 @@ KURSE.push({
         "Erklären, warum ein ausgearbeitetes Skript die Aufmerksamkeit für den Kunden freimacht, und ein eigenes Skript nach Belforts Regeln aufbauen."
       ],
       vorfrage: "Ein Kunde sagt nach deiner Präsentation „Ich muss darüber nachdenken“. Was ist nach Belfort der wahrscheinliche Grund dahinter, und was wäre deine erste Frage?",
+      vorfrageAntwort: "Nach Belfort fast nie der echte Grund, sondern zu niedrige Gewissheit auf einer der drei Skalen (Produkt, Verkäufer, Firma). Erste Frage des Loops: „Gefällt Ihnen die Idee grundsätzlich?“",
       kernpunkte: [
         "Fünf Phasen: Eröffnung (vier Sekunden), Intelligence Gathering, Präsentation, Looping bei Einwänden, Abschluss.",
         "Belfort: „Ich muss nachdenken“ ist fast nie der echte Grund, sondern niedrige Gewissheit auf einer der drei Skalen; der Loop beginnt mit „Gefällt Ihnen die Idee grundsätzlich?“.",

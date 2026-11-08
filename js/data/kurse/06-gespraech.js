@@ -15,6 +15,7 @@ KURSE.push({
         "Unterscheiden Power-, Prize- und Time-Frame nach Klaff und einem Power-Frame des Kunden begegnen, ohne sich zu unterwerfen."
       ],
       vorfrage: "Was sollte ein Verkäufer in den ersten 30 Sekunden eines Erstgesprächs sagen, damit er das Gespräch führt, ohne den Kunden zu überfahren?",
+      vorfrageAntwort: "Einen Agenda-Frame: Struktur, Zeit und Ziel des Gesprächs nennen und mit „Passt das für Sie?“ das erste kleine Ja holen. Danach sofort in die Bedarfsanalyse, denn die Eröffnung entscheidet weniger als gedacht (Rackham).",
       kernpunkte: [
         "Rackham (1988): In großen Verkäufen entscheidet die Eröffnung weniger als gedacht; wichtig ist, schnell in die Bedarfsanalyse zu kommen.",
         "Vorbereitung heißt: Person recherchieren, drei Problemhypothesen, ein Ziel für dieses Gespräch, ein nächster Schritt.",
@@ -76,6 +77,7 @@ KURSE.push({
         "Einordnen, dass die Challenger-Daten eine Beratungsstudie auf Basis von Manager-Einschätzungen sind, nicht peer-reviewed."
       ],
       vorfrage: "Welcher Verkäufertyp, glaubst du, hat in der CEB-Befragung von über 6.000 Vertriebsmitarbeitern am schlechtesten abgeschnitten, und warum könnte gerade dieser Typ Kunden nicht überzeugen?",
+      vorfrageAntwort: "Der Relationship Builder: nur 7 % der Top-Performer, bei komplexen Verkäufen am schwächsten. Er vermeidet Spannung und bringt keine neue Einsicht; Kunden kaufen bei dem, der ihnen etwas über ihr eigenes Geschäft beibringt.",
       kernpunkte: [
         "Dixon und Adamson (2011) werteten für die CEB Manager-Einschätzungen zu über 6.000 Verkäufern in rund 90 Unternehmen aus: Beratungsstudie, nicht peer-reviewed.",
         "Unter den Top-Performern waren etwa 39 % Challenger und nur 7 % Relationship Builder; bei komplexen Verkäufen lag der Challenger-Anteil über 50 %.",
@@ -145,6 +147,7 @@ KURSE.push({
         "Erklären mit O'Keefe (1999) und Banas und Rains (2010), warum man Gegenargumente selbst ansprechen und entkräften sollte."
       ],
       vorfrage: "Der Kunde sagt „Das ist mir zu teuer“. Welche Frage solltest du stellen, bevor du auch nur ein Wort über den Wert verlierst, und was verrät dir die Antwort?",
+      vorfrageAntwort: "Die Isolationsfrage: „Wenn der Preis kein Thema wäre, würden Sie es dann machen?“ Ein Ja zeigt, dass es wirklich um Geld geht; ein Zögern verrät den echten Einwand dahinter (Bedarf, Vertrauen, Eile oder Befugnis).",
       kernpunkte: [
         "Hinter fast allen Einwänden stecken fünf Gründe: kein Bedarf, kein Vertrauen, kein Geld, keine Eile, keine Entscheidungsbefugnis.",
         "LAER: Listen, Acknowledge (labeln, nie „Ja, aber“), Explore (spiegeln, isolieren), Respond (kurz, mit Beleg, dann Kontrollfrage).",
@@ -222,6 +225,7 @@ KURSE.push({
         "Erklären, warum nach dem Ja nicht weiterverkauft wird und wie eine Bestätigung binnen 24 Stunden Kaufreue vorbeugt."
       ],
       vorfrage: "Ein Erstgespräch endet mit „Klingt gut, melden Sie sich mal“. Ist das ein Erfolg? Woran erkennst du den Unterschied zwischen einem echten Fortschritt und einer höflichen Vertagung?",
+      vorfrageAntwort: "Nein, das ist nach Rackham eine Vertagung: nur Wohlwollen, keine Handlung. Ein Fortschritt liegt vor, wenn der Kunde etwas tut, das den Verkauf voranbringt, etwa einen Termin mit dem Entscheider oder Zahlen bis Freitag.",
       kernpunkte: [
         "Rackham (1988): Aggressive Closing-Techniken schaden bei großen Verkäufen; was zählt, ist ein klarer Vorschlag für den nächsten Schritt.",
         "Rackhams vier Gesprächsausgänge: Auftrag, Fortschritt (Kunde handelt), Vertagung (nur Wohlwollen), Absage. Nur Fortschritt zählt als Erfolg im Erstgespräch.",
