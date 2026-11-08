@@ -195,7 +195,7 @@ window.MILLIARDAERE = [
     ], mythen: []
   },
   { id: "hoffman", name: "Reid Hoffman", firma: "LinkedIn", kategorie: "tech", prio: false, kurz: "Gründer von LinkedIn.",
-    zitate: [ { en: "If you are not embarrassed by the first version of your product, you've launched too late.", de: "Wenn dir die erste Version deines Produkts nicht peinlich ist, hast du zu spät gestartet.", quelle: "Von Hoffman vielfach wiederholt und bestätigt (u. a. Masters of Scale); Erstquelle mit Datum nicht gesichert", status: "buch", lektion: "Raus zum Kunden, bevor alles perfekt ist.", thema: "mindset" } ], mythen: [] },
+    zitate: [ { en: "If you are not embarrassed by the first version of your product, you've launched too late.", de: "Wenn dir die erste Version deines Produkts nicht peinlich ist, hast du zu spät gestartet.", quelle: "Hoffman selbst in Masters of Scale, Folge „Imperfect is perfect“ (2017); als Rat schon in seinen Vorträgen ab 2009 belegt", status: "primaer", lektion: "Raus zum Kunden, bevor alles perfekt ist.", thema: "mindset" } ], mythen: [] },
   { id: "kamprad", name: "Ingvar Kamprad", firma: "IKEA", kategorie: "unternehmer", prio: false, kurz: "Gründer von IKEA.",
     zitate: [ { en: "Only those who are asleep make no mistakes.", de: "Nur wer schläft, macht keine Fehler.", quelle: "„The Testament of a Furniture Dealer“ (1976)", status: "buch", lektion: "", thema: "mindset" } ], mythen: [] },
   { id: "bosch", name: "Robert Bosch", firma: "Bosch", kategorie: "unternehmer", prio: false, kurz: "Gründer von Bosch.",
