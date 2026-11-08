@@ -372,7 +372,7 @@ ${fw ? `## Gewähltes Framework ${fw.id}: ${fw.name}\n${fw.text}\nSchritte (eine
       h.push({ role: 'assistant', content: out }); VA.touch(); VA.save();
       if (mode === 'rollenspiel' && /BEWERTUNG/.test(out)) saveRating(out);
       if (mode === 'fall' && /BEWERTUNG FALL/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*18/); const r = VA.S.drills['fall_' + fall.id]; if (m && r && r.length) { r[r.length - 1].coach = Number(m[1]); VA.touch(); VA.save(); } }
-      if (mode === 'einwand' && /BEWERTUNG EINWAND/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*40/); const falle = /Falle vermieden[^\n]*:\s*ja/i.test(out); const pts = m ? Number(m[1]) : 0; (VA.S.drills['ew_' + einwand.id] = VA.S.drills['ew_' + einwand.id] || []).push({ ts: Date.now(), wert: pts >= 28 && falle ? 2 : pts >= 20 ? 1 : 0, coach: pts, antwort: '(Coach-Gespräch)' }); VA.touch(); VA.save(); }
+      if (mode === 'einwand' && /BEWERTUNG EINWAND/.test(out)) { const m = out.match(/Gesamt:\s*(\d+)\s*\/\s*40/); const falle = /Falle vermieden[^\n]*:\s*ja/i.test(out); const pts = m ? Number(m[1]) : 0; const erste = (h.find(x => x.role === 'user' && !/^ENDE$/i.test(x.content.trim())) || {}).content; (VA.S.drills['ew_' + einwand.id] = VA.S.drills['ew_' + einwand.id] || []).push({ ts: Date.now(), wert: pts >= 28 && falle ? 2 : pts >= 20 ? 1 : 0, coach: pts, antwort: erste ? erste.slice(0, 400) : '(Coach-Gespräch)' }); VA.touch(); VA.save(); }
     } catch (e) {
       const el = document.getElementById(id); if (e.name === 'AbortError') { if (el) el.remove(); } else { if (el) el.querySelector('.body').innerHTML = `<span class="err">${esc(e.message)}</span>`; }
     }

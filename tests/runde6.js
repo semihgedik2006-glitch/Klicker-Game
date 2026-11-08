@@ -29,11 +29,11 @@ const { chromium } = require('playwright'); const path = require('path');
   console.log('Einwände:', await page.evaluate(() => document.querySelectorAll('.card.clickable').length), '(erwartet 16)');
   await page.evaluate(() => { location.hash = '#/einwaende/teuer'; }); await page.waitForTimeout(300);
   await page.fill('.ew-form textarea', 'kurz'); await page.click('.ew-form button[type=submit]'); await page.waitForTimeout(200);
-  console.log('Zu kurze Antwort abgewiesen:', await page.evaluate(() => !document.querySelector('[data-act="ew-wert"]')) ? 'OK' : 'FEHLER');
+  console.log('Zu kurze Antwort abgewiesen:', await page.evaluate(() => !document.querySelector('form.ew-rubrik')) ? 'OK' : 'FEHLER');
   await page.fill('.ew-form textarea', 'Ich verstehe, dass der Preis Ihnen hoch vorkommt. Womit vergleichen Sie ihn, damit ich einordnen kann, wo der Unterschied liegt?');
   await page.click('.ew-form button[type=submit]'); await page.waitForTimeout(300);
   console.log('Muster und Falle sichtbar:', await page.evaluate(() => document.querySelectorAll('.callout.practice, .callout.warn').length) >= 2 ? 'OK' : 'FEHLER');
-  await page.click('[data-act="ew-wert"][data-wert="1"]'); await page.waitForTimeout(300);
+  await page.check('form.ew-rubrik input[value="zuhoeren"]'); await page.check('form.ew-rubrik input[value="erkunden"]'); await page.click('form.ew-rubrik button[type=submit]'); await page.waitForTimeout(300);
   console.log('Selbstbewertung gespeichert:', await page.evaluate(() => JSON.stringify(window.VA.S.drills.ew_teuer.map(x => x.wert))));
   // Coach-Modus Einwand (ohne Schlüssel nur Titel)
   await page.evaluate(() => { location.hash = '#/coach?einwand=teuer'; }); await page.waitForTimeout(500);
