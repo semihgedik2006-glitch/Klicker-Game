@@ -10,19 +10,20 @@ const claude = new Anthropic({ apiKey: env("ANTHROPIC_API_KEY") });
 const MODELL = env("JARVIS_MODELL") || "claude-opus-5-5";
 const FUNKTIONS_URL = `${env("SUPABASE_URL")}/functions/v1/jarvis`;
 
-const GRUNDREGELN = `Du bist Jarvis, der persönliche Assistent von Semih. Du sprichst Deutsch, duzt ihn und klingst wie ein ruhiger, direkter Stabschef: knapp, konkret, ohne Floskeln und ohne Emojis.
+const GRUNDREGELN = `Du bist Jarvis, der persönliche Assistent von Semih. Du sprichst Deutsch, duzt ihn und klingst wie ein ruhiger, aufmerksamer Assistent: knapp, konkret, freundlich, ohne Floskeln und ohne Emojis.
 
-Deine Aufgaben:
-- Woche und Tage organisieren: Prioritäten setzen, Zeitblöcke vorschlagen, an Termine und Zusagen erinnern.
-- Den 12-Monats-Plan tragen: jeden Sonntag die 5 Zahlen abfragen (Ansprachen, Gespräche, Angebote, neue Kunden plus Umsatz, Stunden), mit den Vorwochen vergleichen und eine klare nächste Woche ableiten.
-- Ihn vermarkten helfen: Posts, Reels-Ideen, Bio-Texte und Ansprache-Nachrichten für sein Personal Training und später seine KI-Angebote entwerfen, passend zu Köln und seiner Zielgruppe.
-- Ehrlich bleiben: keine Erfolgsversprechen, keine Hype-Ratschläge. Wenn du etwas nicht weißt, sag es. Rechne mit seinem echten Budget.
+Du bist für sein ganzes Leben da, nicht nur fürs Business:
+- Alltag organisieren: Arbeitsschichten, Uni, Seminare, Prüfungen, Training, Termine und Privates im Blick behalten, Konflikte erkennen, Zeitblöcke vorschlagen, rechtzeitig erinnern.
+- Mitdenken: Fristen, Lernphasen, Einkäufe, Rückrufe, Geburtstage. Frag nach, wenn eine Info fehlt, statt zu raten.
+- Fragen beantworten, recherchieren, Texte und Nachrichten entwerfen, Entscheidungen mit ihm durchdenken.
+- Business ist ein Teil davon: Er baut nebenher sein Personal Training auf. Sonntags fragst du kurz die 5 Zahlen ab (Ansprachen, Gespräche, Angebote, neue Kunden plus Umsatz, Stunden). Sonst sprichst du Business nur an, wenn er es tut oder es in seinen Tag passt. Keine ungefragten Verkaufs- oder Marketingtipps.
+- Ehrlich bleiben: keine Hype-Ratschläge. Wenn du etwas nicht weißt oder nicht kannst, sag es. Einen Kalenderzugriff hast du noch nicht, Termine kennst du nur aus dem Gedächtnis.
 
 Gedächtnis:
-- Speichere mit "merken" alles, was später nützt: Ziele, Kunden, Termine, Vorlieben, Ergebnisse, Zusagen. Kurz und als eigenständiger Satz.
+- Speichere mit "merken" alles, was später nützt: feste Zeiten (Arbeit, Uni, Training), Termine, Menschen, Vorlieben, Ziele, Zusagen. Kurz und als eigenständiger Satz, Termine immer mit Datum und Uhrzeit.
 - Markiere mit "vergessen" Einträge, die erledigt oder veraltet sind.
-- Wochenzahlen immer mit "wochenzahlen_speichern" ablegen, sobald er sie nennt.
-- Erinnerungen zu einer Uhrzeit mit "erinnerung_planen" anlegen (Zeitzone Europe/Berlin).
+- Wochenzahlen mit "wochenzahlen_speichern" ablegen, sobald er sie nennt.
+- Erinnerungen zu einer Uhrzeit mit "erinnerung_planen" anlegen (Zeitzone Europe/Berlin). Bei Terminen von dir aus eine sinnvolle Vorab-Erinnerung anbieten.
 - Erwähne das Speichern nicht jedes Mal, nur wenn er fragt.
 
 Antworten erscheinen in Telegram: reiner Text ohne Markdown, meist unter 120 Wörtern. Längere Texte nur, wenn er einen Entwurf oder Plan verlangt.`;
@@ -30,13 +31,13 @@ Antworten erscheinen in Telegram: reiner Text ohne Markdown, meist unter 120 Wö
 const WERKZEUGE: Anthropic.Tool[] = [
   {
     name: "merken",
-    description: "Speichert eine dauerhafte Information über Semih, seine Pläne, Kunden oder Termine.",
+    description: "Speichert eine dauerhafte Information über Semih: Alltag, feste Zeiten, Termine, Menschen, Vorlieben, Ziele oder Business.",
     input_schema: {
       type: "object",
       properties: {
         kategorie: {
           type: "string",
-          enum: ["person", "ziel", "plan", "kunde", "termin", "aufgabe", "vorliebe", "ergebnis", "marketing", "finanzen"],
+          enum: ["person", "alltag", "arbeit", "uni", "termin", "aufgabe", "mensch", "vorliebe", "ziel", "plan", "kunde", "ergebnis", "marketing", "finanzen"],
         },
         inhalt: { type: "string", description: "Ein eigenständiger Satz, höchstens 300 Zeichen." },
       },
@@ -378,7 +379,7 @@ async function takt() {
     if (anrufMoeglich()) {
       await anrufen("Wochen-Check am Sonntag: 5 Zahlen abfragen, kurz auswerten, nächste Woche planen.");
     } else {
-      await auftrag("Starte den Wochen-Check: Frag Semih nach den 5 Zahlen dieser Woche, kurz und als Liste zum Ausfüllen.");
+      await auftrag("Sonntagabend: Frag Semih kurz nach seinen festen Terminen nächste Woche (Arbeit, Uni, Seminare) und nach den 5 Zahlen dieser Woche, als Liste zum Ausfüllen.");
     }
     return;
   }
@@ -389,8 +390,8 @@ async function takt() {
     await einstellungSpeichern("morgen_erledigt", jetzt.datum);
     await auftrag(
       jetzt.wochentag === "Montag"
-        ? "Montagmorgen: Schlag Semih einen Wochenplan vor, abgeleitet aus dem letzten Wochen-Check und seinen offenen Aufgaben. Höchstens drei Prioritäten, je mit einem konkreten ersten Schritt. Frag am Ende, ob er etwas ändern will."
-        : "Morgen-Briefing: Höchstens drei Punkte für heute, die ihn im Plan voranbringen, plus anstehende Termine oder Erinnerungen. Wenn heute nichts Wichtiges ansteht, ein einziger Satz.",
+        ? "Montagmorgen: Gib Semih einen Überblick über die Woche: feste Termine (Arbeit, Uni, Seminare), Fristen und offene Aufgaben aus dem Gedächtnis, dazu höchstens drei Prioritäten. Wenn du seine Zeiten diese Woche nicht kennst, frag danach. Frag am Ende, ob er etwas ändern will."
+        : "Morgen-Briefing: Was heute ansteht (Termine, Arbeit, Uni, Erinnerungen, Fristen) und höchstens zwei Dinge, die heute wichtig sind. Wenn heute nichts ansteht, ein einziger freundlicher Satz.",
     );
   }
 }
