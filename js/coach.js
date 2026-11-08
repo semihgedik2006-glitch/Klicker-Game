@@ -100,6 +100,7 @@ Deine Rolle (Persona): ${s.persona}
 Verdeckte Informationen (nur bei verdienten Fragen preisgeben): ${s.verdeckt}
 Ziel des Schülers: ${s.ziel}
 Pflichtkriterien des Schülers: ${s.pflicht.map((p, i) => (i + 1) + '. ' + p).join(' ')}
+${(() => { const p = (VA.S.rpPlan || {})[s.id]; return p ? `Vorbereitung des Schülers (nur für deine Bewertung, nie in der Rolle erwähnen): Ziel: ${p.ziel} | Erster Satz: ${p.erste} | Grenze: ${p.grenze}. Prüfe in der Bewertung unter „Vorbereitung“, ob er Ziel und Grenze gehalten hat, und benenne die Stelle, an der er davon abgewichen ist.` : 'Der Schüler hat keine Vorbereitung notiert. Zieh dafür unter „Vorbereitung“ Punkte ab und empfiehl am Ende die drei Zeilen (Ziel, erster Satz, Grenze).'; })()}
 
 Eröffne das Gespräch sofort in der Rolle mit dem ersten Satz der Situation.\n\n${userContext()}`;
   }

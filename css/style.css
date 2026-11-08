@@ -392,3 +392,14 @@ details.muster { margin: 14px 0; } details.muster summary { cursor: pointer; col
   .sb-row.mine { background: #f3eedd; } .sb-row .lbl { color: #666; } .sb-row.mine .lbl { color: #7a5c14; } .sb-row.falle .lbl { color: #8a2a2a; }
   .card.sb h3, .hero h1 { color: #111; } .hero .lead, .meta, .muted { color: #444; } details.muster { display: none; } .tag { border: 1px solid #999; color: #333; }
 }
+
+/* Rollenspiel-Vorbereitung */
+.card.rp-plan { border-color: var(--gold); margin: 16px 0; }
+.rp-plan-form label { display: block; margin: 10px 0; }
+/* Checklisten drucken */
+.checklisten { display: grid; gap: 16px; }
+@media print {
+  .checklisten .card { break-inside: avoid; border-color: #bbb; background: #fff; color: #111; }
+  .checklisten .check { color: #111; } .checklisten .check input { accent-color: #111; }
+  .checklisten h3, .hero h1 { color: #111; } .checklisten .meta { color: #666; }
+}
