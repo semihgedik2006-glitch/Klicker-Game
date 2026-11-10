@@ -53,15 +53,15 @@ window.KONTRASTE = [
       { situation: 'Zwei Bewerber geben identische Antworten. Der im gut sitzenden Anzug wird in der Bewertung als „analytisch stärker“ eingestuft.', richtig: 1, warum: 'Ein unverbundenes Merkmal (Kleidung) färbt auf das Urteil über Analysefähigkeit ab. Das ist der Halo-Effekt.' },
       { situation: 'Ein Kunde entscheidet nach dem Händedruck innerlich, dass er dem Verkäufer nicht traut. Die folgende Präsentation ändert daran nichts.', richtig: 0, warum: 'Das Urteil fiel in den ersten Augenblicken. Die weitere Information machte es nur sicherer, nicht anders.' }
     ] },
-  { id: 'spin', titel: 'Situations-, Problem-, Implikations- oder Nutzenfrage?', lektion: 'f1',
+  { id: 'spin', titel: 'Situations-, Problem-, Implikations- oder Need-Payoff-Frage?', lektion: 'f1',
     frage: 'Die vier Fragetypen nach Rackham. Die ersten beiden kann jeder, die letzten beiden unterscheiden Spitzenverkäufer.',
     begriffe: [
       { name: 'Situationsfrage', kern: 'Fakten über den Ist-Zustand sammeln.', wirkung: 'Nötig, aber langweilig für den Kunden. Spitzenverkäufer stellen wenige davon.', wann: 'Nur, was du nicht vorher recherchieren konntest.' },
       { name: 'Problemfrage', kern: 'Nach Schwierigkeiten, Unzufriedenheit, Lücken fragen.', wirkung: 'Macht den latenten Bedarf sichtbar. Reicht bei kleinen Verkäufen oft aus.', wann: 'Sobald du die Situation grob kennst.' },
       { name: 'Implikationsfrage', kern: 'Nach den Folgen des Problems fragen: Kosten, Zeit, Wirkung auf andere.', wirkung: 'Macht das Problem groß genug, dass es die Lösung wert ist. Stärkster Prädiktor für Erfolg bei großen Verkäufen.', wann: 'Wenn ein Problem genannt wurde, der Kunde es aber als klein empfindet.' },
-      { name: 'Nutzenfrage', kern: 'Den Kunden den Wert der Lösung selbst aussprechen lassen.', wirkung: 'Der Kunde argumentiert für dich. Reduziert Einwände, weil er es gesagt hat, nicht du.', wann: 'Wenn das Problem groß geworden ist und die Lösung noch nicht genannt wurde.' }
+      { name: 'Need-Payoff-Frage (Nutzenfrage)', kern: 'Den Kunden den Wert der Lösung selbst aussprechen lassen.', wirkung: 'Der Kunde argumentiert für dich. Reduziert Einwände, weil er es gesagt hat, nicht du.', wann: 'Wenn das Problem groß geworden ist und die Lösung noch nicht genannt wurde.' }
     ],
-    faustregel: 'Was ist? = Situation. Was stört? = Problem. Was kostet es? = Implikation. Was brächte es? = Nutzen.',
+    faustregel: 'Was ist? = Situation. Was stört? = Problem. Was kostet es? = Implikation. Was brächte es? = Need-Payoff.',
     faelle: [
       { situation: '„Wie viele Stunden gehen Ihrem Team pro Woche mit der Nachbearbeitung verloren, und was bedeutet das für die Termintreue bei den anderen Kunden?“', richtig: 2, warum: 'Die Frage zielt auf die Folgen des Problems, nicht auf das Problem selbst. Sie macht es größer und teurer.' },
       { situation: '„Wenn die Nachbearbeitung auf eine Stunde pro Woche sänke, was würden Sie mit der gewonnenen Zeit machen?“', richtig: 3, warum: 'Der Kunde formuliert den Nutzen der Lösung selbst. Das ist die Frage, die vor dem Angebot kommt.' },
@@ -84,18 +84,18 @@ window.KONTRASTE = [
       { situation: '„Klingt gut, aber woher weiß ich, dass das bei uns auch so läuft wie in Ihrer Präsentation?“', richtig: 1, warum: 'Der Kunde zweifelt an der Glaubwürdigkeit. Hier helfen Referenzen aus seiner Branche, Zahlen und eine Risikoumkehr.' },
       { situation: '„Das machen wir dann im nächsten Quartal, jetzt ist gerade viel los.“', richtig: 3, warum: 'Keine Dringlichkeit. Rechne die Kosten des Wartens in seinen Zahlen vor und vereinbare ein konkretes Datum.' }
     ] },
-  { id: 'challenger', titel: 'Challenger, Beziehungsbauer oder Fleißiger?', lektion: 'v2',
+  { id: 'challenger', titel: 'Challenger, Relationship Builder oder Hard Worker?', lektion: 'v2',
     frage: 'Drei der fünf Verkäufertypen aus der Dixon-&-Adamson-Studie an 6.000 Verkäufern. Nur einer gewinnt bei komplexen Verkäufen überdurchschnittlich.',
     begriffe: [
       { name: 'Challenger', kern: 'Bringt dem Kunden eine neue Einsicht über sein Geschäft, passt die Botschaft an und übernimmt die Kontrolle über das Gespräch.', wirkung: '39 % der Spitzenverkäufer bei komplexen Verkäufen, der häufigste Typ unter den Besten.', wann: 'Wenn der Kunde glaubt, sein Problem schon zu verstehen.' },
-      { name: 'Beziehungsbauer', kern: 'Vermeidet Spannung, ist großzügig mit Zeit, will gemocht werden.', wirkung: 'Nur 7 % der Spitzenverkäufer bei komplexen Verkäufen, der seltenste Typ unter den Besten.', wann: 'Funktioniert bei einfachen Verkäufen, scheitert, wenn der Kunde Orientierung braucht.' },
-      { name: 'Fleißiger', kern: 'Macht mehr Anrufe, mehr Termine, gibt nicht auf, motiviert sich selbst.', wirkung: 'Solide, aber kein überdurchschnittlicher Anteil unter den Besten bei komplexen Verkäufen.', wann: 'Volumen hilft bei transaktionalen Verkäufen, ersetzt aber keine Einsicht.' }
+      { name: 'Relationship Builder (Beziehungsbauer)', kern: 'Vermeidet Spannung, ist großzügig mit Zeit, will gemocht werden.', wirkung: 'Nur 7 % der Spitzenverkäufer bei komplexen Verkäufen, der seltenste Typ unter den Besten.', wann: 'Funktioniert bei einfachen Verkäufen, scheitert, wenn der Kunde Orientierung braucht.' },
+      { name: 'Hard Worker (Fleißiger)', kern: 'Macht mehr Anrufe, mehr Termine, gibt nicht auf, motiviert sich selbst.', wirkung: 'Solide, aber kein überdurchschnittlicher Anteil unter den Besten bei komplexen Verkäufen.', wann: 'Volumen hilft bei transaktionalen Verkäufen, ersetzt aber keine Einsicht.' }
     ],
-    faustregel: 'Lehrt der Verkäufer etwas Neues und hält er Spannung aus? Dann Challenger. Vermeidet er Spannung? Beziehungsbauer. Setzt er auf Menge? Fleißiger.',
+    faustregel: 'Lehrt der Verkäufer etwas Neues und hält er Spannung aus? Dann Challenger. Vermeidet er Spannung? Relationship Builder. Setzt er auf Menge? Hard Worker.',
     faelle: [
       { situation: 'Die Verkäuferin eröffnet: „Die meisten Firmen Ihrer Größe messen Kundenzufriedenheit falsch, und das kostet sie etwa fünf Prozent Umsatz. Ich zeige Ihnen, woran Sie erkennen, ob Sie dazugehören.“', richtig: 0, warum: 'Sie bringt eine Einsicht, die der Kunde nicht hatte, und erzeugt bewusst eine produktive Spannung. Das ist der Challenger-Ansatz.' },
       { situation: 'Der Verkäufer nimmt jeden Einwand sofort zurück, lädt zum dritten Mal zum Essen ein und sagt: „Lassen Sie sich Zeit, ich will Sie nicht drängen.“', richtig: 1, warum: 'Er vermeidet jede Spannung und setzt auf Sympathie. Bei komplexen Verkäufen ist das der schwächste Typ.' },
-      { situation: 'Er telefoniert 80 Kontakte am Tag, verschickt abends noch 30 Mails und führt eine Strichliste der Neins.', richtig: 2, warum: 'Volumen und Ausdauer, aber keine neue Einsicht für den Kunden. Fleißig, nicht Challenger.' }
+      { situation: 'Er telefoniert 80 Kontakte am Tag, verschickt abends noch 30 Mails und führt eine Strichliste der Neins.', richtig: 2, warum: 'Volumen und Ausdauer, aber keine neue Einsicht für den Kunden. Hard Worker, nicht Challenger.' }
     ] },
   { id: 'knapp-verlust', titel: 'Knappheit, Verlustaversion oder Reaktanz?', lektion: 'p3',
     frage: 'Drei Effekte, die alle mit „weg sein“ zu tun haben, aber verschieden wirken und verschieden missbraucht werden.',
@@ -123,26 +123,26 @@ window.KONTRASTE = [
       { situation: '„Drei Steuerkanzleien mit zehn bis fünfzehn Mitarbeitern in Ihrer Region arbeiten seit letztem Jahr damit, im Schnitt mit vier Stunden weniger Nacharbeit pro Woche.“', richtig: 1, warum: 'Ähnliche andere tun es bereits. Je näher die Referenz an seiner Situation, desto stärker.' },
       { situation: '„Die Methode stammt aus der Studie von Rackham an 35.000 Gesprächen, nicht aus einem Ratgeber.“', richtig: 2, warum: 'Du berufst dich auf eine anerkannte Instanz. Die Wirkung kommt vom Experten, nicht von der Zahl der Anwender.' }
     ] },
-  { id: 'abschluss', titel: 'Trial Close, Abschlussfrage oder Annahme-Abschluss?', lektion: 'v4',
+  { id: 'abschluss', titel: 'Trial Close, Abschlussfrage oder bedingter Abschluss?', lektion: 'v4',
     frage: 'Drei Werkzeuge der Schlussphase. Eines prüft, zwei fordern. Wer sie verwechselt, fordert zu früh.',
     begriffe: [
       { name: 'Trial Close', kern: 'Eine Meinungsfrage, die die Temperatur misst: „Wie klingt das bisher für Sie?“', wirkung: 'Zeigt, ob der Kunde bereit ist, ohne ihn festzulegen. Ein Nein kostet nichts.', wann: 'Mehrfach im Gespräch, nach jedem Nutzenargument.' },
       { name: 'Abschlussfrage', kern: 'Die direkte Bitte um die Entscheidung: „Sollen wir es so machen?“', wirkung: 'Zwingt zur Entscheidung. Zu früh gestellt erzeugt sie Einwände.', wann: 'Erst, wenn der Trial Close positiv war und die Bedingungen (Produkt, du, Firma) erfüllt sind.' },
-      { name: 'Annahme-Abschluss', kern: 'Du handelst, als sei die Entscheidung gefallen: „Dann trage ich den Start für den 1. März ein.“', wirkung: 'Senkt die Hürde, kann aber als Überrumpelung wirken, wenn die Zustimmung fehlt.', wann: 'Nur nach klaren Kaufsignalen, sonst Reaktanz.' }
+      { name: 'Bedingter Abschluss', kern: 'Du knüpfst die Entscheidung an eine Bedingung, die du erfüllen kannst: „Wenn ich den Start zum 1. März garantiere, machen wir es dann?“', wirkung: 'Der Kunde entscheidet, aber unter einer Zusage von dir; der letzte Einwand wird in die Bedingung verwandelt statt wegdiskutiert.', wann: 'Wenn nach klaren Kaufsignalen genau eine Hürde übrig ist, die du selbst ausräumen kannst.' }
     ],
-    faustregel: 'Fragt nach Meinung = Trial Close. Fragt nach Entscheidung = Abschlussfrage. Setzt Entscheidung voraus = Annahme.',
+    faustregel: 'Fragt nach Meinung = Trial Close. Fragt nach Entscheidung = Abschlussfrage. Knüpft die Entscheidung an eine Bedingung = bedingter Abschluss.',
     faelle: [
       { situation: '„Wenn Sie das Ganze bis hierhin bewerten, was gefällt Ihnen am besten und was fehlt noch?“', richtig: 0, warum: 'Eine Meinungsfrage. Sie misst die Temperatur und legt den Kunden auf nichts fest.' },
-      { situation: 'Der Kunde fragt nach Zahlungszielen und Startterminen. Du sagst: „Dann schicke ich Ihnen heute den Vertrag mit Start am Ersten, und wir setzen den Kick-off für die zweite Woche an.“', richtig: 2, warum: 'Nach klaren Kaufsignalen handelst du, als sei entschieden. Ohne die Signale wäre das Überrumpelung.' },
+      { situation: 'Der Kunde fragt nach Zahlungszielen und Startterminen. Du sagst: „Wenn ich Ihnen den Start am Ersten und den Kick-off in der zweiten Woche fest zusage, machen wir es dann?“', richtig: 2, warum: 'Die Entscheidung wird an eine Zusage geknüpft, die du halten kannst. Nach klaren Kaufsignalen ist das ein sauberer Abschluss; ohne Signale käme die Frage zu früh.' },
       { situation: '„Wollen wir es so machen?“', richtig: 1, warum: 'Die direkte Bitte um die Entscheidung. Richtig platziert nach einem positiven Trial Close.' }
     ] },
-  { id: 'motive', titel: 'Gewinnstreben, Sicherheit, Bequemlichkeit oder Anerkennung?', lektion: 'a1',
+  { id: 'motive', titel: 'Gewinn, Sicherheit, Bequemlichkeit oder Ansehen?', lektion: 'a1',
     frage: 'Vier Kaufmotive, die sich hinter derselben Frage verstecken können. Die Argumentation muss zum Motiv passen, nicht zum Produkt.',
     begriffe: [
-      { name: 'Gewinnstreben', kern: 'Mehr Umsatz, weniger Kosten, bessere Rendite.', wirkung: 'Reagiert auf Zahlen, Rechnungen, Amortisation.', wann: 'Fragen nach ROI, Einsparung, Vergleichszahlen.' },
+      { name: 'Gewinn', kern: 'Mehr Umsatz, weniger Kosten, bessere Rendite.', wirkung: 'Reagiert auf Zahlen, Rechnungen, Amortisation.', wann: 'Fragen nach ROI, Einsparung, Vergleichszahlen.' },
       { name: 'Sicherheit', kern: 'Risiko vermeiden, nichts falsch machen, abgesichert sein.', wirkung: 'Reagiert auf Garantien, Referenzen, Standards, Ausstiegsoptionen.', wann: 'Fragen nach „Was, wenn …“, Haftung, Erfahrung anderer.' },
       { name: 'Bequemlichkeit', kern: 'Weniger Aufwand, weniger Entscheidungen, es soll einfach laufen.', wirkung: 'Reagiert auf „Wir übernehmen das“, Komplettpakete, einen Ansprechpartner.', wann: 'Fragen nach Aufwand, Einarbeitung, „Muss ich mich darum kümmern?“' },
-      { name: 'Anerkennung', kern: 'Gut dastehen, vor Chef, Team oder Markt als klug gelten.', wirkung: 'Reagiert auf Sichtbarkeit, Vorreiterrolle, Erfolgsgeschichten mit Namen.', wann: 'Fragen nach „Wer nutzt das noch?“, Präsentierbarkeit, Außenwirkung.' }
+      { name: 'Ansehen', kern: 'Gut dastehen, vor Chef, Team oder Markt als klug gelten.', wirkung: 'Reagiert auf Sichtbarkeit, Vorreiterrolle, Erfolgsgeschichten mit Namen.', wann: 'Fragen nach „Wer nutzt das noch?“, Präsentierbarkeit, Außenwirkung.' }
     ],
     faustregel: 'Hör auf die Frage hinter der Frage: Rechnet er, sichert er ab, will er Ruhe oder will er glänzen?',
     faelle: [
@@ -179,7 +179,7 @@ window.KONTRASTE = [
       { situation: 'Der Geschäftsführer sieht ein, dass dein Angebot besser und günstiger ist. Trotzdem: „Wir bleiben erst mal beim bisherigen Anbieter, läuft ja.“ Es gibt keine Investition in das alte System und kein Produkt im Besitz.', richtig: 1, warum: 'Kein Argument, keine versunkenen Kosten, nur die Trägheit des Bestehenden. Status-quo-Verzerrung. Hilfreich ist ein kleiner, umkehrbarer erster Schritt statt eines Komplettwechsels.' },
       { situation: 'Ein Autohändler lässt Interessenten das Wunschauto über das Wochenende mitnehmen. Die Abschlussquote danach ist deutlich höher.', richtig: 0, warum: 'Das Wochenende erzeugt vorübergehenden Besitz. Danach würde der Kunde das Auto „verlieren“, und Besitz wird höher bewertet als Nichtbesitz.' }
     ] },
-  { id: 'denkfehler-verkaeufer', titel: 'Fluch des Wissens, Attributionsfehler oder Bestätigungsfehler?', lektion: 'a1',
+  { id: 'denkfehler-verkaeufer', titel: 'Fluch des Wissens, Attributionsfehler oder Bestätigungsfehler?', lektion: 'a2',
     frage: 'Drei Denkfehler, die nicht beim Kunden passieren, sondern bei dir, wenn du ihn liest.',
     begriffe: [
       { name: 'Fluch des Wissens', kern: 'Wer etwas weiß, kann sich nicht mehr vorstellen, es nicht zu wissen, und erklärt zu knapp.', wirkung: 'Klopfer von Melodien schätzten, dass 50 Prozent der Zuhörer das Lied erkennen; es waren 2,5 Prozent (Newton 1990; Camerer, Loewenstein & Weber 1989).', wann: 'Wenn du Fachbegriffe benutzt, Schritte überspringst oder dich wunderst, dass der Kunde „es nicht versteht“.' },
